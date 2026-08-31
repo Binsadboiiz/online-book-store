@@ -5,6 +5,8 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>OnlineBookstore-ejb</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
+            <included-library dirs="200">file.reference.jBCrypt-0.4.3.jar</included-library>
+            <included-library dirs="200">file.reference.mssql-jdbc-13.4.0.jre11.jar</included-library>
             <source-roots>
                 <root id="src.dir" name="Source Packages"/>
             </source-roots>
