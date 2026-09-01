@@ -24,3 +24,8 @@ Thumbs.db
 
 # Logs
 *.log
+/dist/
+/OnlineBookstore-ejb/dist/
+/OnlineBookstore-war/dist/
+/OnlineBookstore-ejb/build/
+/OnlineBookstore-war/build/

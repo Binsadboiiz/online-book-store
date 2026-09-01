@@ -28,17 +28,6 @@ public class AuthService {
     
     public ApiResponse<UserResponse> register(RegisterRequest request) {
         
-        // Validate request
-        if(request == null) return ApiResponse.failed("Request cannot be null");
-        
-        if(isBlank(request.getUsername())) return ApiResponse.failed("Username is required");
-        
-        if(isBlank(request.getEmail())) return ApiResponse.failed("Email is required");
-        
-        if(isBlank(request.getPassword())) return ApiResponse.failed("Password id required");
-        
-        if(isBlank(request.getFullName())) return ApiResponse.failed("Full name is required");
-        
         // Check username
         if(userRepository.existsByUsername(request.getUsername())) return ApiResponse.failed("Username already exists");
         
@@ -72,12 +61,6 @@ public class AuthService {
     }
     
     public ApiResponse<UserResponse> login(LoginRequest request) {
-        // Validate request
-        if(request == null) return ApiResponse.failed("Request cannot be null");
-        
-        if(isBlank(request.getUsernameOrEmail())) return ApiResponse.failed("Username or Email is required");
-        
-        if(isBlank(request.getPassword())) return ApiResponse.failed("Password is required");
         
         String usernameOrEmail = request.getUsernameOrEmail().trim();
         

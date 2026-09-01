@@ -7,6 +7,12 @@
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/entities/Users.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/repositories/interfaces/IUserRepository.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/repositories/implementations/UserRepositoryImpl.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/dto/request/RegisterRequest.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/dto/request/LoginRequest.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/security/PasswordHasher.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/dto/response/ApiResponse.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/dto/response/UserResponse.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/services/AuthService.java</file>
         </group>
     </open-files>
 </project-private>
