@@ -7,6 +7,9 @@
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <included-library dirs="200">file.reference.jBCrypt-0.4.3.jar</included-library>
             <included-library dirs="200">file.reference.mssql-jdbc-13.4.0.jre11.jar</included-library>
+            <included-library dirs="200">file.reference.jjwt-api-0.13.0.jar</included-library>
+            <included-library dirs="200">file.reference.jjwt-impl-0.13.0.jar</included-library>
+            <included-library dirs="200">file.reference.jjwt-jackson-0.13.0.jar</included-library>
             <source-roots>
                 <root id="src.dir" name="Source Packages"/>
             </source-roots>
