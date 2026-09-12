@@ -20,13 +20,14 @@
         </div>
 
         <div id="standaloneBookDetail" class="card-detail-wrap">
-            <!-- Rendered dynamically by app.js -->
+            <!-- Rendered dynamically by books.js -->
         </div>
     </main>
 
     <jsp:include page="/WEB-INF/includes/footer.jsp"/>
 
-    <script src="${pageContext.request.contextPath}/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/js/core.js"></script>
+    <script src="${pageContext.request.contextPath}/js/books.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);

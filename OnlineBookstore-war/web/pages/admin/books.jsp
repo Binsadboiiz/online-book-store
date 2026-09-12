@@ -40,7 +40,7 @@
                         </tr>
                     </thead>
                     <tbody id="adminBookTableBody">
-                        <!-- Rendered dynamically via app.js -->
+                        <!-- Rendered dynamically via admin-books.js -->
                     </tbody>
                 </table>
             </section>
@@ -122,7 +122,8 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/js/core.js"></script>
+    <script src="${pageContext.request.contextPath}/js/admin-books.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (checkAdminAccessGuard()) {

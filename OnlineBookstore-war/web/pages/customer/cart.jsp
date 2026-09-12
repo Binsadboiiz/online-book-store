@@ -30,6 +30,6 @@
 
     <jsp:include page="/WEB-INF/includes/footer.jsp"/>
 
-    <script src="${pageContext.request.contextPath}/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/js/core.js"></script>
 </body>
 </html>

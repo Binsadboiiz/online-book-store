@@ -40,7 +40,7 @@
 
         <!-- Book Grid -->
         <section id="bookGrid" class="book-grid">
-            <!-- Rendered dynamically via app.js -->
+            <!-- Rendered dynamically via books.js -->
         </section>
     </main>
 
@@ -54,7 +54,8 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/app.js"></script>
+    <script src="${pageContext.request.contextPath}/js/core.js"></script>
+    <script src="${pageContext.request.contextPath}/js/books.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetchBooks('', 6);
