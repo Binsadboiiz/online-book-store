@@ -11,6 +11,7 @@ import com.onlinebookstore.order.dto.OrderResponse;
 import com.onlinebookstore.order.dto.UpdateOrderStatusRequest;
 import com.onlinebookstore.order.entity.OrderItems;
 import com.onlinebookstore.order.entity.Orders;
+import com.onlinebookstore.order.enums.OrderStatus;
 import com.onlinebookstore.order.repository.IOrderRepository;
 import com.onlinebookstore.user.entity.Users;
 import com.onlinebookstore.user.repository.IUserRepository;
@@ -94,7 +95,7 @@ public class OrderService implements IOrderService {
         order.setTotalAmount(totalAmount);
         order.setShippingFee(shippingFee);
         order.setFinalAmount(finalAmount);
-        order.setStatus("PENDING");
+        order.setStatus(OrderStatus.PENDING.name());
         order.setPaymentMethod(request.getPaymentMethod().trim());
         order.setPaymentStatus("UNPAID");
         order.setCreatedAt(now);
@@ -159,7 +160,7 @@ public class OrderService implements IOrderService {
         }
 
         if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You do not own this order");
+            return ApiResponse.failed("Access denied: You can only view your own orders");
         }
 
         return ApiResponse.success("Order details retrieved", OrderResponse.fromEntity(order));
@@ -177,7 +178,7 @@ public class OrderService implements IOrderService {
         }
 
         if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You do not own this order");
+            return ApiResponse.failed("Access denied: You can only view your own orders");
         }
 
         return ApiResponse.success("Order details retrieved", OrderResponse.fromEntity(order));
@@ -195,19 +196,20 @@ public class OrderService implements IOrderService {
         }
 
         if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You do not own this order");
+            return ApiResponse.failed("Access denied: You can only cancel your own orders");
         }
 
-        if ("CANCELLED".equalsIgnoreCase(order.getStatus())) {
-            return ApiResponse.failed("Order is already cancelled");
+        OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
+        if (currentStatus != null && currentStatus.isTerminalState()) {
+            return ApiResponse.failed("Completed, delivered, or cancelled orders cannot be modified or cancelled");
         }
 
-        if (!isAdmin && !"PENDING".equalsIgnoreCase(order.getStatus()) && !"PROCESSING".equalsIgnoreCase(order.getStatus())) {
-            return ApiResponse.failed("Order cannot be cancelled in status: " + order.getStatus());
+        if (currentStatus != null && !currentStatus.isValidTransitionTo(OrderStatus.CANCELLED)) {
+            return ApiResponse.failed("Order cannot be cancelled from status: " + order.getStatus());
         }
 
         Date now = new Date();
-        order.setStatus("CANCELLED");
+        order.setStatus(OrderStatus.CANCELLED.name());
         order.setUpdatedAt(now);
 
         // Restock inventory quantity
@@ -257,25 +259,39 @@ public class OrderService implements IOrderService {
             return ApiResponse.failed("Order not found");
         }
 
-        Date now = new Date();
-        String newStatus = request.getStatus() != null ? request.getStatus().trim() : null;
+        OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
+        if (currentStatus != null && currentStatus.isTerminalState()) {
+            return ApiResponse.failed("Order with status '" + order.getStatus() + "' is completed, delivered, or cancelled and cannot be modified");
+        }
 
-        // If changing status to CANCELLED from a non-cancelled status, restore stock
-        if (newStatus != null && "CANCELLED".equalsIgnoreCase(newStatus) && !"CANCELLED".equalsIgnoreCase(order.getStatus())) {
-            if (order.getOrderItemsCollection() != null) {
-                for (OrderItems item : order.getOrderItemsCollection()) {
-                    Books book = item.getBookId();
-                    if (book != null) {
-                        book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
-                        book.setUpdatedAt(now);
-                        bookRepository.update(book);
+        Date now = new Date();
+        String newStatusStr = request.getStatus() != null ? request.getStatus().trim() : null;
+
+        if (newStatusStr != null && !newStatusStr.isEmpty()) {
+            OrderStatus targetStatus = OrderStatus.fromString(newStatusStr);
+            if (targetStatus == null) {
+                return ApiResponse.failed("Invalid target order status: " + newStatusStr);
+            }
+
+            if (currentStatus != null && !currentStatus.isValidTransitionTo(targetStatus)) {
+                return ApiResponse.failed("Invalid status transition from '" + currentStatus.name() + "' to '" + targetStatus.name() + "'");
+            }
+
+            // Restore stock if transitioning to CANCELLED
+            if (targetStatus == OrderStatus.CANCELLED && currentStatus != OrderStatus.CANCELLED) {
+                if (order.getOrderItemsCollection() != null) {
+                    for (OrderItems item : order.getOrderItemsCollection()) {
+                        Books book = item.getBookId();
+                        if (book != null) {
+                            book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
+                            book.setUpdatedAt(now);
+                            bookRepository.update(book);
+                        }
                     }
                 }
             }
-        }
 
-        if (newStatus != null && !newStatus.isEmpty()) {
-            order.setStatus(newStatus);
+            order.setStatus(targetStatus.name());
         }
 
         if (request.getPaymentStatus() != null && !request.getPaymentStatus().trim().isEmpty()) {
@@ -286,6 +302,47 @@ public class OrderService implements IOrderService {
         Orders updatedOrder = orderRepository.update(order);
 
         return ApiResponse.success("Order status updated successfully", OrderResponse.fromEntity(updatedOrder));
+    }
+
+    @Override
+    public ApiResponse<String> deleteOrder(Integer orderId, boolean isAdmin) {
+        if (!isAdmin) {
+            return ApiResponse.failed("Access denied: Only administrators can delete orders");
+        }
+
+        if (orderId == null) {
+            return ApiResponse.failed("Invalid order ID");
+        }
+
+        Orders order = orderRepository.findById(orderId);
+        if (order == null) {
+            return ApiResponse.failed("Order not found");
+        }
+
+        OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
+        if (currentStatus != null && currentStatus.isTerminalState()) {
+            return ApiResponse.failed("Completed, delivered, or cancelled orders cannot be deleted");
+        }
+
+        // Restore stock for active uncompleted order before deletion
+        Date now = new Date();
+        if (order.getOrderItemsCollection() != null) {
+            for (OrderItems item : order.getOrderItemsCollection()) {
+                Books book = item.getBookId();
+                if (book != null) {
+                    book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
+                    book.setUpdatedAt(now);
+                    bookRepository.update(book);
+                }
+            }
+        }
+
+        boolean deleted = orderRepository.delete(orderId);
+        if (!deleted) {
+            return ApiResponse.failed("Failed to delete order");
+        }
+
+        return ApiResponse.success("Order deleted successfully", null);
     }
 
     private String generateOrderCode() {

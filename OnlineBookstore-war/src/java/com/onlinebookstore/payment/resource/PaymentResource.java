@@ -1,12 +1,12 @@
-package com.onlinebookstore.order.resource;
+package com.onlinebookstore.payment.resource;
 
 import com.onlinebookstore.common.dto.ApiResponse;
 import com.onlinebookstore.common.security.Secured;
 import com.onlinebookstore.common.security.UserPrincipal;
-import com.onlinebookstore.order.dto.CreateOrderRequest;
-import com.onlinebookstore.order.dto.OrderResponse;
-import com.onlinebookstore.order.dto.UpdateOrderStatusRequest;
-import com.onlinebookstore.order.service.IOrderService;
+import com.onlinebookstore.payment.dto.CreatePaymentRequest;
+import com.onlinebookstore.payment.dto.PaymentResponse;
+import com.onlinebookstore.payment.dto.UpdatePaymentStatusRequest;
+import com.onlinebookstore.payment.service.IPaymentService;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -25,19 +25,19 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import java.util.List;
 
-@Path("/orders")
+@Path("/payments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class OrderResource {
+public class PaymentResource {
 
     @Inject
-    private IOrderService orderService;
+    private IPaymentService paymentService;
 
     @POST
     @Secured
-    public Response createOrder(@Context SecurityContext securityContext, @Valid CreateOrderRequest request) {
+    public Response createPayment(@Context SecurityContext securityContext, @Valid CreatePaymentRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        ApiResponse<OrderResponse> result = orderService.createOrder(principal.getUserId(), request);
+        ApiResponse<PaymentResponse> result = paymentService.createPayment(principal.getUserId(), request);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }
@@ -46,19 +46,19 @@ public class OrderResource {
 
     @GET
     @Secured
-    public Response getUserOrders(@Context SecurityContext securityContext) {
+    public Response getUserPayments(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        ApiResponse<List<OrderResponse>> result = orderService.getUserOrders(principal.getUserId());
+        ApiResponse<List<PaymentResponse>> result = paymentService.getUserPayments(principal.getUserId());
         return Response.ok(result).build();
     }
 
     @GET
     @Path("/{id}")
     @Secured
-    public Response getOrderById(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
+    public Response getPaymentById(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.getOrderById(principal.getUserId(), id, isAdmin);
+        ApiResponse<PaymentResponse> result = paymentService.getPaymentById(principal.getUserId(), id, isAdmin);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }
@@ -66,25 +66,25 @@ public class OrderResource {
     }
 
     @GET
-    @Path("/code/{orderCode}")
+    @Path("/transaction/{transactionCode}")
     @Secured
-    public Response getOrderByCode(@Context SecurityContext securityContext, @PathParam("orderCode") String orderCode) {
+    public Response getPaymentByTransactionCode(@Context SecurityContext securityContext, @PathParam("transactionCode") String transactionCode) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.getOrderByCode(principal.getUserId(), orderCode, isAdmin);
+        ApiResponse<PaymentResponse> result = paymentService.getPaymentByTransactionCode(principal.getUserId(), transactionCode, isAdmin);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.NOT_FOUND).entity(result).build();
         }
         return Response.ok(result).build();
     }
 
-    @PUT
-    @Path("/{id}/cancel")
+    @GET
+    @Path("/order/{orderId}")
     @Secured
-    public Response cancelOrder(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
+    public Response getPaymentsByOrderId(@Context SecurityContext securityContext, @PathParam("orderId") Integer orderId) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.cancelOrder(principal.getUserId(), id, isAdmin);
+        ApiResponse<List<PaymentResponse>> result = paymentService.getPaymentsByOrderId(principal.getUserId(), orderId, isAdmin);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }
@@ -94,16 +94,16 @@ public class OrderResource {
     @GET
     @Path("/admin")
     @Secured({"admin"})
-    public Response getAllOrders(@QueryParam("status") String status) {
-        ApiResponse<List<OrderResponse>> result = orderService.getAllOrders(status);
+    public Response getAllPayments(@QueryParam("status") String status) {
+        ApiResponse<List<PaymentResponse>> result = paymentService.getAllPayments(status);
         return Response.ok(result).build();
     }
 
     @PUT
     @Path("/admin/{id}/status")
     @Secured({"admin"})
-    public Response updateOrderStatus(@PathParam("id") Integer id, @Valid UpdateOrderStatusRequest request) {
-        ApiResponse<OrderResponse> result = orderService.updateOrderStatus(id, request);
+    public Response updatePaymentStatus(@PathParam("id") Integer id, @Valid UpdatePaymentStatusRequest request) {
+        ApiResponse<PaymentResponse> result = paymentService.updatePaymentStatus(id, request);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }
@@ -113,9 +113,9 @@ public class OrderResource {
     @DELETE
     @Path("/admin/{id}")
     @Secured({"admin"})
-    public Response deleteOrder(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
+    public Response deletePayment(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<String> result = orderService.deleteOrder(id, isAdmin);
+        ApiResponse<String> result = paymentService.deletePayment(id, isAdmin);
         if (!result.isSuccess()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
         }

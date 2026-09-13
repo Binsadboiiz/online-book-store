@@ -21,4 +21,7 @@ public interface IOrderService {
     ApiResponse<List<OrderResponse>> getAllOrders(String status);
 
     ApiResponse<OrderResponse> updateOrderStatus(Integer orderId, UpdateOrderStatusRequest request);
+
+    ApiResponse<String> deleteOrder(Integer orderId, boolean isAdmin);
 }
+
