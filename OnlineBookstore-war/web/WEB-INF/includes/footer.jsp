@@ -4,3 +4,5 @@
         <p>&copy; 2026 Online Bookstore. Built with Jakarta EE & Minimalist Monochrome UI Design System.</p>
     </div>
 </footer>
+<script src="${pageContext.request.contextPath}/js/error-handler.js"></script>
+
