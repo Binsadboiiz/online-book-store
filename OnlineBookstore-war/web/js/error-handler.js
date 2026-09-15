@@ -31,7 +31,7 @@ const ErrorHandler = {
         }
 
         const contextPath = typeof getContextPath === 'function' ? getContextPath() : '/OnlineBookstore-war';
-        window.location.href = `${contextPath}/pages/error/error-detail.jsp`;
+        window.location.href = `${contextPath}/pages/error/error-detail.xhtml`;
     },
 
     /**
@@ -101,7 +101,7 @@ window.addEventListener('error', (event) => {
     const locationStr = `${sourceFile} (Line ${event.lineno}, Col ${event.colno})`;
     
     // Check if error detail page is already active to prevent redirect loop
-    if (window.location.pathname.includes('/pages/error/error-detail.jsp')) {
+    if (window.location.pathname.includes('/pages/error/error-detail.xhtml')) {
         return;
     }
 
@@ -117,7 +117,7 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
     console.error('[GlobalErrorHandler] Unhandled Promise Rejection:', event.reason);
 
-    if (window.location.pathname.includes('/pages/error/error-detail.jsp')) {
+    if (window.location.pathname.includes('/pages/error/error-detail.xhtml')) {
         return;
     }
 

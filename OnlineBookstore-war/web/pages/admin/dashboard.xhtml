@@ -1,16 +1,18 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <jsp:include page="/WEB-INF/includes/head.jsp">
-        <jsp:param name="title" value="Admin Dashboard - Online Bookstore"/>
-    </jsp:include>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
 
-    <jsp:include page="/WEB-INF/includes/admin-header.jsp">
-        <jsp:param name="activePage" value="dashboard"/>
-    </jsp:include>
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Admin Dashboard - Online Bookstore" />
+</ui:include>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/admin-header.xhtml">
+        <ui:param name="activePage" value="dashboard" />
+    </ui:include>
 
     <main class="container">
         <!-- RBAC Guard container -->
@@ -61,23 +63,23 @@
             </div>
 
             <div style="display: flex; gap: 1rem;">
-                <a href="${pageContext.request.contextPath}/pages/admin/books.jsp" class="btn btn-primary">
-                    <i class="bi bi-journals" style="margin-right: 0.4rem;"></i> Book Management &rarr;
+                <a href="#{request.contextPath}/pages/admin/books.xhtml" class="btn btn-primary">
+                    <i class="bi bi-journals" style="margin-right: 0.4rem;"></i> Book Management &#8594;
                 </a>
-                <a href="${pageContext.request.contextPath}/pages/admin/users.jsp" class="btn btn-secondary">
-                    <i class="bi bi-people" style="margin-right: 0.4rem;"></i> User Management &rarr;
+                <a href="#{request.contextPath}/pages/admin/users.xhtml" class="btn btn-secondary">
+                    <i class="bi bi-people" style="margin-right: 0.4rem;"></i> User Management &#8594;
                 </a>
             </div>
         </div>
     </main>
 
-    <jsp:include page="/WEB-INF/includes/footer.jsp"/>
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="${pageContext.request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/core.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             checkAdminAccessGuard();
         });
     </script>
-</body>
+</h:body>
 </html>

@@ -1,0 +1,35 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:p="http://primefaces.org/ui">
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#{request.contextPath}/pages/customer/home.xhtml" class="brand">
+                <span class="brand-icon"><i class="bi bi-journal-bookmark-fill"></i></span>
+                <span>BOOKSTORE</span>
+            </a>
+            
+            <nav class="nav-menu">
+                <a href="#{request.contextPath}/pages/customer/home.xhtml" class="nav-link #{activePage == 'home' ? 'active' : ''}">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="nav-link #{activePage == 'books' ? 'active' : ''}">
+                    <i class="bi bi-grid"></i> Catalog
+                </a>
+                <a href="#{request.contextPath}/pages/customer/cart.xhtml" class="nav-link #{activePage == 'cart' ? 'active' : ''}">
+                    <i class="bi bi-cart3"></i> Cart
+                </a>
+            </nav>
+
+            <div class="nav-actions">
+                <!-- Role Toggle Helper -->
+                <button class="btn btn-secondary btn-sm" onclick="toggleUserRole()" title="Switch Role for Testing">
+                    <i class="bi bi-person-badge"></i> Role: <strong id="currentRoleBadge">Customer</strong> <i class="bi bi-arrow-repeat"></i>
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="alert('Sign In modal coming soon!')">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                </button>
+            </div>
+        </div>
+    </header>
+</ui:composition>

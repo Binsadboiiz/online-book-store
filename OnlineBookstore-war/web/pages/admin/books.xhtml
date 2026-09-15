@@ -1,16 +1,18 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <jsp:include page="/WEB-INF/includes/head.jsp">
-        <jsp:param name="title" value="Book Management - Admin Portal"/>
-    </jsp:include>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
 
-    <jsp:include page="/WEB-INF/includes/admin-header.jsp">
-        <jsp:param name="activePage" value="books"/>
-    </jsp:include>
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Book Management - Admin Portal" />
+</ui:include>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/admin-header.xhtml">
+        <ui:param name="activePage" value="books" />
+    </ui:include>
 
     <main class="container">
         <!-- RBAC Guard container -->
@@ -31,7 +33,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Book Title & Author</th>
+                            <th>Book Title &amp; Author</th>
                             <th>ISBN Code</th>
                             <th>Price</th>
                             <th>Stock</th>
@@ -47,41 +49,41 @@
         </div>
     </main>
 
-    <jsp:include page="/WEB-INF/includes/footer.jsp"/>
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
     <!-- Add/Edit Book Modal -->
     <div id="addBookModal" class="modal-backdrop">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <button class="modal-close" onclick="closeModals()">&#215;</button>
             <h2 id="modalFormTitle" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Add New Book</h2>
             
             <form id="addBookForm">
-                <input type="hidden" name="bookId" id="bookIdInput">
+                <input type="hidden" name="bookId" id="bookIdInput" />
 
                 <div class="form-group">
                     <label class="form-label">Book Title *</label>
-                    <input type="text" name="title" class="input-field" required placeholder="Enter book title">
+                    <input type="text" name="title" class="input-field" required="required" placeholder="Enter book title" />
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">ISBN Code</label>
-                        <input type="text" name="isbn" class="input-field" placeholder="e.g. 978-0132350884">
+                        <input type="text" name="isbn" class="input-field" placeholder="e.g. 978-0132350884" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">List Price ($/VND) *</label>
-                        <input type="number" name="price" class="input-field" required min="0" step="1000" placeholder="250000">
+                        <input type="number" name="price" class="input-field" required="required" min="0" step="1000" placeholder="250000" />
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Discount Price</label>
-                        <input type="number" name="discountPrice" class="input-field" min="0" step="1000" placeholder="200000">
+                        <input type="number" name="discountPrice" class="input-field" min="0" step="1000" placeholder="200000" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Stock Quantity *</label>
-                        <input type="number" name="stockQuantity" class="input-field" required min="0" value="10">
+                        <input type="number" name="stockQuantity" class="input-field" required="required" min="0" value="10" />
                     </div>
                 </div>
 
@@ -93,22 +95,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Cover Image URL</label>
-                        <input type="url" name="coverImage" class="input-field" placeholder="https://example.com/cover.jpg">
+                        <input type="url" name="coverImage" class="input-field" placeholder="https://example.com/cover.jpg" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Published Year</label>
-                        <input type="number" name="publishedYear" class="input-field" min="1000" max="2099" value="2024">
+                        <input type="number" name="publishedYear" class="input-field" min="1000" max="2099" value="2024" />
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Pages</label>
-                        <input type="number" name="pages" class="input-field" min="1" placeholder="350">
+                        <input type="number" name="pages" class="input-field" min="1" placeholder="350" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Language</label>
-                        <input type="text" name="language" class="input-field" value="English">
+                        <input type="text" name="language" class="input-field" value="English" />
                     </div>
                 </div>
 
@@ -122,8 +124,8 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/core.js"></script>
-    <script src="${pageContext.request.contextPath}/js/admin-books.js"></script>
+    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/admin-books.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (checkAdminAccessGuard()) {
@@ -131,5 +133,5 @@
             }
         });
     </script>
-</body>
+</h:body>
 </html>

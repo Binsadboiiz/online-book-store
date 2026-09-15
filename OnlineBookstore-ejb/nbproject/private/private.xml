@@ -15,9 +15,9 @@
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/common/security/JwtProvider.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/dto/BookRequest.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/dto/BookResponse.java</file>
-            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/dto/BookSearchRequest.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/repository/IBookRepository.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/repository/BookRepositoryImpl.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/payment/service/PaymentService.java</file>
         </group>
     </open-files>
 </project-private>

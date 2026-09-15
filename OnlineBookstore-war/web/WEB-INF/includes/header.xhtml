@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets">
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#{request.contextPath}/index.xhtml" class="brand">
+                <span class="brand-icon">B</span>
+                <span>BOOKSTORE</span>
+            </a>
+            
+            <nav class="nav-menu">
+                <a href="#{request.contextPath}/index.xhtml" class="nav-link #{activePage == 'home' ? 'active' : ''}">Home</a>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="nav-link #{activePage == 'books' ? 'active' : ''}">Catalog</a>
+                <a href="#{request.contextPath}/pages/admin/books.xhtml" class="nav-link #{activePage == 'admin' ? 'active' : ''}">Management</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">Search Books</a>
+                <button class="btn btn-primary btn-sm" onclick="alert('Sign In feature coming soon!')">Sign In</button>
+            </div>
+        </div>
+    </header>
+</ui:composition>

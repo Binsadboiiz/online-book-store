@@ -30,15 +30,10 @@ async function fetchBooks(keyword = '', limit = null) {
     grid.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading books...</div></div>`;
 
     try {
-        let url = '/api/books';
-        if (keyword) {
-            url += `?q=${encodeURIComponent(keyword)}`;
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let url = baseUrl + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
 
         let response = await fetch(url);
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}${keyword ? `?q=${encodeURIComponent(keyword)}` : ''}`);
-        }
 
         if (response.ok) {
             const data = await response.json();
@@ -127,10 +122,8 @@ async function loadStandaloneBookDetail(bookId) {
     container.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading book details...</div></div>`;
 
     try {
-        let response = await fetch(`/api/books/${bookId}`);
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/${bookId}`);
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let response = await fetch(`${baseUrl}/${bookId}`);
         if (response.ok) {
             const data = await response.json();
             container.innerHTML = generateBookDetailHTML(data.data);

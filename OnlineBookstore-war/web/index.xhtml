@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+<f:metadata>
+    <f:viewAction action="#{navBean.toHome}" />
+</f:metadata>
+<h:head>
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0;url=#{request.contextPath}/pages/customer/home.xhtml" />
+</h:head>
+<h:body>
+    <p>Redirecting to <a href="#{request.contextPath}/pages/customer/home.xhtml">Customer Storefront</a>...</p>
+</h:body>
+</html>

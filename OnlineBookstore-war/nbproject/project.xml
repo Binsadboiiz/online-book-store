@@ -12,6 +12,10 @@
                 <library dirs="100">
                     <file>${reference.OnlineBookstore-ejb.dist}</file>
                 </library>
+                <library dirs="200">
+                    <file>${file.reference.primefaces-14.0.8-jakarta.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
             <source-roots>

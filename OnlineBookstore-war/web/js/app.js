@@ -3,7 +3,11 @@
  * Minimalist Monochrome UI Theme (Bootstrap Icons & Role-Based Access Control)
  */
 
-const API_BASE_URL = '/OnlineBookstore-war/api/books';
+function getApiBaseUrl() {
+    return getContextPath() + '/api/books';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 let allBooks = [];
 
@@ -31,7 +35,7 @@ function toggleUserRole() {
 
     // If currently on an Admin page and switched to Customer, redirect to Customer storefront
     if (window.location.pathname.includes('/pages/admin/') && nextRole !== 'admin') {
-        window.location.href = getContextPath() + '/pages/customer/home.jsp';
+        window.location.href = getContextPath() + '/pages/customer/home.xhtml';
     } else {
         window.location.reload();
     }
@@ -61,7 +65,7 @@ function checkAdminAccessGuard() {
                         <button class="btn btn-primary" onclick="toggleUserRole()">
                             <i class="bi bi-arrow-repeat"></i> Switch Role to Admin
                         </button>
-                        <a href="${getContextPath()}/pages/customer/home.jsp" class="btn btn-secondary">
+                        <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Return to Customer Store
                         </a>
                     </div>
@@ -74,8 +78,29 @@ function checkAdminAccessGuard() {
 }
 
 function getContextPath() {
+    if (window.CONTEXT_PATH !== undefined) {
+        return window.CONTEXT_PATH;
+    }
+    const scripts = document.getElementsByTagName('script');
+    for (let i = 0; i < scripts.length; i++) {
+        const src = scripts[i].getAttribute('src');
+        if (src && src.includes('/js/')) {
+            const idx = src.indexOf('/js/');
+            window.CONTEXT_PATH = src.substring(0, idx);
+            return window.CONTEXT_PATH;
+        }
+    }
     const path = window.location.pathname;
-    if (path.includes('/OnlineBookstore-war')) return '/OnlineBookstore-war';
+    if (path.includes('/pages/')) {
+        const idx = path.indexOf('/pages/');
+        window.CONTEXT_PATH = path.substring(0, idx);
+        return window.CONTEXT_PATH;
+    }
+    if (path.includes('/OnlineBookstore-war')) {
+        window.CONTEXT_PATH = '/OnlineBookstore-war';
+        return window.CONTEXT_PATH;
+    }
+    window.CONTEXT_PATH = '';
     return '';
 }
 
@@ -116,15 +141,10 @@ async function fetchBooks(keyword = '', limit = null) {
     grid.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading books...</div></div>`;
 
     try {
-        let url = '/api/books';
-        if (keyword) {
-            url += `?q=${encodeURIComponent(keyword)}`;
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let url = baseUrl + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
 
         let response = await fetch(url);
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}${keyword ? `?q=${encodeURIComponent(keyword)}` : ''}`);
-        }
 
         if (response.ok) {
             const data = await response.json();
@@ -212,10 +232,8 @@ async function loadStandaloneBookDetail(bookId) {
     container.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading book details...</div></div>`;
 
     try {
-        let response = await fetch(`/api/books/${bookId}`);
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/${bookId}`);
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let response = await fetch(`${baseUrl}/${bookId}`);
         if (response.ok) {
             const data = await response.json();
             container.innerHTML = generateBookDetailHTML(data.data);
@@ -290,10 +308,8 @@ async function fetchAdminBookTable() {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading inventory data...</td></tr>`;
 
     try {
-        let response = await fetch('/api/books');
-        if (!response.ok) {
-            response = await fetch(API_BASE_URL);
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let response = await fetch(baseUrl);
 
         if (response.ok) {
             const data = await response.json();
@@ -392,10 +408,8 @@ async function deleteBookAdmin(id) {
     if (!confirm('Are you sure you want to delete book #' + id + '?')) return;
 
     try {
-        let response = await fetch(`/api/books/${id}`, { method: 'DELETE' });
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
-        }
+        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+        let response = await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
         if (response.ok) {
             alert('Book deleted successfully!');
             fetchAdminBookTable();
@@ -442,7 +456,8 @@ async function handleAddBookSubmit(e) {
     };
 
     const isEdit = !!bookId;
-    const endpoint = isEdit ? `/api/books/${bookId}` : '/api/books';
+    const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
+    const endpoint = isEdit ? `${baseUrl}/${bookId}` : baseUrl;
     const method = isEdit ? 'PUT' : 'POST';
 
     try {

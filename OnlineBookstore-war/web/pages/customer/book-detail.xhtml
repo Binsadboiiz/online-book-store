@@ -1,20 +1,22 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <jsp:include page="/WEB-INF/includes/head.jsp">
-        <jsp:param name="title" value="Book Details - Online Bookstore"/>
-    </jsp:include>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
 
-    <jsp:include page="/WEB-INF/includes/customer-header.jsp">
-        <jsp:param name="activePage" value="books"/>
-    </jsp:include>
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Book Details - Online Bookstore" />
+</ui:include>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/customer-header.xhtml">
+        <ui:param name="activePage" value="books" />
+    </ui:include>
 
     <main class="container">
         <div style="margin-bottom: 1.5rem;">
-            <a href="${pageContext.request.contextPath}/pages/customer/books.jsp" class="btn btn-secondary btn-sm">
+            <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">
                 <i class="bi bi-arrow-left"></i> Back to Catalog
             </a>
         </div>
@@ -24,11 +26,12 @@
         </div>
     </main>
 
-    <jsp:include page="/WEB-INF/includes/footer.jsp"/>
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="${pageContext.request.contextPath}/js/core.js"></script>
-    <script src="${pageContext.request.contextPath}/js/books.js"></script>
+    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/books.js"></script>
     <script>
+        //<![CDATA[
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const bookId = urlParams.get('id');
@@ -38,6 +41,7 @@
                 document.getElementById('standaloneBookDetail').innerHTML = '<div class="empty-state"><div class="empty-title">Book ID Missing</div></div>';
             }
         });
+        //]]>
     </script>
-</body>
+</h:body>
 </html>

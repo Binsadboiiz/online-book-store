@@ -3,12 +3,35 @@
  * Role Management, Access Guards, Formatters & Utilities
  */
 
-const API_BASE_URL = '/OnlineBookstore-war/api/books';
+function getApiBaseUrl() {
+    return getContextPath() + '/api/books';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 document.addEventListener('DOMContentLoaded', () => {
     updateRoleBadgeUI();
     setupModalBaseEvents();
+    highlightActiveNavLink();
 });
+
+function highlightActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-menu .nav-link');
+    let hasActive = Array.from(navLinks).some(link => link.classList.contains('active'));
+
+    if (!hasActive) {
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href) {
+                const cleanHref = href.split('?')[0].split('#')[0];
+                if (cleanHref && (currentPath.endsWith(cleanHref) || (cleanHref.length > 5 && currentPath.includes(cleanHref)))) {
+                    link.classList.add('active');
+                }
+            }
+        });
+    }
+}
 
 /* Role State Management */
 function getUserRole() {
@@ -28,7 +51,7 @@ function toggleUserRole() {
     alert(`Role switched to: ${nextRole.toUpperCase()}`);
 
     if (window.location.pathname.includes('/pages/admin/') && nextRole !== 'admin') {
-        window.location.href = getContextPath() + '/pages/customer/home.jsp';
+        window.location.href = getContextPath() + '/pages/customer/home.xhtml';
     } else {
         window.location.reload();
     }
@@ -58,7 +81,7 @@ function checkAdminAccessGuard() {
                         <button class="btn btn-primary" onclick="toggleUserRole()">
                             <i class="bi bi-arrow-repeat"></i> Switch Role to Admin
                         </button>
-                        <a href="${getContextPath()}/pages/customer/home.jsp" class="btn btn-secondary">
+                        <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Return to Customer Store
                         </a>
                     </div>
@@ -71,8 +94,29 @@ function checkAdminAccessGuard() {
 }
 
 function getContextPath() {
+    if (window.CONTEXT_PATH !== undefined) {
+        return window.CONTEXT_PATH;
+    }
+    const scripts = document.getElementsByTagName('script');
+    for (let i = 0; i < scripts.length; i++) {
+        const src = scripts[i].getAttribute('src');
+        if (src && src.includes('/js/')) {
+            const idx = src.indexOf('/js/');
+            window.CONTEXT_PATH = src.substring(0, idx);
+            return window.CONTEXT_PATH;
+        }
+    }
     const path = window.location.pathname;
-    if (path.includes('/OnlineBookstore-war')) return '/OnlineBookstore-war';
+    if (path.includes('/pages/')) {
+        const idx = path.indexOf('/pages/');
+        window.CONTEXT_PATH = path.substring(0, idx);
+        return window.CONTEXT_PATH;
+    }
+    if (path.includes('/OnlineBookstore-war')) {
+        window.CONTEXT_PATH = '/OnlineBookstore-war';
+        return window.CONTEXT_PATH;
+    }
+    window.CONTEXT_PATH = '';
     return '';
 }
 
