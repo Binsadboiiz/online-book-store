@@ -8,6 +8,8 @@ import com.onlinebookstore.book.entity.Categories;
 import com.onlinebookstore.book.entity.Publishers;
 import com.onlinebookstore.book.repository.IBookRepository;
 import com.onlinebookstore.common.dto.ApiResponse;
+import com.onlinebookstore.common.exception.ConflictException;
+import com.onlinebookstore.common.exception.ResourceNotFoundException;
 
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -50,7 +52,7 @@ public class BookService {
     public ApiResponse<BookResponse> getBookById(Integer id) {
         Books book = bookRepository.findById(id);
         if (book == null) {
-            return ApiResponse.failed("Book not found");
+            throw new ResourceNotFoundException("Book not found");
         }
         return ApiResponse.success("Book details retrieved", BookResponse.fromEntity(book));
     }
@@ -58,7 +60,7 @@ public class BookService {
     public ApiResponse<BookResponse> createBook(BookRequest request) {
         if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty() 
                 && bookRepository.existsByIsbn(request.getIsbn().trim())) {
-            return ApiResponse.failed("ISBN already exists");
+            throw new ConflictException("ISBN already exists");
         }
 
         Books book = new Books();
@@ -75,13 +77,13 @@ public class BookService {
     public ApiResponse<BookResponse> updateBook(Integer id, BookRequest request) {
         Books book = bookRepository.findById(id);
         if (book == null) {
-            return ApiResponse.failed("Book not found");
+            throw new ResourceNotFoundException("Book not found");
         }
 
         if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty()
                 && !request.getIsbn().trim().equals(book.getIsbn())
                 && bookRepository.existsByIsbn(request.getIsbn().trim())) {
-            return ApiResponse.failed("ISBN already exists");
+            throw new ConflictException("ISBN already exists");
         }
 
         copyRequestToEntity(request, book);
@@ -94,7 +96,7 @@ public class BookService {
     public ApiResponse<String> deleteBook(Integer id) {
         boolean deleted = bookRepository.deleteById(id);
         if (!deleted) {
-            return ApiResponse.failed("Book not found");
+            throw new ResourceNotFoundException("Book not found");
         }
         return ApiResponse.success("Book deleted successfully", null);
     }

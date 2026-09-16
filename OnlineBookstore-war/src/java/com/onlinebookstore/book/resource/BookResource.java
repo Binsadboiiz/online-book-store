@@ -44,9 +44,6 @@ public class BookResource {
     @Path("/{id}")
     public Response getBookById(@PathParam("id") Integer id) {
         ApiResponse<BookResponse> result = bookService.getBookById(id);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -54,9 +51,6 @@ public class BookResource {
     @Secured({"admin"})
     public Response createBook(@Valid BookRequest request) {
         ApiResponse<BookResponse> result = bookService.createBook(request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
@@ -65,9 +59,6 @@ public class BookResource {
     @Secured({"admin"})
     public Response updateBook(@PathParam("id") Integer id, @Valid BookRequest request) {
         ApiResponse<BookResponse> result = bookService.updateBook(id, request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -76,9 +67,6 @@ public class BookResource {
     @Secured({"admin"})
     public Response deleteBook(@PathParam("id") Integer id) {
         ApiResponse<String> result = bookService.deleteBook(id);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 }

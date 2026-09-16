@@ -38,9 +38,6 @@ public class PaymentResource {
     public Response createPayment(@Context SecurityContext securityContext, @Valid CreatePaymentRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<PaymentResponse> result = paymentService.createPayment(principal.getUserId(), request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
@@ -59,9 +56,6 @@ public class PaymentResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<PaymentResponse> result = paymentService.getPaymentById(principal.getUserId(), id, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -72,9 +66,6 @@ public class PaymentResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<PaymentResponse> result = paymentService.getPaymentByTransactionCode(principal.getUserId(), transactionCode, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -85,9 +76,6 @@ public class PaymentResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<List<PaymentResponse>> result = paymentService.getPaymentsByOrderId(principal.getUserId(), orderId, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -104,9 +92,6 @@ public class PaymentResource {
     @Secured({"admin"})
     public Response updatePaymentStatus(@PathParam("id") Integer id, @Valid UpdatePaymentStatusRequest request) {
         ApiResponse<PaymentResponse> result = paymentService.updatePaymentStatus(id, request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -116,9 +101,6 @@ public class PaymentResource {
     public Response deletePayment(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<String> result = paymentService.deletePayment(id, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 }

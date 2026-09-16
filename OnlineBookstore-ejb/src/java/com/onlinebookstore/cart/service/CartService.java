@@ -13,6 +13,8 @@ import com.onlinebookstore.cart.entity.Cart;
 import com.onlinebookstore.cart.entity.CartItems;
 import com.onlinebookstore.cart.repository.ICartRepository;
 import com.onlinebookstore.common.dto.ApiResponse;
+import com.onlinebookstore.common.exception.BadRequestException;
+import com.onlinebookstore.common.exception.ResourceNotFoundException;
 import com.onlinebookstore.user.entity.Users;
 import com.onlinebookstore.user.repository.IUserRepository;
 
@@ -40,12 +42,12 @@ public class CartService implements ICartService {
     @Override
     public ApiResponse<CartResponse> getCartByUserId(Integer userId) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
 
         Cart cart = getOrCreateCartForUser(user);
@@ -55,21 +57,21 @@ public class CartService implements ICartService {
     @Override
     public ApiResponse<CartResponse> addToCart(Integer userId, AddToCartRequest request) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         if (request == null || request.getBookId() == null || request.getQuantity() == null || request.getQuantity() < 1) {
-            return ApiResponse.failed("Invalid request data");
+            throw new BadRequestException("Invalid request data");
         }
 
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
 
         Books book = bookRepository.findById(request.getBookId());
         if (book == null || !Boolean.TRUE.equals(book.getIsActive())) {
-            return ApiResponse.failed("Book not found or inactive");
+            throw new ResourceNotFoundException("Book not found or inactive");
         }
 
         Cart cart = getOrCreateCartForUser(user);
@@ -78,14 +80,14 @@ public class CartService implements ICartService {
         if (existingItem != null) {
             int newQuantity = existingItem.getQuantity() + request.getQuantity();
             if (newQuantity > book.getStockQuantity()) {
-                return ApiResponse.failed("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
+                throw new BadRequestException("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
             }
             existingItem.setQuantity(newQuantity);
             existingItem.setUpdatedAt(new Date());
             cartRepository.updateItem(existingItem);
         } else {
             if (request.getQuantity() > book.getStockQuantity()) {
-                return ApiResponse.failed("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
+                throw new BadRequestException("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
             }
             CartItems newItem = new CartItems();
             newItem.setCartId(cart);
@@ -104,22 +106,22 @@ public class CartService implements ICartService {
     @Override
     public ApiResponse<CartResponse> updateCartItem(Integer userId, Integer cartItemId, UpdateCartItemRequest request) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         if (request == null || request.getQuantity() == null || request.getQuantity() < 1) {
-            return ApiResponse.failed("Invalid product quantity");
+            throw new BadRequestException("Invalid product quantity");
         }
 
         CartItems item = cartRepository.findCartItemById(cartItemId);
         if (item == null || item.getCartId() == null || item.getCartId().getUserId() == null 
                 || !item.getCartId().getUserId().getId().equals(userId)) {
-            return ApiResponse.failed("Cart item not found");
+            throw new ResourceNotFoundException("Cart item not found");
         }
 
         Books book = item.getBookId();
         if (book != null && request.getQuantity() > book.getStockQuantity()) {
-            return ApiResponse.failed("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
+            throw new BadRequestException("Quantity exceeds available stock (" + book.getStockQuantity() + ")");
         }
 
         item.setQuantity(request.getQuantity());
@@ -133,13 +135,13 @@ public class CartService implements ICartService {
     @Override
     public ApiResponse<CartResponse> removeCartItem(Integer userId, Integer cartItemId) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         CartItems item = cartRepository.findCartItemById(cartItemId);
         if (item == null || item.getCartId() == null || item.getCartId().getUserId() == null 
                 || !item.getCartId().getUserId().getId().equals(userId)) {
-            return ApiResponse.failed("Cart item not found");
+            throw new ResourceNotFoundException("Cart item not found");
         }
 
         cartRepository.deleteItem(cartItemId);
@@ -151,12 +153,12 @@ public class CartService implements ICartService {
     @Override
     public ApiResponse<String> clearCart(Integer userId) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
-            return ApiResponse.failed("Cart not found");
+            throw new ResourceNotFoundException("Cart not found");
         }
 
         cartRepository.clearCart(cart.getId());

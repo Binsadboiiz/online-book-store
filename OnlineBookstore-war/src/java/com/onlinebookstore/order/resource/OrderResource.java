@@ -38,9 +38,6 @@ public class OrderResource {
     public Response createOrder(@Context SecurityContext securityContext, @Valid CreateOrderRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<OrderResponse> result = orderService.createOrder(principal.getUserId(), request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
@@ -59,9 +56,6 @@ public class OrderResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<OrderResponse> result = orderService.getOrderById(principal.getUserId(), id, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -72,9 +66,6 @@ public class OrderResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<OrderResponse> result = orderService.getOrderByCode(principal.getUserId(), orderCode, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.NOT_FOUND).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -85,9 +76,6 @@ public class OrderResource {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<OrderResponse> result = orderService.cancelOrder(principal.getUserId(), id, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -104,9 +92,6 @@ public class OrderResource {
     @Secured({"admin"})
     public Response updateOrderStatus(@PathParam("id") Integer id, @Valid UpdateOrderStatusRequest request) {
         ApiResponse<OrderResponse> result = orderService.updateOrderStatus(id, request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -116,9 +101,6 @@ public class OrderResource {
     public Response deleteOrder(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         boolean isAdmin = securityContext.isUserInRole("admin");
         ApiResponse<String> result = orderService.deleteOrder(id, isAdmin);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 }

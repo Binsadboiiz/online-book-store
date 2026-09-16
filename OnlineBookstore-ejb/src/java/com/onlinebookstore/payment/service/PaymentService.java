@@ -1,6 +1,10 @@
 package com.onlinebookstore.payment.service;
 
 import com.onlinebookstore.common.dto.ApiResponse;
+import com.onlinebookstore.common.exception.BadRequestException;
+import com.onlinebookstore.common.exception.ConflictException;
+import com.onlinebookstore.common.exception.ForbiddenException;
+import com.onlinebookstore.common.exception.ResourceNotFoundException;
 import com.onlinebookstore.order.entity.Orders;
 import com.onlinebookstore.order.enums.OrderStatus;
 import com.onlinebookstore.order.repository.IOrderRepository;
@@ -34,34 +38,34 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<PaymentResponse> createPayment(Integer userId, CreatePaymentRequest request) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         if (request == null) {
-            return ApiResponse.failed("Payment request data cannot be null");
+            throw new BadRequestException("Payment request data cannot be null");
         }
 
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
 
         Orders order = orderRepository.findById(request.getOrderId());
         if (order == null) {
-            return ApiResponse.failed("Order not found");
+            throw new ResourceNotFoundException("Order not found");
         }
 
         if (order.getUserId() == null || !order.getUserId().getId().equals(userId)) {
-            return ApiResponse.failed("Access denied: You can only make payments for your own orders");
+            throw new ForbiddenException("Access denied: You can only make payments for your own orders");
         }
 
         OrderStatus orderStatus = OrderStatus.fromString(order.getStatus());
         if (orderStatus != null && orderStatus.isTerminalState()) {
-            return ApiResponse.failed("Cannot process payment for an order in status: " + order.getStatus());
+            throw new BadRequestException("Cannot process payment for an order in status: " + order.getStatus());
         }
 
         if ("PAID".equalsIgnoreCase(order.getPaymentStatus())) {
-            return ApiResponse.failed("Order is already paid");
+            throw new BadRequestException("Order is already paid");
         }
 
         String txnCode = request.getTransactionCode() != null && !request.getTransactionCode().trim().isEmpty()
@@ -70,7 +74,7 @@ public class PaymentService implements IPaymentService {
 
         Payments existing = paymentRepository.findByTransactionCode(txnCode);
         if (existing != null) {
-            return ApiResponse.failed("Transaction code already exists");
+            throw new ConflictException("Transaction code already exists");
         }
 
         String method = request.getPaymentMethod().trim();
@@ -104,7 +108,7 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<List<PaymentResponse>> getUserPayments(Integer userId) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         List<Payments> payments = paymentRepository.findByUserId(userId);
@@ -118,17 +122,17 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<PaymentResponse> getPaymentById(Integer userId, Integer paymentId, boolean isAdmin) {
         if (paymentId == null) {
-            return ApiResponse.failed("Invalid payment ID");
+            throw new BadRequestException("Invalid payment ID");
         }
 
         Payments payment = paymentRepository.findById(paymentId);
         if (payment == null) {
-            return ApiResponse.failed("Payment not found");
+            throw new ResourceNotFoundException("Payment not found");
         }
 
         if (!isAdmin && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
                 || !payment.getOrderId().getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You can only view your own payment records");
+            throw new ForbiddenException("Access denied: You can only view your own payment records");
         }
 
         return ApiResponse.success("Payment details retrieved", PaymentResponse.fromEntity(payment));
@@ -137,17 +141,17 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<PaymentResponse> getPaymentByTransactionCode(Integer userId, String transactionCode, boolean isAdmin) {
         if (transactionCode == null || transactionCode.trim().isEmpty()) {
-            return ApiResponse.failed("Invalid transaction code");
+            throw new BadRequestException("Invalid transaction code");
         }
 
         Payments payment = paymentRepository.findByTransactionCode(transactionCode.trim());
         if (payment == null) {
-            return ApiResponse.failed("Payment not found");
+            throw new ResourceNotFoundException("Payment not found");
         }
 
         if (!isAdmin && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
                 || !payment.getOrderId().getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You can only view your own payment records");
+            throw new ForbiddenException("Access denied: You can only view your own payment records");
         }
 
         return ApiResponse.success("Payment details retrieved", PaymentResponse.fromEntity(payment));
@@ -156,16 +160,16 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<List<PaymentResponse>> getPaymentsByOrderId(Integer userId, Integer orderId, boolean isAdmin) {
         if (orderId == null) {
-            return ApiResponse.failed("Invalid order ID");
+            throw new BadRequestException("Invalid order ID");
         }
 
         Orders order = orderRepository.findById(orderId);
         if (order == null) {
-            return ApiResponse.failed("Order not found");
+            throw new ResourceNotFoundException("Order not found");
         }
 
         if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You can only view payments for your own orders");
+            throw new ForbiddenException("Access denied: You can only view payments for your own orders");
         }
 
         List<Payments> payments = paymentRepository.findByOrderId(orderId);
@@ -195,21 +199,21 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<PaymentResponse> updatePaymentStatus(Integer paymentId, UpdatePaymentStatusRequest request) {
         if (paymentId == null) {
-            return ApiResponse.failed("Invalid payment ID");
+            throw new BadRequestException("Invalid payment ID");
         }
 
         if (request == null) {
-            return ApiResponse.failed("Update request cannot be null");
+            throw new BadRequestException("Update request cannot be null");
         }
 
         Payments payment = paymentRepository.findById(paymentId);
         if (payment == null) {
-            return ApiResponse.failed("Payment not found");
+            throw new ResourceNotFoundException("Payment not found");
         }
 
         PaymentStatus currentStatus = PaymentStatus.fromString(payment.getStatus());
         if (currentStatus != null && currentStatus.isFinalized()) {
-            return ApiResponse.failed("Payment with status '" + payment.getStatus() + "' is finalized and cannot be modified or deleted");
+            throw new BadRequestException("Payment with status '" + payment.getStatus() + "' is finalized and cannot be modified or deleted");
         }
 
         String newStatusStr = request.getStatus() != null ? request.getStatus().trim() : null;
@@ -218,11 +222,11 @@ public class PaymentService implements IPaymentService {
         if (newStatusStr != null && !newStatusStr.isEmpty()) {
             PaymentStatus targetStatus = PaymentStatus.fromString(newStatusStr);
             if (targetStatus == null) {
-                return ApiResponse.failed("Invalid target payment status: " + newStatusStr);
+                throw new BadRequestException("Invalid target payment status: " + newStatusStr);
             }
 
             if (currentStatus != null && !currentStatus.isValidTransitionTo(targetStatus)) {
-                return ApiResponse.failed("Invalid payment status transition from '" + currentStatus.name() + "' to '" + targetStatus.name() + "'");
+                throw new BadRequestException("Invalid payment status transition from '" + currentStatus.name() + "' to '" + targetStatus.name() + "'");
             }
 
             payment.setStatus(targetStatus.name());
@@ -255,26 +259,26 @@ public class PaymentService implements IPaymentService {
     @Override
     public ApiResponse<String> deletePayment(Integer paymentId, boolean isAdmin) {
         if (!isAdmin) {
-            return ApiResponse.failed("Access denied: Only administrators can delete payment records");
+            throw new ForbiddenException("Access denied: Only administrators can delete payment records");
         }
 
         if (paymentId == null) {
-            return ApiResponse.failed("Invalid payment ID");
+            throw new BadRequestException("Invalid payment ID");
         }
 
         Payments payment = paymentRepository.findById(paymentId);
         if (payment == null) {
-            return ApiResponse.failed("Payment not found");
+            throw new ResourceNotFoundException("Payment not found");
         }
 
         PaymentStatus currentStatus = PaymentStatus.fromString(payment.getStatus());
         if (currentStatus != null && currentStatus.isFinalized()) {
-            return ApiResponse.failed("Finalized payment records (SUCCESS, FAILED, REFUNDED) cannot be deleted");
+            throw new BadRequestException("Finalized payment records (SUCCESS, FAILED, REFUNDED) cannot be deleted");
         }
 
         boolean deleted = paymentRepository.delete(paymentId);
         if (!deleted) {
-            return ApiResponse.failed("Failed to delete payment record");
+            throw new BadRequestException("Failed to delete payment record");
         }
 
         return ApiResponse.success("Payment record deleted successfully", null);

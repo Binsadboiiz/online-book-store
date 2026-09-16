@@ -36,32 +36,13 @@ public class AuthResource {
     @Path("/register")
     public Response register(@Valid RegisterRequest request) {
         ApiResponse<UserResponse> result = authService.register(request);
-        
-        if (!result.isSuccess()) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(result)
-                    .build();
-        }
-        
-        return Response
-                .status(Response.Status.CREATED)
-                .entity(result)
-                .build();
+        return Response.status(Response.Status.CREATED).entity(result).build();
     }
     
     @POST
     @Path("/login")
     public Response login(@Valid LoginRequest request) {
         ApiResponse<LoginResponse> result = authService.login(request);
-        
-        if (!result.isSuccess()) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(result)
-                    .build();
-        }
-        
         return Response.ok(result).build();
     }
     
@@ -71,14 +52,6 @@ public class AuthResource {
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<UserResponse> result = authService.getProfile(principal.getUserId());
-        
-        if (!result.isSuccess()) {
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity(result)
-                    .build();
-        }
-        
         return Response.ok(result).build();
     }
     
@@ -88,14 +61,6 @@ public class AuthResource {
     public Response updateProfile(@Context SecurityContext securityContext, @Valid UpdateProfileRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<UserResponse> result = authService.updateProfile(principal.getUserId(), request);
-        
-        if (!result.isSuccess()) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(result)
-                    .build();
-        }
-        
         return Response.ok(result).build();
     }
     
@@ -105,14 +70,6 @@ public class AuthResource {
     public Response changePassword(@Context SecurityContext securityContext, @Valid ChangePasswordRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<String> result = authService.changePassword(principal.getUserId(), request);
-        
-        if (!result.isSuccess()) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(result)
-                    .build();
-        }
-        
         return Response.ok(result).build();
     }
 }

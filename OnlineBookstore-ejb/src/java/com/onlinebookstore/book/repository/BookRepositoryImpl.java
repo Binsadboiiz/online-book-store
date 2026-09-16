@@ -112,4 +112,24 @@ public class BookRepositoryImpl implements IBookRepository {
                 .getSingleResult();
         return count != null && count > 0;
     }
+
+    @Override
+    public int deductStock(Integer bookId, int quantity) {
+        return entityManager.createQuery(
+                "UPDATE Books b SET b.stockQuantity = b.stockQuantity - :quantity, b.updatedAt = :now WHERE b.id = :bookId AND b.stockQuantity >= :quantity AND b.isActive = true")
+                .setParameter("quantity", quantity)
+                .setParameter("now", new java.util.Date())
+                .setParameter("bookId", bookId)
+                .executeUpdate();
+    }
+
+    @Override
+    public int restock(Integer bookId, int quantity) {
+        return entityManager.createQuery(
+                "UPDATE Books b SET b.stockQuantity = b.stockQuantity + :quantity, b.updatedAt = :now WHERE b.id = :bookId")
+                .setParameter("quantity", quantity)
+                .setParameter("now", new java.util.Date())
+                .setParameter("bookId", bookId)
+                .executeUpdate();
+    }
 }

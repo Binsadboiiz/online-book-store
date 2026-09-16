@@ -36,9 +36,6 @@ public class CartResource {
     public Response getCart(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<CartResponse> result = cartService.getCartByUserId(principal.getUserId());
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -48,9 +45,6 @@ public class CartResource {
     public Response addToCart(@Context SecurityContext securityContext, @Valid AddToCartRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<CartResponse> result = cartService.addToCart(principal.getUserId(), request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -64,9 +58,6 @@ public class CartResource {
     ) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<CartResponse> result = cartService.updateCartItem(principal.getUserId(), itemId, request);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -79,9 +70,6 @@ public class CartResource {
     ) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<CartResponse> result = cartService.removeCartItem(principal.getUserId(), itemId);
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 
@@ -90,9 +78,6 @@ public class CartResource {
     public Response clearCart(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<String> result = cartService.clearCart(principal.getUserId());
-        if (!result.isSuccess()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
-        }
         return Response.ok(result).build();
     }
 }

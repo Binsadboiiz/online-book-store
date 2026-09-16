@@ -6,6 +6,8 @@ import com.onlinebookstore.cart.entity.Cart;
 import com.onlinebookstore.cart.entity.CartItems;
 import com.onlinebookstore.cart.repository.ICartRepository;
 import com.onlinebookstore.common.dto.ApiResponse;
+import com.onlinebookstore.common.exception.BadRequestException;
+import com.onlinebookstore.common.exception.ResourceNotFoundException;
 import com.onlinebookstore.order.dto.CreateOrderRequest;
 import com.onlinebookstore.order.dto.OrderResponse;
 import com.onlinebookstore.order.dto.UpdateOrderStatusRequest;
@@ -17,6 +19,8 @@ import com.onlinebookstore.user.entity.Users;
 import com.onlinebookstore.user.repository.IUserRepository;
 
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,33 +44,34 @@ public class OrderService implements IOrderService {
     private IUserRepository userRepository;
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ApiResponse<OrderResponse> createOrder(Integer userId, CreateOrderRequest request) {
         if (userId == null) {
-            return ApiResponse.failed("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         if (request == null) {
-            return ApiResponse.failed("Order request data cannot be null");
+            throw new BadRequestException("Order request data cannot be null");
         }
 
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
 
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null || cart.getCartItemsCollection() == null || cart.getCartItemsCollection().isEmpty()) {
-            return ApiResponse.failed("Cart is empty");
+            throw new BadRequestException("Cart is empty");
         }
 
         // Validate stock availability for all cart items
         for (CartItems item : cart.getCartItemsCollection()) {
             Books book = item.getBookId();
             if (book == null || !Boolean.TRUE.equals(book.getIsActive())) {
-                return ApiResponse.failed("Book '" + (book != null ? book.getTitle() : "Unknown") + "' is inactive or no longer available");
+                throw new BadRequestException("Book '" + (book != null ? book.getTitle() : "Unknown") + "' is inactive or no longer available");
             }
             if (item.getQuantity() > book.getStockQuantity()) {
-                return ApiResponse.failed("Quantity for '" + book.getTitle() + "' exceeds available stock (" + book.getStockQuantity() + ")");
+                throw new BadRequestException("Quantity for '" + book.getTitle() + "' exceeds available stock (" + book.getStockQuantity() + ")");
             }
         }
 
@@ -120,15 +125,17 @@ public class OrderService implements IOrderService {
             orderRepository.saveItem(orderItem);
             orderItemsList.add(orderItem);
 
-            // Deduct inventory stock
-            book.setStockQuantity(book.getStockQuantity() - item.getQuantity());
-            book.setUpdatedAt(now);
-            bookRepository.update(book);
+            // Deduct inventory stock atomically at database level within this transaction
+            int updatedRows = bookRepository.deductStock(book.getId(), item.getQuantity());
+            if (updatedRows == 0) {
+                // Throwing exception marks EJB transaction for automatic ROLLBACK
+                throw new BadRequestException("Failed to place order: Book '" + book.getTitle() + "' is out of stock or inactive");
+            }
         }
 
         order.setOrderItemsCollection(orderItemsList);
 
-        // Clear user cart
+        // Clear user cart within the same transaction
         cartRepository.clearCart(cart.getId());
 
         return ApiResponse.success("Order placed successfully", OrderResponse.fromEntity(order));
@@ -185,41 +192,40 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ApiResponse<OrderResponse> cancelOrder(Integer userId, Integer orderId, boolean isAdmin) {
         if (orderId == null) {
-            return ApiResponse.failed("Invalid order ID");
+            throw new BadRequestException("Invalid order ID");
         }
 
         Orders order = orderRepository.findById(orderId);
         if (order == null) {
-            return ApiResponse.failed("Order not found");
+            throw new ResourceNotFoundException("Order not found");
         }
 
         if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
-            return ApiResponse.failed("Access denied: You can only cancel your own orders");
+            throw new BadRequestException("Access denied: You can only cancel your own orders");
         }
 
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
-            return ApiResponse.failed("Completed, delivered, or cancelled orders cannot be modified or cancelled");
+            throw new BadRequestException("Completed, delivered, or cancelled orders cannot be modified or cancelled");
         }
 
         if (currentStatus != null && !currentStatus.isValidTransitionTo(OrderStatus.CANCELLED)) {
-            return ApiResponse.failed("Order cannot be cancelled from status: " + order.getStatus());
+            throw new BadRequestException("Order cannot be cancelled from status: " + order.getStatus());
         }
 
         Date now = new Date();
         order.setStatus(OrderStatus.CANCELLED.name());
         order.setUpdatedAt(now);
 
-        // Restock inventory quantity
+        // Restock inventory quantity atomically at database level
         if (order.getOrderItemsCollection() != null) {
             for (OrderItems item : order.getOrderItemsCollection()) {
                 Books book = item.getBookId();
                 if (book != null) {
-                    book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
-                    book.setUpdatedAt(now);
-                    bookRepository.update(book);
+                    bookRepository.restock(book.getId(), item.getQuantity());
                 }
             }
         }
@@ -245,23 +251,24 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ApiResponse<OrderResponse> updateOrderStatus(Integer orderId, UpdateOrderStatusRequest request) {
         if (orderId == null) {
-            return ApiResponse.failed("Invalid order ID");
+            throw new BadRequestException("Invalid order ID");
         }
 
         if (request == null) {
-            return ApiResponse.failed("Update request cannot be null");
+            throw new BadRequestException("Update request cannot be null");
         }
 
         Orders order = orderRepository.findById(orderId);
         if (order == null) {
-            return ApiResponse.failed("Order not found");
+            throw new ResourceNotFoundException("Order not found");
         }
 
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
-            return ApiResponse.failed("Order with status '" + order.getStatus() + "' is completed, delivered, or cancelled and cannot be modified");
+            throw new BadRequestException("Order with status '" + order.getStatus() + "' is completed, delivered, or cancelled and cannot be modified");
         }
 
         Date now = new Date();
@@ -270,22 +277,20 @@ public class OrderService implements IOrderService {
         if (newStatusStr != null && !newStatusStr.isEmpty()) {
             OrderStatus targetStatus = OrderStatus.fromString(newStatusStr);
             if (targetStatus == null) {
-                return ApiResponse.failed("Invalid target order status: " + newStatusStr);
+                throw new BadRequestException("Invalid target order status: " + newStatusStr);
             }
 
             if (currentStatus != null && !currentStatus.isValidTransitionTo(targetStatus)) {
-                return ApiResponse.failed("Invalid status transition from '" + currentStatus.name() + "' to '" + targetStatus.name() + "'");
+                throw new BadRequestException("Invalid status transition from '" + currentStatus.name() + "' to '" + targetStatus.name() + "'");
             }
 
-            // Restore stock if transitioning to CANCELLED
+            // Restore stock atomically if transitioning to CANCELLED
             if (targetStatus == OrderStatus.CANCELLED && currentStatus != OrderStatus.CANCELLED) {
                 if (order.getOrderItemsCollection() != null) {
                     for (OrderItems item : order.getOrderItemsCollection()) {
                         Books book = item.getBookId();
                         if (book != null) {
-                            book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
-                            book.setUpdatedAt(now);
-                            bookRepository.update(book);
+                            bookRepository.restock(book.getId(), item.getQuantity());
                         }
                     }
                 }
@@ -305,41 +310,39 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ApiResponse<String> deleteOrder(Integer orderId, boolean isAdmin) {
         if (!isAdmin) {
-            return ApiResponse.failed("Access denied: Only administrators can delete orders");
+            throw new BadRequestException("Access denied: Only administrators can delete orders");
         }
 
         if (orderId == null) {
-            return ApiResponse.failed("Invalid order ID");
+            throw new BadRequestException("Invalid order ID");
         }
 
         Orders order = orderRepository.findById(orderId);
         if (order == null) {
-            return ApiResponse.failed("Order not found");
+            throw new ResourceNotFoundException("Order not found");
         }
 
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
-            return ApiResponse.failed("Completed, delivered, or cancelled orders cannot be deleted");
+            throw new BadRequestException("Completed, delivered, or cancelled orders cannot be deleted");
         }
 
-        // Restore stock for active uncompleted order before deletion
-        Date now = new Date();
+        // Restore stock atomically for active uncompleted order before deletion
         if (order.getOrderItemsCollection() != null) {
             for (OrderItems item : order.getOrderItemsCollection()) {
                 Books book = item.getBookId();
                 if (book != null) {
-                    book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
-                    book.setUpdatedAt(now);
-                    bookRepository.update(book);
+                    bookRepository.restock(book.getId(), item.getQuantity());
                 }
             }
         }
 
         boolean deleted = orderRepository.delete(orderId);
         if (!deleted) {
-            return ApiResponse.failed("Failed to delete order");
+            throw new BadRequestException("Failed to delete order");
         }
 
         return ApiResponse.success("Order deleted successfully", null);

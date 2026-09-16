@@ -25,4 +25,7 @@ public interface IBookRepository {
     List<Books> findByPublisherId(Integer publisherId);
     List<Books> findByActiveBooks();
     boolean existsByIsbn(String isbn);
+
+    int deductStock(Integer bookId, int quantity);
+    int restock(Integer bookId, int quantity);
 }

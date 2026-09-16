@@ -5,6 +5,11 @@ import com.onlinebookstore.auth.dto.LoginRequest;
 import com.onlinebookstore.auth.dto.LoginResponse;
 import com.onlinebookstore.auth.dto.RegisterRequest;
 import com.onlinebookstore.common.dto.ApiResponse;
+import com.onlinebookstore.common.exception.BadRequestException;
+import com.onlinebookstore.common.exception.ConflictException;
+import com.onlinebookstore.common.exception.ForbiddenException;
+import com.onlinebookstore.common.exception.ResourceNotFoundException;
+import com.onlinebookstore.common.exception.UnauthorizedException;
 import com.onlinebookstore.common.security.JwtProvider;
 import com.onlinebookstore.common.security.PasswordHasher;
 import com.onlinebookstore.user.dto.UpdateProfileRequest;
@@ -25,13 +30,13 @@ public class AuthService {
     public ApiResponse<UserResponse> register(RegisterRequest request) {
         
         // Check username
-        if(userRepository.existsByUsername(request.getUsername())) {
-            return ApiResponse.failed("Username already exists");
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new ConflictException("Username already exists");
         }
         
         // Check email
-        if(userRepository.existsByEmail(request.getEmail())) {
-            return ApiResponse.failed("Email already exists");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ConflictException("Email already exists");
         }
         
         // Create user
@@ -65,18 +70,18 @@ public class AuthService {
         Users user = userRepository.findByUsernameOrEmail(usernameOrEmail);
         
         // Check exists
-        if(user == null) {
-            return ApiResponse.failed("Invalid username or password");
+        if (user == null) {
+            throw new UnauthorizedException("Invalid username or password");
         }
         
         // Check status
-        if(!user.getIsActive()) {
-            return ApiResponse.failed("Account is disabled");
+        if (!user.getIsActive()) {
+            throw new ForbiddenException("Account is disabled");
         }
         
         // Verify password
-        if(!PasswordHasher.verify(request.getPassword(), user.getPassword())) {
-            return ApiResponse.failed("Invalid username or password");
+        if (!PasswordHasher.verify(request.getPassword(), user.getPassword())) {
+            throw new UnauthorizedException("Invalid username or password");
         }
         
         // Generate JWT Token
@@ -91,7 +96,7 @@ public class AuthService {
     public ApiResponse<UserResponse> getProfile(Integer userId) {
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         return ApiResponse.success("User profile retrieved", toUserResponse(user));
     }
@@ -99,12 +104,12 @@ public class AuthService {
     public ApiResponse<UserResponse> updateProfile(Integer userId, UpdateProfileRequest request) {
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         
         String newEmail = request.getEmail().trim().toLowerCase();
         if (!user.getEmail().equalsIgnoreCase(newEmail) && userRepository.existsByEmail(newEmail)) {
-            return ApiResponse.failed("Email is already in use by another account");
+            throw new ConflictException("Email is already in use by another account");
         }
         
         user.setFullName(request.getFullName().trim());
@@ -119,11 +124,11 @@ public class AuthService {
     public ApiResponse<String> changePassword(Integer userId, ChangePasswordRequest request) {
         Users user = userRepository.findById(userId);
         if (user == null) {
-            return ApiResponse.failed("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         
         if (!PasswordHasher.verify(request.getCurrentPassword(), user.getPassword())) {
-            return ApiResponse.failed("Current password is incorrect");
+            throw new BadRequestException("Current password is incorrect");
         }
         
         user.setPassword(PasswordHasher.hash(request.getNewPassword()));
