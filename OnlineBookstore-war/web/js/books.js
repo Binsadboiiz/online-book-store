@@ -30,20 +30,10 @@ async function fetchBooks(keyword = '', limit = null) {
     grid.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading books...</div></div>`;
 
     try {
-        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
-        let url = baseUrl + (keyword ? `?q=${encodeURIComponent(keyword)}` : '');
-
-        let response = await fetch(url);
-
-        if (response.ok) {
-            const data = await response.json();
-            allBooks = data.data || [];
-            renderBooks(allBooks, limit);
-            return;
-        }
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        allBooks = await BookApi.getAll({ q: keyword });
+        renderBooks(allBooks, limit);
     } catch (error) {
-        console.warn('Backend API connection offline, utilizing English demo dataset:', error);
+        console.error('Error fetching books:', error);
         allBooks = getDemoBooks();
         renderBooks(allBooks, limit);
     }
@@ -121,20 +111,12 @@ async function loadStandaloneBookDetail(bookId) {
 
     container.innerHTML = `<div class="empty-state"><div class="empty-title"><i class="bi bi-arrow-repeat spin"></i> Loading book details...</div></div>`;
 
-    try {
-        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
-        let response = await fetch(`${baseUrl}/${bookId}`);
-        if (response.ok) {
-            const data = await response.json();
-            container.innerHTML = generateBookDetailHTML(data.data);
-            return;
-        }
-    } catch (err) {
-        console.warn('Using offline details:', err);
+    const book = await BookApi.getById(bookId);
+    if (book) {
+        container.innerHTML = generateBookDetailHTML(book);
+    } else {
+        container.innerHTML = `<div class="empty-state"><div class="empty-title">Book Not Found</div></div>`;
     }
-
-    const fallbackBook = getDemoBooks().find(b => b.id == bookId) || getDemoBooks()[0];
-    container.innerHTML = generateBookDetailHTML(fallbackBook);
 }
 
 function generateBookDetailHTML(book) {

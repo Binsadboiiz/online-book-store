@@ -28,21 +28,30 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        // Extract Authorization header
+        // Extract token from Authorization header or X-Session-ID header
         String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String sessionIdHeader = requestContext.getHeaderString("X-Session-ID");
 
-        // Validate Authorization header format
-        if (authorizationHeader == null || !authorizationHeader.toLowerCase().startsWith(AUTHENTICATION_SCHEME.toLowerCase() + " ")) {
-            abortWithUnauthorized(requestContext, "Missing or invalid Authorization header");
+        String token = null;
+        if (authorizationHeader != null && !authorizationHeader.trim().isEmpty()) {
+            String trimmedHeader = authorizationHeader.trim();
+            if (trimmedHeader.toLowerCase().startsWith(AUTHENTICATION_SCHEME.toLowerCase() + " ")) {
+                token = trimmedHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
+            } else {
+                token = trimmedHeader;
+            }
+        } else if (sessionIdHeader != null && !sessionIdHeader.trim().isEmpty()) {
+            token = sessionIdHeader.trim();
+        }
+
+        if (token == null || token.isEmpty()) {
+            abortWithUnauthorized(requestContext, "Missing or invalid Authorization / Session ID header");
             return;
         }
 
-        // Extract token
-        String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
-
-        // Validate token
+        // Validate token / session ID
         if (!JwtProvider.validateToken(token)) {
-            abortWithUnauthorized(requestContext, "Invalid or expired token");
+            abortWithUnauthorized(requestContext, "Invalid or expired session ID");
             return;
         }
 

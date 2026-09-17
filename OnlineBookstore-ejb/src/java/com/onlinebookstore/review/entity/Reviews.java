@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.onlinebookstore.book.entity;
+package com.onlinebookstore.review.entity;
 
+import com.onlinebookstore.book.entity.Books;
 import com.onlinebookstore.user.entity.Users;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;

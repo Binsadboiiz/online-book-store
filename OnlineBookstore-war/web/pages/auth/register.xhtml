@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Register - Online Bookstore" />
+</ui:include>
+
+<h:body style="background-color: var(--bg-body, #fafafa); display: flex; flex-direction: column; min-height: 100vh;">
+    <ui:include src="/WEB-INF/includes/customer-header.xhtml">
+        <ui:param name="activePage" value="register" />
+    </ui:include>
+
+    <main class="container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1rem;">
+        <div style="width: 100%; max-width: 480px;">
+            <div class="card-detail-wrap" style="padding: 2.5rem 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div class="brand-icon" style="display: inline-flex; width: 48px; height: 48px; background: #09090b; color: #fff; border-radius: 8px; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 0.75rem;">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--text-main, #09090b);">Create Account</h1>
+                    <p style="font-size: 0.9rem; color: var(--text-muted, #71717a);">Sign up to start building your personal library.</p>
+                </div>
+
+                <!-- Alert banners -->
+                <div id="regAlert" style="display: none; padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.875rem; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;"></div>
+                <div id="regSuccess" style="display: none; padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.875rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;"></div>
+
+                <form id="registerForm">
+                    <div class="form-group" style="margin-bottom: 1.1rem;">
+                        <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Username *</label>
+                        <input type="text" id="regUsername" class="input-field" required="required" minlength="3" placeholder="e.g. john_doe" style="width: 100%;" />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.1rem;">
+                        <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Email Address *</label>
+                        <input type="email" id="regEmail" class="input-field" required="required" placeholder="john@example.com" style="width: 100%;" />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.1rem;">
+                        <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Full Name *</label>
+                        <input type="text" id="regFullName" class="input-field" required="required" placeholder="e.g. John Doe" style="width: 100%;" />
+                    </div>
+
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Password *</label>
+                            <input type="password" id="regPassword" class="input-field" required="required" minlength="6" placeholder="••••••••" style="width: 100%;" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Confirm *</label>
+                            <input type="password" id="regConfirmPassword" class="input-field" required="required" minlength="6" placeholder="••••••••" style="width: 100%;" />
+                        </div>
+                    </div>
+
+                    <button type="submit" id="regBtn" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color, #e4e4e7); font-size: 0.875rem; color: var(--text-muted, #71717a);">
+                    Already have an account? 
+                    <a href="#{request.contextPath}/pages/auth/login.xhtml" style="font-weight: 700; color: var(--text-main, #09090b); text-decoration: underline;">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+
+    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/api-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registerForm');
+            const alertEl = document.getElementById('regAlert');
+            const successEl = document.getElementById('regSuccess');
+            const submitBtn = document.getElementById('regBtn');
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const username = document.getElementById('regUsername').value.trim();
+                    const email = document.getElementById('regEmail').value.trim();
+                    const fullName = document.getElementById('regFullName').value.trim();
+                    const password = document.getElementById('regPassword').value;
+                    const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+                    if (password !== confirmPassword) {
+                        showError('Passwords do not match. Please re-enter your password.');
+                        return;
+                    }
+
+                    setLoading(true);
+
+                    try {
+                        const response = await ApiClient.post('/auth/register', {
+                            username,
+                            email,
+                            fullName,
+                            password
+                        });
+
+                        showSuccess('Registration successful! Redirecting to Sign In page...');
+                        form.reset();
+
+                        setTimeout(() => {
+                            window.location.href = getContextPath() + '/pages/auth/login.xhtml';
+                        }, 1500);
+
+                    } catch (err) {
+                        showError(err.message || 'Registration failed. Please try again with a different username or email.');
+                    } finally {
+                        setLoading(false);
+                    }
+                });
+            }
+
+            function showError(msg) {
+                alertEl.style.display = 'block';
+                alertEl.textContent = msg;
+                successEl.style.display = 'none';
+            }
+
+            function showSuccess(msg) {
+                successEl.style.display = 'block';
+                successEl.textContent = msg;
+                alertEl.style.display = 'none';
+            }
+
+            function setLoading(loading) {
+                if (loading) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="bi bi-arrow-repeat spin"></i> Creating Account...`;
+                    alertEl.style.display = 'none';
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i class="bi bi-person-plus"></i> Create Account`;
+                }
+            }
+        });
+    </script>
+</h:body>
+</html>

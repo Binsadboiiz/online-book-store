@@ -18,54 +18,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* Role & Security Helper Methods */
 function getUserRole() {
-    return localStorage.getItem('user_role') || 'customer';
-}
-
-function setUserRole(role) {
-    localStorage.setItem('user_role', role);
-    updateRoleBadgeUI();
-}
-
-function toggleUserRole() {
-    const current = getUserRole();
-    const nextRole = current === 'admin' ? 'customer' : 'admin';
-    setUserRole(nextRole);
-
-    alert(`Role switched to: ${nextRole.toUpperCase()}`);
-
-    // If currently on an Admin page and switched to Customer, redirect to Customer storefront
-    if (window.location.pathname.includes('/pages/admin/') && nextRole !== 'admin') {
-        window.location.href = getContextPath() + '/pages/customer/home.xhtml';
-    } else {
-        window.location.reload();
+    if (typeof getUserInfo === 'function') {
+        const user = getUserInfo();
+        if (user && user.role) return user.role.toLowerCase();
     }
+    return localStorage.getItem('user_role') || '';
 }
 
 function updateRoleBadgeUI() {
-    const badge = document.getElementById('currentRoleBadge');
-    if (badge) {
-        const role = getUserRole();
-        badge.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+    if (typeof updateAuthHeaderUI === 'function') {
+        updateAuthHeaderUI();
     }
 }
 
 function checkAdminAccessGuard() {
+    if (typeof window.checkAdminAccessGuard === 'function' && window.checkAdminAccessGuard !== checkAdminAccessGuard) {
+        return window.checkAdminAccessGuard();
+    }
     const role = getUserRole();
     if (role !== 'admin') {
         const guardContainer = document.getElementById('adminAccessGuard');
         if (guardContainer) {
             guardContainer.innerHTML = `
                 <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--text-muted);"><i class="bi bi-shield-lock"></i></div>
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: #ef4444;"><i class="bi bi-shield-slash"></i></div>
                     <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">403 - Access Denied</h2>
                     <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
-                        This area is restricted to administrators. You are currently browsing as <strong>CUSTOMER</strong>.
+                        This area is restricted strictly to <strong>ADMINISTRATOR</strong> users.
                     </p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button class="btn btn-primary" onclick="toggleUserRole()">
-                            <i class="bi bi-arrow-repeat"></i> Switch Role to Admin
-                        </button>
-                        <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-secondary">
+                        <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-primary">
                             <i class="bi bi-arrow-left"></i> Return to Customer Store
                         </a>
                     </div>

@@ -19,15 +19,18 @@
                 <a href="#{request.contextPath}/pages/admin/users.xhtml" class="nav-link #{activePage == 'users' ? 'active' : ''}">
                     <i class="bi bi-people"></i> Users
                 </a>
+                <a href="#{request.contextPath}/swagger.xhtml" class="nav-link #{activePage == 'swagger' ? 'active' : ''}">
+                    <i class="bi bi-code-slash"></i> API Docs
+                </a>
             </nav>
 
-            <div class="nav-actions">
-                <button class="btn btn-secondary btn-sm" onclick="toggleUserRole()" title="Switch Role for Testing">
-                    <i class="bi bi-person-badge"></i> Role: <strong id="currentRoleBadge">Admin</strong> <i class="bi bi-arrow-repeat"></i>
-                </button>
-                <a href="#{request.contextPath}/pages/customer/home.xhtml" class="btn btn-primary btn-sm">
+            <div class="nav-actions" id="headerAuthContainer">
+                <a href="#{request.contextPath}/pages/customer/home.xhtml" class="btn btn-secondary btn-sm">
                     <i class="bi bi-shop"></i> Customer Store
                 </a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sign Out">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
             </div>
         </div>
     </header>

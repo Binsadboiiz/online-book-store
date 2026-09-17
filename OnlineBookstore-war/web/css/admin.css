@@ -32,3 +32,54 @@
 .data-table tr:hover {
   background-color: #fafafa;
 }
+
+/* ==========================================================================
+   Responsive Breakpoints - Admin Portal
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  .data-table th, .data-table td {
+    padding: 0.75rem 0.95rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-table-wrap {
+    border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th, .data-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .data-table td .btn-sm {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Quick Actions wrapper responsive stack */
+  div[style*="display: flex"][style*="gap: 1rem"] {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  div[style*="display: flex"][style*="gap: 1rem"] .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .data-table th, .data-table td {
+    padding: 0.55rem 0.65rem;
+  }
+
+  /* Admin Dashboard Stat Cards Grid */
+  div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}

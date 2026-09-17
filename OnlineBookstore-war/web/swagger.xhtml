@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swagger API Documentation - Online Bookstore</title>
+
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="#{request.contextPath}/css/global.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/css/navbar.css" />
+
+    <!-- Swagger UI CDN CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+
+    <style>
+        .swagger-wrap {
+            background-color: var(--bg-card, #ffffff);
+            border: 1px solid var(--border-color, #e5e5e5);
+            border-radius: var(--radius, 12px);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .swagger-ui .topbar {
+            display: none !important;
+        }
+        .swagger-ui .info {
+            margin: 1rem 0 2rem 0;
+        }
+        .swagger-ui .info .title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-color, #171717);
+        }
+        .swagger-ui .scheme-container {
+            background: none;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/customer-header.xhtml">
+        <ui:param name="activePage" value="swagger" />
+    </ui:include>
+
+    <main class="container">
+        <div class="page-header" style="margin-top: 2rem;">
+            <h1 class="page-title"><i class="bi bi-code-slash"></i> Backend REST API Documentation</h1>
+            <p class="page-subtitle">Interactive Swagger UI testing suite powered by OpenAPI 3.0 specification.</p>
+        </div>
+
+        <div class="swagger-wrap">
+            <div id="swagger-ui"></div>
+        </div>
+    </main>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+
+    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const specUrl = getContextPath() + '/api/openapi.json';
+            SwaggerUIBundle({
+                url: specUrl,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ],
+                layout: "BaseLayout"
+            });
+        });
+    </script>
+</h:body>
+</html>

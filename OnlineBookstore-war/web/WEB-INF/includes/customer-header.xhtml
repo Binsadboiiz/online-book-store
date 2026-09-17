@@ -21,14 +21,13 @@
                 </a>
             </nav>
 
-            <div class="nav-actions">
-                <!-- Role Toggle Helper -->
-                <button class="btn btn-secondary btn-sm" onclick="toggleUserRole()" title="Switch Role for Testing">
-                    <i class="bi bi-person-badge"></i> Role: <strong id="currentRoleBadge">Customer</strong> <i class="bi bi-arrow-repeat"></i>
-                </button>
-                <button class="btn btn-primary btn-sm" onclick="alert('Sign In modal coming soon!')">
+            <div class="nav-actions" id="headerAuthContainer">
+                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
                     <i class="bi bi-box-arrow-in-right"></i> Sign In
-                </button>
+                </a>
+                <a href="#{request.contextPath}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
+                    <i class="bi bi-person-plus"></i> Register
+                </a>
             </div>
         </div>
     </header>

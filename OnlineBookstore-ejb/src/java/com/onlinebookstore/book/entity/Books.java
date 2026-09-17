@@ -6,6 +6,8 @@ package com.onlinebookstore.book.entity;
 
 import com.onlinebookstore.cart.entity.CartItems;
 import com.onlinebookstore.order.entity.OrderItems;
+import com.onlinebookstore.review.entity.Reviews;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

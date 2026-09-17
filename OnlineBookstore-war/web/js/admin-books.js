@@ -19,21 +19,13 @@ async function fetchAdminBookTable() {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading inventory data...</td></tr>`;
 
     try {
-        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
-        let response = await fetch(baseUrl);
-
-        if (response.ok) {
-            const data = await response.json();
-            adminBooks = data.data || [];
-            renderAdminTable(adminBooks);
-            return;
-        }
+        adminBooks = await BookApi.getAll();
+        renderAdminTable(adminBooks);
     } catch (e) {
-        console.warn('API offline, rendering demo admin table:', e);
+        console.warn('Failed to fetch admin inventory:', e);
+        adminBooks = getDemoBooks();
+        renderAdminTable(adminBooks);
     }
-
-    adminBooks = getDemoBooks();
-    renderAdminTable(adminBooks);
 }
 
 function renderAdminTable(books) {
@@ -118,21 +110,16 @@ async function deleteBookAdmin(id) {
 
     if (!confirm('Are you sure you want to delete book #' + id + '?')) return;
 
-    try {
-        const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
-        let response = await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            alert('Book deleted successfully!');
-            fetchAdminBookTable();
-            return;
-        }
-    } catch (err) {
-        console.error('Delete failed:', err);
+    const result = await BookApi.delete(id);
+    if (result.success) {
+        alert('Book deleted successfully!');
+        fetchAdminBookTable();
+    } else {
+        // Fallback for client-side demo view
+        adminBooks = adminBooks.filter(b => b.id !== id);
+        renderAdminTable(adminBooks);
+        alert('Book removed from local inventory view!');
     }
-
-    adminBooks = adminBooks.filter(b => b.id !== id);
-    renderAdminTable(adminBooks);
-    alert('Book removed from local inventory view!');
 }
 
 async function handleAddBookSubmit(e) {
@@ -160,28 +147,17 @@ async function handleAddBookSubmit(e) {
     };
 
     const isEdit = !!bookId;
-    const baseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '/OnlineBookstore-war/api/books');
-    const endpoint = isEdit ? `${baseUrl}/${bookId}` : baseUrl;
-    const method = isEdit ? 'PUT' : 'POST';
+    const result = isEdit ? await BookApi.update(bookId, requestData) : await BookApi.create(requestData);
 
-    try {
-        let response = await fetch(endpoint, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
-        });
-
-        if (response.ok) {
-            alert(isEdit ? 'Book updated successfully!' : 'Book created successfully!');
-            form.reset();
-            closeModals();
-            fetchAdminBookTable();
-            return;
-        }
-    } catch (err) {
-        console.error('API Error:', err);
+    if (result.success) {
+        alert(isEdit ? 'Book updated successfully!' : 'Book created successfully!');
+        form.reset();
+        closeModals();
+        fetchAdminBookTable();
+        return;
     }
 
+    // Local fallback for UI demo
     if (isEdit) {
         const index = adminBooks.findIndex(b => b.id == bookId);
         if (index !== -1) {

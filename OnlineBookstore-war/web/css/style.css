@@ -624,3 +624,115 @@ a {
   font-size: 0.875rem;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   Responsive Breakpoints - Monolithic fallback style.css
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  .container {
+    padding: 1.5rem 1.25rem;
+  }
+  .nav-container {
+    padding: 0.75rem 1.25rem;
+  }
+  .book-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .nav-menu {
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-top: 1px solid var(--border-color);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hero {
+    padding: 1.75rem 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .search-box {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .book-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1.25rem;
+    width: 94%;
+  }
+
+  .card-table-wrap {
+    border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th, .data-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .book-card-body {
+    padding: 0.75rem;
+  }
+
+  .book-title {
+    font-size: 0.875rem;
+  }
+
+  .btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-sm {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8rem;
+  }
+}

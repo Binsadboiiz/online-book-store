@@ -14,9 +14,9 @@
                 <a href="#{request.contextPath}/pages/admin/books.xhtml" class="nav-link #{activePage == 'admin' ? 'active' : ''}">Management</a>
             </nav>
 
-            <div class="nav-actions">
-                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">Search Books</a>
-                <button class="btn btn-primary btn-sm" onclick="alert('Sign In feature coming soon!')">Sign In</button>
+            <div class="nav-actions" id="headerAuthContainer">
+                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">Sign In</a>
+                <a href="#{request.contextPath}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">Register</a>
             </div>
         </div>
     </header>

@@ -10,7 +10,8 @@ function getApiBaseUrl() {
 const API_BASE_URL = getApiBaseUrl();
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateRoleBadgeUI();
+    updateAuthHeaderUI();
+    checkAuthPageGuard();
     setupModalBaseEvents();
     highlightActiveNavLink();
 });
@@ -33,54 +34,131 @@ function highlightActiveNavLink() {
     }
 }
 
-/* Role State Management */
-function getUserRole() {
-    return localStorage.getItem('user_role') || 'customer';
+/* Session & Role Security Management */
+function getSessionId() {
+    return localStorage.getItem('sessionId') || '';
 }
 
-function setUserRole(role) {
-    localStorage.setItem('user_role', role);
-    updateRoleBadgeUI();
-}
-
-function toggleUserRole() {
-    const current = getUserRole();
-    const nextRole = current === 'admin' ? 'customer' : 'admin';
-    setUserRole(nextRole);
-
-    alert(`Role switched to: ${nextRole.toUpperCase()}`);
-
-    if (window.location.pathname.includes('/pages/admin/') && nextRole !== 'admin') {
-        window.location.href = getContextPath() + '/pages/customer/home.xhtml';
-    } else {
-        window.location.reload();
+function getUserInfo() {
+    try {
+        const raw = localStorage.getItem('user_info');
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
     }
 }
 
+function getUserRole() {
+    const user = getUserInfo();
+    if (user && user.role) {
+        return user.role.toLowerCase();
+    }
+    return localStorage.getItem('user_role') || '';
+}
+
+function isLoggedIn() {
+    return !!getSessionId();
+}
+
+function saveSession(sessionId, user) {
+    if (sessionId) {
+        localStorage.setItem('sessionId', sessionId);
+    }
+    if (user) {
+        localStorage.setItem('user_info', JSON.stringify(user));
+        if (user.role) {
+            localStorage.setItem('user_role', user.role.toLowerCase());
+        }
+    }
+    updateAuthHeaderUI();
+}
+
+function clearSession() {
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('user_info');
+    localStorage.removeItem('user_role');
+    updateAuthHeaderUI();
+}
+
+function logout() {
+    clearSession();
+    window.location.href = getContextPath() + '/pages/customer/home.xhtml';
+}
+
 function updateRoleBadgeUI() {
-    const badge = document.getElementById('currentRoleBadge');
-    if (badge) {
-        const role = getUserRole();
-        badge.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+    updateAuthHeaderUI();
+}
+
+function updateAuthHeaderUI() {
+    const user = getUserInfo();
+    const role = getUserRole();
+    const loggedIn = isLoggedIn();
+
+    const authContainers = document.querySelectorAll('#headerAuthContainer, .nav-actions-auth');
+    if (authContainers.length > 0) {
+        authContainers.forEach(container => {
+            const context = getContextPath();
+            if (loggedIn && user) {
+                const isRoleAdmin = role === 'admin';
+                const isOnAdminPage = window.location.pathname.includes('/pages/admin/');
+
+                container.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="user-badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.65rem; background: var(--border-color, #e4e4e7); border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                            <i class="bi bi-person-circle"></i>
+                            <span>${escapeHtml(user.fullName || user.username)}</span>
+                            <span class="role-chip" style="background: #09090b; color: #fff; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">${escapeHtml(role)}</span>
+                        </span>
+                        ${isRoleAdmin && !isOnAdminPage ? `
+                            <a href="${context}/pages/admin/dashboard.xhtml" class="btn btn-secondary btn-sm" title="Admin Portal">
+                                <i class="bi bi-shield-lock-fill"></i> Admin Portal
+                            </a>
+                        ` : ''}
+                        ${isRoleAdmin && isOnAdminPage ? `
+                            <a href="${context}/pages/customer/home.xhtml" class="btn btn-secondary btn-sm" title="Customer Store">
+                                <i class="bi bi-shop"></i> Customer Store
+                            </a>
+                        ` : ''}
+                        <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sign Out">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <a href="${context}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </a>
+                        <a href="${context}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
+                            <i class="bi bi-person-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        });
     }
 }
 
 function checkAdminAccessGuard() {
+    const loggedIn = isLoggedIn();
     const role = getUserRole();
-    if (role !== 'admin') {
+
+    if (!loggedIn) {
+        const redirectUrl = getContextPath() + '/pages/auth/login.xhtml?redirect=' + encodeURIComponent(window.location.pathname);
         const guardContainer = document.getElementById('adminAccessGuard');
         if (guardContainer) {
             guardContainer.innerHTML = `
                 <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--text-muted);"><i class="bi bi-shield-lock"></i></div>
-                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">403 - Access Denied</h2>
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--text-muted);"><i class="bi bi-lock"></i></div>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Authentication Required</h2>
                     <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
-                        This area is restricted to administrators. You are currently browsing as <strong>CUSTOMER</strong>.
+                        You must be signed in with an Administrator account to access the Admin Portal.
                     </p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button class="btn btn-primary" onclick="toggleUserRole()">
-                            <i class="bi bi-arrow-repeat"></i> Switch Role to Admin
-                        </button>
+                        <a href="${redirectUrl}" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In to Admin Account
+                        </a>
                         <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Return to Customer Store
                         </a>
@@ -90,7 +168,43 @@ function checkAdminAccessGuard() {
         }
         return false;
     }
+
+    if (role !== 'admin') {
+        const guardContainer = document.getElementById('adminAccessGuard');
+        if (guardContainer) {
+            guardContainer.innerHTML = `
+                <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: #ef4444;"><i class="bi bi-shield-slash"></i></div>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">403 - Access Denied</h2>
+                    <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
+                        Your account role is <strong>${escapeHtml(role.toUpperCase() || 'CUSTOMER')}</strong>. This area is restricted strictly to <strong>ADMINISTRATOR</strong> users.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <a href="${getContextPath()}/pages/customer/home.xhtml" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Return to Customer Store
+                        </a>
+                        <button class="btn btn-secondary" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Switch Account
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        return false;
+    }
+
     return true;
+}
+
+function checkAuthPageGuard() {
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/pages/auth/login.xhtml') || currentPath.includes('/pages/auth/register.xhtml')) {
+        if (isLoggedIn()) {
+            const role = getUserRole();
+            const target = role === 'admin' ? '/pages/admin/dashboard.xhtml' : '/pages/customer/home.xhtml';
+            window.location.href = getContextPath() + target;
+        }
+    }
 }
 
 function getContextPath() {

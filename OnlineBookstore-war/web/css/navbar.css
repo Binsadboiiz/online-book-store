@@ -156,3 +156,87 @@
   outline: none;
   box-shadow: 0 0 0 2px var(--text-primary);
 }
+
+/* ==========================================================================
+   Responsive Breakpoints - Navigation Navbar
+   ========================================================================== */
+
+@media (max-width: 992px) {
+  .nav-container {
+    padding: 0.75rem 1.25rem;
+  }
+  .nav-menu {
+    gap: 0.35rem;
+  }
+  .nav-link {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .brand {
+    font-size: 1.1rem;
+    padding: 0.2rem 0;
+  }
+
+  .brand-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .nav-actions {
+    gap: 0.5rem;
+  }
+
+  .nav-menu {
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-top: 1px solid var(--border-color);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    font-size: 0.825rem;
+    padding: 0.4rem 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand span {
+    font-size: 1rem;
+  }
+
+  .user-badge {
+    padding: 0.2rem 0.45rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .user-badge span:nth-child(2) {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-actions .btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+  }
+}
