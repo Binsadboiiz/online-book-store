@@ -164,25 +164,57 @@ async function updateCartItemQty(itemId, newQty) {
     }
 }
 
-async function removeCartItemDirect(itemId) {
-    if (!confirm('Are you sure you want to remove this item from your cart?')) return;
-    try {
-        await CartApi.removeItem(itemId);
-        if (window.Toast) Toast.success('Item removed from cart.');
-        fetchShoppingCart();
-    } catch (e) {
-        if (window.Toast) Toast.error('Failed to remove item: ' + (e.message || ''));
+function removeCartItemDirect(itemId) {
+    const doRemove = async () => {
+        try {
+            await CartApi.removeItem(itemId);
+            if (window.Toast) Toast.success('Item removed from cart.');
+            fetchShoppingCart();
+        } catch (e) {
+            if (window.Toast) Toast.error('Failed to remove item: ' + (e.message || ''));
+        }
+    };
+
+    if (window.Toast && Toast.confirm) {
+        Toast.confirm({
+            title: 'Remove Cart Item',
+            message: 'Are you sure you want to remove this item from your shopping cart?',
+            confirmText: 'Remove Item',
+            cancelText: 'Cancel',
+            type: 'danger',
+            onConfirm: doRemove
+        });
+    } else {
+        if (confirm('Are you sure you want to remove this item from your cart?')) {
+            doRemove();
+        }
     }
 }
 
-async function clearCartDirect() {
-    if (!confirm('Are you sure you want to clear your entire cart?')) return;
-    try {
-        await CartApi.clearCart();
-        if (window.Toast) Toast.success('Cart cleared.');
-        fetchShoppingCart();
-    } catch (e) {
-        if (window.Toast) Toast.error('Failed to clear cart: ' + (e.message || ''));
+function clearCartDirect() {
+    const doClear = async () => {
+        try {
+            await CartApi.clearCart();
+            if (window.Toast) Toast.success('Cart cleared.');
+            fetchShoppingCart();
+        } catch (e) {
+            if (window.Toast) Toast.error('Failed to clear cart: ' + (e.message || ''));
+        }
+    };
+
+    if (window.Toast && Toast.confirm) {
+        Toast.confirm({
+            title: 'Clear Shopping Cart',
+            message: 'Are you sure you want to remove ALL items from your shopping cart?',
+            confirmText: 'Clear Entire Cart',
+            cancelText: 'Cancel',
+            type: 'danger',
+            onConfirm: doClear
+        });
+    } else {
+        if (confirm('Are you sure you want to clear your entire cart?')) {
+            doClear();
+        }
     }
 }
 
@@ -222,6 +254,19 @@ async function handleCheckoutSubmit(e) {
         const order = await OrderApi.createOrder(payload);
         if (window.Toast) Toast.success('Order placed successfully! Order Code: ' + (order.orderCode || ''));
         closeModals();
+        
+        try {
+            if (window.CartApi && CartApi.clearCart) {
+                await CartApi.clearCart();
+            }
+        } catch (e) {
+            console.warn('Post-checkout cart clear note:', e);
+        }
+
+        if (typeof fetchShoppingCart === 'function') {
+            fetchShoppingCart();
+        }
+
         setTimeout(() => {
             window.location.href = getContextPath() + '/pages/customer/orders.xhtml';
         }, 1200);

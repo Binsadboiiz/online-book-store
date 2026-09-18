@@ -176,17 +176,32 @@ function renderOrderTimelineStepper(status) {
     `;
 }
 
-async function cancelCustomerOrder(orderId) {
-    if (!confirm('Are you sure you want to cancel this order?')) return;
+function cancelCustomerOrder(orderId) {
+    const doCancel = async () => {
+        try {
+            await OrderApi.cancelOrder(orderId);
+            if (window.Toast) Toast.success('Order cancelled successfully.');
+            else alert('Order cancelled successfully.');
+            loadCustomerOrders();
+        } catch (e) {
+            if (window.Toast) Toast.error(e.message || 'Failed to cancel order.');
+            else alert(e.message || 'Failed to cancel order.');
+        }
+    };
 
-    try {
-        await OrderApi.cancelOrder(orderId);
-        if (window.Toast) Toast.success('Order cancelled successfully.');
-        else alert('Order cancelled successfully.');
-        loadCustomerOrders();
-    } catch (e) {
-        if (window.Toast) Toast.error(e.message || 'Failed to cancel order.');
-        else alert(e.message || 'Failed to cancel order.');
+    if (window.Toast && Toast.confirm) {
+        Toast.confirm({
+            title: 'Cancel Order',
+            message: 'Are you sure you want to cancel this order? This action cannot be undone.',
+            confirmText: 'Yes, Cancel Order',
+            cancelText: 'Keep Order',
+            type: 'danger',
+            onConfirm: doCancel
+        });
+    } else {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            doCancel();
+        }
     }
 }
 

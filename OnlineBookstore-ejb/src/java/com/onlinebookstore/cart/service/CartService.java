@@ -148,6 +148,11 @@ public class CartService implements ICartService {
             throw new ResourceNotFoundException("Cart item not found");
         }
 
+        Cart cart = item.getCartId();
+        if (cart != null && cart.getCartItemsCollection() != null) {
+            cart.getCartItemsCollection().remove(item);
+        }
+
         cartRepository.deleteItem(cartItemId);
 
         Cart updatedCart = cartRepository.findByUserId(userId);
@@ -163,6 +168,10 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             throw new ResourceNotFoundException("Cart not found");
+        }
+
+        if (cart.getCartItemsCollection() != null) {
+            cart.getCartItemsCollection().clear();
         }
 
         cartRepository.clearCart(cart.getId());

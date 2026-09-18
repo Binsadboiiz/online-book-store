@@ -135,7 +135,10 @@ public class OrderService implements IOrderService {
 
         order.setOrderItemsCollection(orderItemsList);
 
-        // Clear user cart within the same transaction
+        // Clear user cart in DB and in-memory collection within transaction
+        if (cart.getCartItemsCollection() != null) {
+            cart.getCartItemsCollection().clear();
+        }
         cartRepository.clearCart(cart.getId());
 
         return ApiResponse.success("Order placed successfully", OrderResponse.fromEntity(order));
