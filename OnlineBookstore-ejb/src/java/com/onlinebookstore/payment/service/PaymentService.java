@@ -120,7 +120,7 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public ApiResponse<PaymentResponse> getPaymentById(Integer userId, Integer paymentId, boolean isAdmin) {
+    public ApiResponse<PaymentResponse> getPaymentById(Integer userId, Integer paymentId, boolean isManager) {
         if (paymentId == null) {
             throw new BadRequestException("Invalid payment ID");
         }
@@ -130,7 +130,7 @@ public class PaymentService implements IPaymentService {
             throw new ResourceNotFoundException("Payment not found");
         }
 
-        if (!isAdmin && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
+        if (!isManager && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
                 || !payment.getOrderId().getUserId().getId().equals(userId))) {
             throw new ForbiddenException("Access denied: You can only view your own payment records");
         }
@@ -139,7 +139,7 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public ApiResponse<PaymentResponse> getPaymentByTransactionCode(Integer userId, String transactionCode, boolean isAdmin) {
+    public ApiResponse<PaymentResponse> getPaymentByTransactionCode(Integer userId, String transactionCode, boolean isManager) {
         if (transactionCode == null || transactionCode.trim().isEmpty()) {
             throw new BadRequestException("Invalid transaction code");
         }
@@ -149,7 +149,7 @@ public class PaymentService implements IPaymentService {
             throw new ResourceNotFoundException("Payment not found");
         }
 
-        if (!isAdmin && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
+        if (!isManager && (payment.getOrderId() == null || payment.getOrderId().getUserId() == null
                 || !payment.getOrderId().getUserId().getId().equals(userId))) {
             throw new ForbiddenException("Access denied: You can only view your own payment records");
         }
@@ -158,7 +158,7 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public ApiResponse<List<PaymentResponse>> getPaymentsByOrderId(Integer userId, Integer orderId, boolean isAdmin) {
+    public ApiResponse<List<PaymentResponse>> getPaymentsByOrderId(Integer userId, Integer orderId, boolean isManager) {
         if (orderId == null) {
             throw new BadRequestException("Invalid order ID");
         }
@@ -168,7 +168,7 @@ public class PaymentService implements IPaymentService {
             throw new ResourceNotFoundException("Order not found");
         }
 
-        if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
+        if (!isManager && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
             throw new ForbiddenException("Access denied: You can only view payments for your own orders");
         }
 
@@ -257,9 +257,9 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public ApiResponse<String> deletePayment(Integer paymentId, boolean isAdmin) {
-        if (!isAdmin) {
-            throw new ForbiddenException("Access denied: Only administrators can delete payment records");
+    public ApiResponse<String> deletePayment(Integer paymentId, boolean isManager) {
+        if (!isManager) {
+            throw new ForbiddenException("Access denied: Only managers can delete payment records");
         }
 
         if (paymentId == null) {

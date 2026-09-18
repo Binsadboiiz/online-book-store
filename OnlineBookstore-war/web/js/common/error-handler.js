@@ -3,16 +3,7 @@
  * OnlineBookstore - Minimalist Monochrome Architecture
  */
 
-const ErrorHandler = {
-    /**
-     * Redirect to the dedicated Error Detail page with diagnostic information.
-     * @param {Object} errorInfo
-     * @param {string} errorInfo.title - Error title/category
-     * @param {number|string} errorInfo.statusCode - HTTP Status Code or Error Type Code
-     * @param {string} errorInfo.message - Primary error message
-     * @param {string} errorInfo.location - File path, line number, or API endpoint where error occurred
-     * @param {string} errorInfo.stack - Stack trace or additional technical context
-     */
+var ErrorHandler = window.ErrorHandler || {
     showErrorDetail({ title = 'Application Error', statusCode = 500, message = 'An unexpected error occurred.', location = 'Unknown Source', stack = '' } = {}) {
         const payload = {
             title,
@@ -34,11 +25,6 @@ const ErrorHandler = {
         window.location.href = `${contextPath}/pages/error/error-detail.xhtml`;
     },
 
-    /**
-     * Intercept and handle failed API fetch responses
-     * @param {Response} response - Fetch API Response object
-     * @param {string} contextMessage - Additional context description
-     */
     async handleApiResponseError(response, contextMessage = 'API Request Failed') {
         let errorData = null;
         let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
@@ -68,9 +54,6 @@ const ErrorHandler = {
         });
     },
 
-    /**
-     * Safe Fetch wrapper with automatic error catching
-     */
     async fetchWithCatch(url, options = {}) {
         try {
             const response = await fetch(url, options);
@@ -91,16 +74,13 @@ const ErrorHandler = {
         }
     }
 };
+window.ErrorHandler = ErrorHandler;
 
-/* Attach Global Window Event Listeners */
 window.addEventListener('error', (event) => {
     console.error('[GlobalErrorHandler] Uncaught Exception:', event);
-    
-    // Ignore benign script loading errors if necessary
     const sourceFile = event.filename || 'Inline Script / Web Page';
     const locationStr = `${sourceFile} (Line ${event.lineno}, Col ${event.colno})`;
-    
-    // Check if error detail page is already active to prevent redirect loop
+
     if (window.location.pathname.includes('/pages/error/error-detail.xhtml')) {
         return;
     }

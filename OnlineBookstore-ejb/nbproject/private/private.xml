@@ -10,7 +10,6 @@
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/cart/entity/Cart.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/cart/entity/CartItems.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/entity/Books.java</file>
-            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/entity/Reviews.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/conf/persistence.xml</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/common/security/JwtProvider.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/book/dto/BookRequest.java</file>
@@ -24,6 +23,10 @@
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/address/repository/AddressRepositoryImpl.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/address/service/AddressService.java</file>
             <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/address/service/IAddressService.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/review/entity/Reviews.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/review/dto/ReviewResponse.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/review/repository/IReviewRepository.java</file>
+            <file>file:/D:/Information%20Technology/Personal-Project/OnlineBookstore/OnlineBookstore-ejb/src/java/com/onlinebookstore/review/repository/ReviewRepositoryImpl.java</file>
         </group>
     </open-files>
 </project-private>

@@ -34,7 +34,7 @@ public class PaymentResource {
     private IPaymentService paymentService;
 
     @POST
-    @Secured
+    @Secured({"CUSTOMER"})
     public Response createPayment(@Context SecurityContext securityContext, @Valid CreatePaymentRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<PaymentResponse> result = paymentService.createPayment(principal.getUserId(), request);
@@ -42,7 +42,7 @@ public class PaymentResource {
     }
 
     @GET
-    @Secured
+    @Secured({"CUSTOMER"})
     public Response getUserPayments(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<List<PaymentResponse>> result = paymentService.getUserPayments(principal.getUserId());
@@ -54,8 +54,8 @@ public class PaymentResource {
     @Secured
     public Response getPaymentById(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<PaymentResponse> result = paymentService.getPaymentById(principal.getUserId(), id, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<PaymentResponse> result = paymentService.getPaymentById(principal.getUserId(), id, isManager);
         return Response.ok(result).build();
     }
 
@@ -64,8 +64,8 @@ public class PaymentResource {
     @Secured
     public Response getPaymentByTransactionCode(@Context SecurityContext securityContext, @PathParam("transactionCode") String transactionCode) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<PaymentResponse> result = paymentService.getPaymentByTransactionCode(principal.getUserId(), transactionCode, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<PaymentResponse> result = paymentService.getPaymentByTransactionCode(principal.getUserId(), transactionCode, isManager);
         return Response.ok(result).build();
     }
 
@@ -74,14 +74,14 @@ public class PaymentResource {
     @Secured
     public Response getPaymentsByOrderId(@Context SecurityContext securityContext, @PathParam("orderId") Integer orderId) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<List<PaymentResponse>> result = paymentService.getPaymentsByOrderId(principal.getUserId(), orderId, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<List<PaymentResponse>> result = paymentService.getPaymentsByOrderId(principal.getUserId(), orderId, isManager);
         return Response.ok(result).build();
     }
 
     @GET
     @Path("/admin")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response getAllPayments(@QueryParam("status") String status) {
         ApiResponse<List<PaymentResponse>> result = paymentService.getAllPayments(status);
         return Response.ok(result).build();
@@ -89,7 +89,7 @@ public class PaymentResource {
 
     @PUT
     @Path("/admin/{id}/status")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response updatePaymentStatus(@PathParam("id") Integer id, @Valid UpdatePaymentStatusRequest request) {
         ApiResponse<PaymentResponse> result = paymentService.updatePaymentStatus(id, request);
         return Response.ok(result).build();
@@ -97,10 +97,10 @@ public class PaymentResource {
 
     @DELETE
     @Path("/admin/{id}")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response deletePayment(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<String> result = paymentService.deletePayment(id, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<String> result = paymentService.deletePayment(id, isManager);
         return Response.ok(result).build();
     }
 }

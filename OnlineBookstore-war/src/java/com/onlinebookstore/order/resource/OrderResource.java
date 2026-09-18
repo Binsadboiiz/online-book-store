@@ -34,7 +34,7 @@ public class OrderResource {
     private IOrderService orderService;
 
     @POST
-    @Secured
+    @Secured({"CUSTOMER"})
     public Response createOrder(@Context SecurityContext securityContext, @Valid CreateOrderRequest request) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<OrderResponse> result = orderService.createOrder(principal.getUserId(), request);
@@ -42,7 +42,7 @@ public class OrderResource {
     }
 
     @GET
-    @Secured
+    @Secured({"CUSTOMER"})
     public Response getUserOrders(@Context SecurityContext securityContext) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
         ApiResponse<List<OrderResponse>> result = orderService.getUserOrders(principal.getUserId());
@@ -54,8 +54,8 @@ public class OrderResource {
     @Secured
     public Response getOrderById(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.getOrderById(principal.getUserId(), id, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<OrderResponse> result = orderService.getOrderById(principal.getUserId(), id, isManager);
         return Response.ok(result).build();
     }
 
@@ -64,8 +64,8 @@ public class OrderResource {
     @Secured
     public Response getOrderByCode(@Context SecurityContext securityContext, @PathParam("orderCode") String orderCode) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.getOrderByCode(principal.getUserId(), orderCode, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<OrderResponse> result = orderService.getOrderByCode(principal.getUserId(), orderCode, isManager);
         return Response.ok(result).build();
     }
 
@@ -74,14 +74,14 @@ public class OrderResource {
     @Secured
     public Response cancelOrder(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
         UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<OrderResponse> result = orderService.cancelOrder(principal.getUserId(), id, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<OrderResponse> result = orderService.cancelOrder(principal.getUserId(), id, isManager);
         return Response.ok(result).build();
     }
 
     @GET
     @Path("/admin")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response getAllOrders(@QueryParam("status") String status) {
         ApiResponse<List<OrderResponse>> result = orderService.getAllOrders(status);
         return Response.ok(result).build();
@@ -89,7 +89,7 @@ public class OrderResource {
 
     @PUT
     @Path("/admin/{id}/status")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response updateOrderStatus(@PathParam("id") Integer id, @Valid UpdateOrderStatusRequest request) {
         ApiResponse<OrderResponse> result = orderService.updateOrderStatus(id, request);
         return Response.ok(result).build();
@@ -97,11 +97,10 @@ public class OrderResource {
 
     @DELETE
     @Path("/admin/{id}")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response deleteOrder(@Context SecurityContext securityContext, @PathParam("id") Integer id) {
-        boolean isAdmin = securityContext.isUserInRole("admin");
-        ApiResponse<String> result = orderService.deleteOrder(id, isAdmin);
+        boolean isManager = securityContext.isUserInRole("MANAGER");
+        ApiResponse<String> result = orderService.deleteOrder(id, isManager);
         return Response.ok(result).build();
     }
 }
-

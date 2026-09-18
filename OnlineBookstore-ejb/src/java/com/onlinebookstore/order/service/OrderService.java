@@ -156,7 +156,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public ApiResponse<OrderResponse> getOrderById(Integer userId, Integer orderId, boolean isAdmin) {
+    public ApiResponse<OrderResponse> getOrderById(Integer userId, Integer orderId, boolean isManager) {
         if (orderId == null) {
             return ApiResponse.failed("Invalid order ID");
         }
@@ -166,7 +166,7 @@ public class OrderService implements IOrderService {
             return ApiResponse.failed("Order not found");
         }
 
-        if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
+        if (!isManager && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
             return ApiResponse.failed("Access denied: You can only view your own orders");
         }
 
@@ -174,7 +174,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public ApiResponse<OrderResponse> getOrderByCode(Integer userId, String orderCode, boolean isAdmin) {
+    public ApiResponse<OrderResponse> getOrderByCode(Integer userId, String orderCode, boolean isManager) {
         if (orderCode == null || orderCode.trim().isEmpty()) {
             return ApiResponse.failed("Invalid order code");
         }
@@ -184,7 +184,7 @@ public class OrderService implements IOrderService {
             return ApiResponse.failed("Order not found");
         }
 
-        if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
+        if (!isManager && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
             return ApiResponse.failed("Access denied: You can only view your own orders");
         }
 
@@ -193,7 +193,7 @@ public class OrderService implements IOrderService {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public ApiResponse<OrderResponse> cancelOrder(Integer userId, Integer orderId, boolean isAdmin) {
+    public ApiResponse<OrderResponse> cancelOrder(Integer userId, Integer orderId, boolean isManager) {
         if (orderId == null) {
             throw new BadRequestException("Invalid order ID");
         }
@@ -203,7 +203,7 @@ public class OrderService implements IOrderService {
             throw new ResourceNotFoundException("Order not found");
         }
 
-        if (!isAdmin && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
+        if (!isManager && (order.getUserId() == null || !order.getUserId().getId().equals(userId))) {
             throw new BadRequestException("Access denied: You can only cancel your own orders");
         }
 
@@ -311,9 +311,9 @@ public class OrderService implements IOrderService {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public ApiResponse<String> deleteOrder(Integer orderId, boolean isAdmin) {
-        if (!isAdmin) {
-            throw new BadRequestException("Access denied: Only administrators can delete orders");
+    public ApiResponse<String> deleteOrder(Integer orderId, boolean isManager) {
+        if (!isManager) {
+            throw new BadRequestException("Access denied: Only managers can delete orders");
         }
 
         if (orderId == null) {

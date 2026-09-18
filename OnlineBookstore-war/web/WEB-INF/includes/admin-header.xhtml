@@ -14,7 +14,10 @@
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
                 <a href="#{request.contextPath}/pages/admin/books.xhtml" class="nav-link #{activePage == 'books' ? 'active' : ''}">
-                    <i class="bi bi-journals"></i> Book Management
+                    <i class="bi bi-journals"></i> Books
+                </a>
+                <a href="#{request.contextPath}/pages/admin/authors.xhtml" class="nav-link #{activePage == 'authors' ? 'active' : ''}">
+                    <i class="bi bi-person-badge"></i> Authors
                 </a>
                 <a href="#{request.contextPath}/pages/admin/users.xhtml" class="nav-link #{activePage == 'users' ? 'active' : ''}">
                     <i class="bi bi-people"></i> Users
@@ -25,9 +28,6 @@
             </nav>
 
             <div class="nav-actions" id="headerAuthContainer">
-                <a href="#{request.contextPath}/pages/customer/home.xhtml" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-shop"></i> Customer Store
-                </a>
                 <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sign Out">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </button>

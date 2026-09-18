@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.SecurityContext;
 @Path("/cart")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Secured({"CUSTOMER"})
 public class CartResource {
 
     @Inject

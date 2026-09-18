@@ -3,22 +3,12 @@
  * Encapsulates fetch logic, base URL handling, headers, and error catching.
  */
 
-const ApiClient = {
-    /**
-     * Resolve the base API endpoint root context.
-     * @returns {string} e.g. "/OnlineBookstore-war/api" or "/api"
-     */
+var ApiClient = window.ApiClient || {
     getBaseUrl() {
         const contextPath = typeof getContextPath === 'function' ? getContextPath() : '';
         return contextPath + '/api';
     },
 
-    /**
-     * Core request wrapper
-     * @param {string} endpoint - Path relative to base API (e.g. '/books' or '/auth/login')
-     * @param {Object} options - Fetch options (method, headers, body)
-     * @returns {Promise<any>} Parsed response data
-     */
     async request(endpoint, options = {}) {
         const url = this.getBaseUrl() + (endpoint.startsWith('/') ? endpoint : '/' + endpoint);
         
@@ -56,7 +46,6 @@ const ApiClient = {
                     errorDetails = { message: await response.text() };
                 }
                 
-                // If 401 Unauthorized, session token is invalid or expired -> clear session
                 if (response.status === 401) {
                     console.warn('[ApiClient] Session invalid or expired (401 Unauthorized). Clearing session.');
                     if (typeof clearSession === 'function') {
@@ -78,7 +67,6 @@ const ApiClient = {
                 throw error;
             }
 
-            // Parse response JSON if present
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 return await response.json();
@@ -91,9 +79,6 @@ const ApiClient = {
         }
     },
 
-    /**
-     * HTTP GET method
-     */
     get(endpoint, params = {}) {
         const queryString = new URLSearchParams();
         Object.keys(params).forEach(key => {
@@ -107,23 +92,14 @@ const ApiClient = {
         return this.request(fullEndpoint, { method: 'GET' });
     },
 
-    /**
-     * HTTP POST method
-     */
     post(endpoint, body = {}) {
         return this.request(endpoint, { method: 'POST', body });
     },
 
-    /**
-     * HTTP PUT method
-     */
     put(endpoint, body = {}) {
         return this.request(endpoint, { method: 'PUT', body });
     },
 
-    /**
-     * HTTP DELETE method
-     */
     delete(endpoint) {
         return this.request(endpoint, { method: 'DELETE' });
     }

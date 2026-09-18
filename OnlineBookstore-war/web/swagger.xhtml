@@ -51,28 +51,36 @@
 </h:head>
 
 <h:body>
-    <ui:include src="/WEB-INF/includes/customer-header.xhtml">
+    <ui:include src="/WEB-INF/includes/admin-header.xhtml">
         <ui:param name="activePage" value="swagger" />
     </ui:include>
 
     <main class="container">
-        <div class="page-header" style="margin-top: 2rem;">
-            <h1 class="page-title"><i class="bi bi-code-slash"></i> Backend REST API Documentation</h1>
-            <p class="page-subtitle">Interactive Swagger UI testing suite powered by OpenAPI 3.0 specification.</p>
-        </div>
+        <div id="adminAccessGuard">
+            <div class="page-header" style="margin-top: 2rem;">
+                <h1 class="page-title"><i class="bi bi-code-slash"></i> Backend REST API Documentation</h1>
+                <p class="page-subtitle">Interactive Swagger UI testing suite powered by OpenAPI 3.0 specification. Restricted to Manager &amp; Admin roles.</p>
+            </div>
 
-        <div class="swagger-wrap">
-            <div id="swagger-ui"></div>
+            <div class="swagger-wrap">
+                <div id="swagger-ui"></div>
+            </div>
         </div>
     </main>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/common/core.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if (typeof checkAdminAccessGuard === 'function') {
+                const allowed = checkAdminAccessGuard();
+                if (!allowed) return;
+            }
+
             const specUrl = getContextPath() + '/api/openapi.json';
+            
             SwaggerUIBundle({
                 url: specUrl,
                 dom_id: '#swagger-ui',
@@ -81,7 +89,15 @@
                     SwaggerUIBundle.presets.apis,
                     SwaggerUIBundle.SwaggerUIStandalonePreset
                 ],
-                layout: "BaseLayout"
+                layout: "BaseLayout",
+                requestInterceptor: (req) => {
+                    const token = typeof getSessionId === 'function' ? getSessionId() : localStorage.getItem('sessionId');
+                    if (token) {
+                        req.headers['Authorization'] = 'Bearer ' + token;
+                        req.headers['X-Session-ID'] = token;
+                    }
+                    return req;
+                }
             });
         });
     </script>

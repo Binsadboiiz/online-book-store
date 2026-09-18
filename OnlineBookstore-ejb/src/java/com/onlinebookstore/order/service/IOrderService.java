@@ -12,16 +12,16 @@ public interface IOrderService {
 
     ApiResponse<List<OrderResponse>> getUserOrders(Integer userId);
 
-    ApiResponse<OrderResponse> getOrderById(Integer userId, Integer orderId, boolean isAdmin);
+    ApiResponse<OrderResponse> getOrderById(Integer userId, Integer orderId, boolean isManager);
 
-    ApiResponse<OrderResponse> getOrderByCode(Integer userId, String orderCode, boolean isAdmin);
+    ApiResponse<OrderResponse> getOrderByCode(Integer userId, String orderCode, boolean isManager);
 
-    ApiResponse<OrderResponse> cancelOrder(Integer userId, Integer orderId, boolean isAdmin);
+    ApiResponse<OrderResponse> cancelOrder(Integer userId, Integer orderId, boolean isManager);
 
     ApiResponse<List<OrderResponse>> getAllOrders(String status);
 
     ApiResponse<OrderResponse> updateOrderStatus(Integer orderId, UpdateOrderStatusRequest request);
 
-    ApiResponse<String> deleteOrder(Integer orderId, boolean isAdmin);
+    ApiResponse<String> deleteOrder(Integer orderId, boolean isManager);
 }
 

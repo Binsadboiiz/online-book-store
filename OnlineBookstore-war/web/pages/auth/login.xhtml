@@ -54,8 +54,8 @@
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/core.js"></script>
-    <script src="#{request.contextPath}/js/api-client.js"></script>
+    <script src="#{request.contextPath}/js/common/core.js"></script>
+    <script src="#{request.contextPath}/js/api/api-client.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('loginForm');
@@ -86,15 +86,11 @@
                         if (sessionId &amp;&amp; user) {
                             saveSession(sessionId, user);
 
-                            // Role-based Navigation
-                            const urlParams = new URLSearchParams(window.location.search);
-                            const redirect = urlParams.get('redirect');
-                            const context = getContextPath();
-
-                            if (redirect &amp;&amp; redirect.startsWith(context)) {
-                                window.location.href = redirect;
-                            } else if (user.role === 'admin') {
+                            const userRole = (user.role || '').toLowerCase();
+                            if (userRole === 'manager' || userRole === 'admin') {
                                 window.location.href = context + '/pages/admin/dashboard.xhtml';
+                            } else if (redirect &amp;&amp; redirect.startsWith(context) &amp;&amp; !redirect.includes('/pages/admin/')) {
+                                window.location.href = redirect;
                             } else {
                                 window.location.href = context + '/pages/customer/home.xhtml';
                             }

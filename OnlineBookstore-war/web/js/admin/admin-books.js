@@ -3,7 +3,7 @@
  * Inventory Table Management & CRUD Modal Submissions
  */
 
-let adminBooks = [];
+var adminBooks = window.adminBooks || [];
 
 document.addEventListener('DOMContentLoaded', () => {
     const addBookForm = document.getElementById('addBookForm');
@@ -23,8 +23,8 @@ async function fetchAdminBookTable() {
         renderAdminTable(adminBooks);
     } catch (e) {
         console.warn('Failed to fetch admin inventory:', e);
-        adminBooks = getDemoBooks();
-        renderAdminTable(adminBooks);
+        renderAdminTable([]);
+        if (window.Toast) Toast.error('Failed to load inventory data: ' + (e.message || ''));
     }
 }
 
@@ -49,20 +49,23 @@ function renderAdminTable(books) {
             <td>${b.stockQuantity} pcs</td>
             <td><span class="book-category-badge" style="margin: 0;">${b.active !== false ? 'Active' : 'Disabled'}</span></td>
             <td>
-                <button class="btn btn-secondary btn-sm" onclick="editBookAdmin(${b.id})">
-                    <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteBookAdmin(${b.id})">
-                    <i class="bi bi-trash"></i> Delete
-                </button>
+                <div class="action-btns">
+                    <button class="btn btn-secondary btn-sm" onclick="editBookAdmin(${b.id})">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteBookAdmin(${b.id})">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
             </td>
         </tr>
     `).join('');
 }
 
 function openAddBookModal(editBookId = null) {
-    if (getUserRole() !== 'admin') {
-        alert('Access Restricted: Only Admin users can perform book management operations.');
+    const role = getUserRole();
+    if (role !== 'manager' && role !== 'admin') {
+        if (window.Toast) Toast.warning('Access Restricted: Only Manager/Admin users can perform book management.');
         return;
     }
 
@@ -103,72 +106,61 @@ function editBookAdmin(id) {
 }
 
 async function deleteBookAdmin(id) {
-    if (getUserRole() !== 'admin') {
-        alert('Access Restricted: Only Admin users can delete books.');
+    const role = getUserRole();
+    if (role !== 'manager' && role !== 'admin') {
+        if (window.Toast) Toast.warning('Access Restricted: Only Manager or Admin users can delete books.');
         return;
     }
 
-    if (!confirm('Are you sure you want to delete book #' + id + '?')) return;
+    if (!confirm(`Are you sure you want to delete Book ID #${id}?`)) {
+        return;
+    }
 
-    const result = await BookApi.delete(id);
-    if (result.success) {
-        alert('Book deleted successfully!');
+    try {
+        await BookApi.delete(id);
+        if (window.Toast) Toast.success('Book deleted successfully!');
         fetchAdminBookTable();
-    } else {
-        // Fallback for client-side demo view
-        adminBooks = adminBooks.filter(b => b.id !== id);
-        renderAdminTable(adminBooks);
-        alert('Book removed from local inventory view!');
+    } catch (e) {
+        if (window.Toast) Toast.error('Failed to delete book: ' + (e.message || ''));
     }
 }
 
 async function handleAddBookSubmit(e) {
     e.preventDefault();
-    if (getUserRole() !== 'admin') {
-        alert('Access Restricted: Only Admin users can create or modify books.');
+    const role = getUserRole();
+    if (role !== 'manager' && role !== 'admin') {
+        if (window.Toast) Toast.warning('Access Restricted: Only Manager or Admin users can create or modify books.');
         return;
     }
 
     const form = e.target;
     const bookId = document.getElementById('bookIdInput').value;
-    
+
     const requestData = {
-        title: form.title.value.trim(),
-        isbn: form.isbn.value.trim() || null,
-        price: parseFloat(form.price.value),
+        title: form.title.value,
+        isbn: form.isbn.value,
+        price: parseFloat(form.price.value) || 0,
         discountPrice: form.discountPrice.value ? parseFloat(form.discountPrice.value) : null,
         stockQuantity: parseInt(form.stockQuantity.value) || 0,
-        description: form.description.value.trim() || null,
-        coverImage: form.coverImage.value.trim() || null,
-        publishedYear: form.publishedYear.value ? parseInt(form.publishedYear.value) : null,
+        description: form.description.value,
+        coverImage: form.coverImage.value,
+        publishedYear: parseInt(form.publishedYear.value) || 2024,
         pages: form.pages.value ? parseInt(form.pages.value) : null,
-        language: form.language.value.trim() || 'English',
+        language: form.language.value || 'English',
         active: true
     };
 
-    const isEdit = !!bookId;
-    const result = isEdit ? await BookApi.update(bookId, requestData) : await BookApi.create(requestData);
-
-    if (result.success) {
-        alert(isEdit ? 'Book updated successfully!' : 'Book created successfully!');
-        form.reset();
+    try {
+        const isEdit = !!bookId;
+        if (isEdit) {
+            await BookApi.update(bookId, requestData);
+        } else {
+            await BookApi.create(requestData);
+        }
+        if (window.Toast) Toast.success(isEdit ? 'Book updated successfully!' : 'Book created successfully!');
         closeModals();
         fetchAdminBookTable();
-        return;
+    } catch (err) {
+        if (window.Toast) Toast.error('Save failed: ' + (err.message || 'Unknown error'));
     }
-
-    // Local fallback for UI demo
-    if (isEdit) {
-        const index = adminBooks.findIndex(b => b.id == bookId);
-        if (index !== -1) {
-            adminBooks[index] = { ...adminBooks[index], ...requestData };
-        }
-    } else {
-        const newId = adminBooks.length > 0 ? Math.max(...adminBooks.map(b => b.id)) + 1 : 1;
-        adminBooks.unshift({ id: newId, ...requestData, categoryName: 'General', authorName: 'Various Authors' });
-    }
-
-    alert(isEdit ? 'Book updated successfully (Demo)!' : 'Book added successfully (Demo)!');
-    closeModals();
-    renderAdminTable(adminBooks);
 }

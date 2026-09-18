@@ -1,5 +1,7 @@
 package com.onlinebookstore.common.swagger;
 
+import com.onlinebookstore.common.security.Secured;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -10,6 +12,7 @@ import jakarta.ws.rs.core.Response;
 public class OpenApiResource {
 
     @GET
+    @Secured({"manager", "admin"})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOpenApiSpec() {
         String jsonSpec = """
@@ -97,7 +100,7 @@ public class OpenApiResource {
               },
               "post": {
                 "summary": "Create a new book",
-                "description": "Requires Admin security role.",
+                "description": "Requires Manager security role.",
                 "tags": ["Books"],
                 "security": [{ "BearerAuth": [] }],
                 "requestBody": {
@@ -109,7 +112,7 @@ public class OpenApiResource {
                 "responses": {
                   "201": { "description": "Book created successfully" },
                   "401": { "description": "Unauthorized" },
-                  "403": { "description": "Forbidden - Admin access required" }
+                  "403": { "description": "Forbidden - Manager access required" }
                 }
               }
             },

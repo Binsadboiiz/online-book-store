@@ -46,7 +46,7 @@ public class AuthService {
         user.setEmail(request.getEmail().trim().toLowerCase());
         user.setPassword(PasswordHasher.hash(request.getPassword()));
         user.setFullName(request.getFullName().trim());
-        user.setRole("customer");
+        user.setRole("CUSTOMER");
         user.setIsActive(true);
         
         LocalDateTime now = LocalDateTime.now();

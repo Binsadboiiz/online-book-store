@@ -62,9 +62,12 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <a href="#{request.contextPath}/pages/admin/books.xhtml" class="btn btn-primary">
                     <i class="bi bi-journals" style="margin-right: 0.4rem;"></i> Book Management &#8594;
+                </a>
+                <a href="#{request.contextPath}/pages/admin/authors.xhtml" class="btn btn-secondary">
+                    <i class="bi bi-person-badge" style="margin-right: 0.4rem;"></i> Author Management &#8594;
                 </a>
                 <a href="#{request.contextPath}/pages/admin/users.xhtml" class="btn btn-secondary">
                     <i class="bi bi-people" style="margin-right: 0.4rem;"></i> User Management &#8594;
@@ -75,7 +78,7 @@
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/core.js"></script>
+    <script src="#{request.contextPath}/js/common/core.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             checkAdminAccessGuard();

@@ -48,7 +48,7 @@ public class BookResource {
     }
 
     @POST
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response createBook(@Valid BookRequest request) {
         ApiResponse<BookResponse> result = bookService.createBook(request);
         return Response.status(Response.Status.CREATED).entity(result).build();
@@ -56,7 +56,7 @@ public class BookResource {
 
     @PUT
     @Path("/{id}")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response updateBook(@PathParam("id") Integer id, @Valid BookRequest request) {
         ApiResponse<BookResponse> result = bookService.updateBook(id, request);
         return Response.ok(result).build();
@@ -64,7 +64,7 @@ public class BookResource {
 
     @DELETE
     @Path("/{id}")
-    @Secured({"admin"})
+    @Secured({"MANAGER"})
     public Response deleteBook(@PathParam("id") Integer id) {
         ApiResponse<String> result = bookService.deleteBook(id);
         return Response.ok(result).build();
