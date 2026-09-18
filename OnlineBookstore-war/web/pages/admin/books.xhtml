@@ -27,6 +27,24 @@
                 </button>
             </div>
 
+            <!-- Filter & Search Toolbar -->
+            <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <div style="position: relative; flex: 1; min-width: 250px; max-width: 400px;">
+                    <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                    <input type="text" id="adminBookSearch" class="input-field" placeholder="Search title, ISBN, author..." style="width: 100%; padding-left: 2.5rem;" />
+                </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <select id="adminBookCategoryFilter" class="select-field" style="width: 170px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="adminBookStockFilter" class="select-field" style="width: 150px;">
+                        <option value="">All Stock Status</option>
+                        <option value="INSTOCK">In Stock</option>
+                        <option value="OUTOFSTOCK">Out of Stock</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- Book Inventory Table -->
             <section class="card-table-wrap">
                 <table class="data-table">
@@ -53,64 +71,102 @@
 
     <!-- Add/Edit Book Modal -->
     <div id="addBookModal" class="modal-backdrop">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 650px;">
             <button class="modal-close" onclick="closeModals()">&#215;</button>
             <h2 id="modalFormTitle" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Add New Book</h2>
             
             <form id="addBookForm">
                 <input type="hidden" name="bookId" id="bookIdInput" />
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 1.1rem;">
                     <label class="form-label">Book Title *</label>
-                    <input type="text" name="title" class="input-field" required="required" placeholder="Enter book title" />
+                    <input type="text" name="title" class="input-field" required="required" placeholder="Enter book title" style="width: 100%;" />
                 </div>
 
-                <div class="form-row">
+                <!-- Author Selection Section -->
+                <div class="form-group" style="margin-bottom: 1.1rem; background: var(--bg-surface, #f8fafc); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                    <label class="form-label" style="font-weight: 700;">Author Information *</label>
+                    <div style="display: flex; gap: 1.5rem; margin-bottom: 0.75rem;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 600;">
+                            <input type="radio" name="authorMode" value="EXISTING" checked="checked" onchange="toggleAuthorMode('EXISTING')" />
+                            Select Existing Author
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 600;">
+                            <input type="radio" name="authorMode" value="NEW" onchange="toggleAuthorMode('NEW')" />
+                            Add New Author Details
+                        </label>
+                    </div>
+
+                    <div id="existingAuthorSection">
+                        <select id="authorSelect" name="authorId" class="select-field" style="width: 100%;">
+                            <option value="">-- Select Author --</option>
+                        </select>
+                    </div>
+
+                    <div id="newAuthorSection" style="display: none;">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label class="form-label" style="font-size: 0.85rem;">Author Full Name *</label>
+                            <input type="text" id="newAuthorNameInput" name="newAuthorName" class="input-field" placeholder="e.g. Robert C. Martin" style="width: 100%;" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 0.85rem;">Author Biography (Optional)</label>
+                            <input type="text" id="newAuthorBioInput" name="newAuthorBio" class="input-field" placeholder="Short author biography..." style="width: 100%;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="bookCategorySelect" name="categoryId" class="select-field" style="width: 100%;">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">ISBN Code</label>
-                        <input type="text" name="isbn" class="input-field" placeholder="e.g. 978-0132350884" />
+                        <input type="text" name="isbn" class="input-field" placeholder="e.g. 978-0132350884" style="width: 100%;" />
                     </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
                     <div class="form-group">
                         <label class="form-label">List Price ($/VND) *</label>
-                        <input type="number" name="price" class="input-field" required="required" min="0" step="1000" placeholder="250000" />
+                        <input type="number" name="price" class="input-field" required="required" min="0" step="1000" placeholder="250000" style="width: 100%;" />
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Discount Price</label>
-                        <input type="number" name="discountPrice" class="input-field" min="0" step="1000" placeholder="200000" />
+                        <input type="number" name="discountPrice" class="input-field" min="0" step="1000" placeholder="200000" style="width: 100%;" />
                     </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
                     <div class="form-group">
                         <label class="form-label">Stock Quantity *</label>
-                        <input type="number" name="stockQuantity" class="input-field" required="required" min="0" value="10" />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="input-field" rows="3" placeholder="Enter book summary or description..."></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Cover Image URL</label>
-                        <input type="url" name="coverImage" class="input-field" placeholder="https://example.com/cover.jpg" />
+                        <input type="number" name="stockQuantity" class="input-field" required="required" min="0" value="10" style="width: 100%;" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Published Year</label>
-                        <input type="number" name="publishedYear" class="input-field" min="1000" max="2099" value="2024" />
+                        <input type="number" name="publishedYear" class="input-field" min="1000" max="2099" value="2024" style="width: 100%;" />
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="input-field" rows="3" placeholder="Enter book summary or description..." style="width: 100%;"></textarea>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div class="form-group">
+                        <label class="form-label">Cover Image URL</label>
+                        <input type="url" name="coverImage" class="input-field" placeholder="https://example.com/cover.jpg" style="width: 100%;" />
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Pages</label>
-                        <input type="number" name="pages" class="input-field" min="1" placeholder="350" />
+                        <input type="number" name="pages" class="input-field" min="1" placeholder="350" style="width: 100%;" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Language</label>
-                        <input type="text" name="language" class="input-field" value="English" />
+                        <input type="text" name="language" class="input-field" value="Tiếng Việt" style="width: 100%;" />
                     </div>
                 </div>
 

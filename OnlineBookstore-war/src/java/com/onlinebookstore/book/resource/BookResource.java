@@ -2,6 +2,7 @@ package com.onlinebookstore.book.resource;
 
 import com.onlinebookstore.book.dto.BookRequest;
 import com.onlinebookstore.book.dto.BookResponse;
+import com.onlinebookstore.book.dto.CategoryResponse;
 import com.onlinebookstore.book.service.BookService;
 import com.onlinebookstore.common.dto.ApiResponse;
 import com.onlinebookstore.common.security.Secured;
@@ -10,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -37,6 +39,20 @@ public class BookResource {
             @QueryParam("publisherId") Integer publisherId
     ) {
         ApiResponse<List<BookResponse>> result = bookService.getBooks(search, categoryId, authorId, publisherId);
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/top-selling")
+    public Response getTopSelling(@QueryParam("limit") @DefaultValue("10") int limit) {
+        ApiResponse<List<BookResponse>> result = bookService.getTopSellingBooks(limit);
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/categories")
+    public Response getCategories() {
+        ApiResponse<List<CategoryResponse>> result = bookService.getCategories();
         return Response.ok(result).build();
     }
 

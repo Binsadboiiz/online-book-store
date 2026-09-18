@@ -25,6 +25,10 @@ public class BookRequest {
 
     private Integer authorId;
 
+    private String newAuthorName;
+
+    private String newAuthorBio;
+
     private Integer categoryId;
 
     private Integer publisherId;
@@ -167,5 +171,21 @@ public class BookRequest {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public String getNewAuthorName() {
+        return newAuthorName;
+    }
+
+    public void setNewAuthorName(String newAuthorName) {
+        this.newAuthorName = newAuthorName;
+    }
+
+    public String getNewAuthorBio() {
+        return newAuthorBio;
+    }
+
+    public void setNewAuthorBio(String newAuthorBio) {
+        this.newAuthorBio = newAuthorBio;
     }
 }

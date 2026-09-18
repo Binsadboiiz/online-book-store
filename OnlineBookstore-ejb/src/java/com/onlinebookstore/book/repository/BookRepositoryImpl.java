@@ -106,6 +106,32 @@ public class BookRepositoryImpl implements IBookRepository {
     }
 
     @Override
+    public List<Books> findTopSelling(int limit) {
+        try {
+            List<Books> topBooks = entityManager.createQuery(
+                    "SELECT oi.bookId FROM OrderItems oi WHERE oi.bookId.isActive = true GROUP BY oi.bookId ORDER BY SUM(oi.quantity) DESC", Books.class)
+                    .setMaxResults(limit)
+                    .getResultList();
+            if (topBooks.size() < limit) {
+                List<Books> fallback = entityManager.createQuery(
+                        "SELECT b FROM Books b WHERE b.isActive = true ORDER BY b.id DESC", Books.class)
+                        .setMaxResults(limit)
+                        .getResultList();
+                for (Books b : fallback) {
+                    if (!topBooks.contains(b) && topBooks.size() < limit) {
+                        topBooks.add(b);
+                    }
+                }
+            }
+            return topBooks;
+        } catch (Exception e) {
+            return entityManager.createQuery("SELECT b FROM Books b WHERE b.isActive = true ORDER BY b.id DESC", Books.class)
+                    .setMaxResults(limit)
+                    .getResultList();
+        }
+    }
+
+    @Override
     public boolean existsByIsbn(String isbn) {
         Long count = entityManager.createQuery("SELECT COUNT(b) FROM Books b WHERE b.isbn = :isbn", Long.class)
                 .setParameter("isbn", isbn)

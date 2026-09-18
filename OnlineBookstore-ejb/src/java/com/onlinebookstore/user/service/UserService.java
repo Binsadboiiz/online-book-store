@@ -67,8 +67,11 @@ public class UserService {
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             throw new BadRequestException("Email is required");
         }
-        if (request.getPassword() == null || request.getPassword().trim().length() < 6) {
-            throw new BadRequestException("Password must be at least 6 characters");
+        if (request.getPassword() == null || !request.getPassword().matches("^(?=.*[A-Z]).{8,}$")) {
+            throw new BadRequestException("Password must be at least 8 characters long and contain at least 1 uppercase letter");
+        }
+        if (request.getFullName() != null && request.getFullName().matches(".*[0-9].*")) {
+            throw new BadRequestException("Full name cannot contain numbers");
         }
 
         if (userRepository.existsByUsername(request.getUsername().trim())) {
@@ -115,6 +118,9 @@ public class UserService {
         }
 
         if (request.getFullName() != null && !request.getFullName().trim().isEmpty()) {
+            if (request.getFullName().matches(".*[0-9].*")) {
+                throw new BadRequestException("Full name cannot contain numbers");
+            }
             user.setFullName(request.getFullName().trim());
         }
 
@@ -127,8 +133,8 @@ public class UserService {
         }
 
         if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-            if (request.getPassword().trim().length() < 6) {
-                throw new BadRequestException("Password must be at least 6 characters long");
+            if (!request.getPassword().matches("^(?=.*[A-Z]).{8,}$")) {
+                throw new BadRequestException("Password must be at least 8 characters long and contain at least 1 uppercase letter");
             }
             user.setPassword(PasswordHasher.hash(request.getPassword().trim()));
         }

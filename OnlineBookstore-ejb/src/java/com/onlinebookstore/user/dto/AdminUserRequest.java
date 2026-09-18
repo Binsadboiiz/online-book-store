@@ -13,11 +13,12 @@ public class AdminUserRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @Size(min = 6, max = 100, message = "Password must be at least 6 characters")
+    @jakarta.validation.constraints.Pattern(regexp = "^(?=.*[A-Z]).{8,}$", message = "Password must be at least 8 characters long and contain at least 1 uppercase letter")
     private String password;
 
     @NotNull(message = "Full name is required")
     @Size(min = 1, max = 100, message = "Full name must be between 1 and 100 characters")
+    @jakarta.validation.constraints.Pattern(regexp = "^[^0-9]+$", message = "Full name cannot contain numbers")
     private String fullName;
 
     private String role; // CUSTOMER, MANAGER, ADMIN

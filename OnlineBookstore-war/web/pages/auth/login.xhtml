@@ -57,6 +57,7 @@
     <script src="#{request.contextPath}/js/common/core.js"></script>
     <script src="#{request.contextPath}/js/api/api-client.js"></script>
     <script>
+        //<![CDATA[
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('loginForm');
             const alertEl = document.getElementById('loginAlert');
@@ -83,13 +84,17 @@
                         const sessionId = data.sessionId || data.token;
                         const user = data.user;
 
-                        if (sessionId &amp;&amp; user) {
+                        if (sessionId && user) {
                             saveSession(sessionId, user);
 
+                            const context = getContextPath();
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirect = urlParams.get('redirect');
                             const userRole = (user.role || '').toLowerCase();
+
                             if (userRole === 'manager' || userRole === 'admin') {
                                 window.location.href = context + '/pages/admin/dashboard.xhtml';
-                            } else if (redirect &amp;&amp; redirect.startsWith(context) &amp;&amp; !redirect.includes('/pages/admin/')) {
+                            } else if (redirect && redirect.startsWith(context) && !redirect.includes('/pages/admin/')) {
                                 window.location.href = redirect;
                             } else {
                                 window.location.href = context + '/pages/customer/home.xhtml';
@@ -121,6 +126,7 @@
                 }
             }
         });
+        //]]>
     </script>
 </h:body>
 </html>

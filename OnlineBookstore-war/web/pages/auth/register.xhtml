@@ -74,6 +74,7 @@
     <script src="#{request.contextPath}/js/common/core.js"></script>
     <script src="#{request.contextPath}/js/api/api-client.js"></script>
     <script>
+        //<![CDATA[
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('registerForm');
             const alertEl = document.getElementById('regAlert');
@@ -89,6 +90,16 @@
                     const fullName = document.getElementById('regFullName').value.trim();
                     const password = document.getElementById('regPassword').value;
                     const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+                    if (/\d/.test(fullName)) {
+                        showError('Full name cannot contain numbers.');
+                        return;
+                    }
+
+                    if (password.length < 8 || !/[A-Z]/.test(password)) {
+                        showError('Password must be at least 8 characters long and contain at least 1 uppercase letter.');
+                        return;
+                    }
 
                     if (password !== confirmPassword) {
                         showError('Passwords do not match. Please re-enter your password.');
@@ -143,6 +154,7 @@
                 }
             }
         });
+        //]]>
     </script>
 </h:body>
 </html>

@@ -2,6 +2,7 @@ package com.onlinebookstore.book.service;
 
 import com.onlinebookstore.book.dto.BookRequest;
 import com.onlinebookstore.book.dto.BookResponse;
+import com.onlinebookstore.book.dto.CategoryResponse;
 import com.onlinebookstore.book.entity.Authors;
 import com.onlinebookstore.book.entity.Books;
 import com.onlinebookstore.book.entity.Categories;
@@ -47,6 +48,24 @@ public class BookService {
                 .collect(Collectors.toList());
 
         return ApiResponse.success("Fetched books successfully", responses);
+    }
+
+    public ApiResponse<List<BookResponse>> getTopSellingBooks(int limit) {
+        List<Books> books = bookRepository.findTopSelling(limit > 0 ? limit : 10);
+        List<BookResponse> responses = books.stream()
+                .map(BookResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ApiResponse.success("Top selling books retrieved", responses);
+    }
+
+    public ApiResponse<List<CategoryResponse>> getCategories() {
+        List<Categories> categories = entityManager.createQuery(
+                "SELECT c FROM Categories c WHERE c.isActive = true ORDER BY c.name ASC", Categories.class)
+                .getResultList();
+        List<CategoryResponse> responses = categories.stream()
+                .map(CategoryResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ApiResponse.success("Categories retrieved successfully", responses);
     }
 
     public ApiResponse<BookResponse> getBookById(Integer id) {
@@ -116,6 +135,26 @@ public class BookService {
 
         if (request.getAuthorId() != null) {
             book.setAuthorId(entityManager.find(Authors.class, request.getAuthorId()));
+        } else if (request.getNewAuthorName() != null && !request.getNewAuthorName().trim().isEmpty()) {
+            String authorName = request.getNewAuthorName().trim();
+            Authors author = null;
+            try {
+                author = entityManager.createQuery("SELECT a FROM Authors a WHERE LOWER(a.name) = :name", Authors.class)
+                        .setParameter("name", authorName.toLowerCase())
+                        .setMaxResults(1)
+                        .getSingleResult();
+            } catch (jakarta.persistence.NoResultException e) {
+                author = null;
+            }
+
+            if (author == null) {
+                author = new Authors();
+                author.setName(authorName);
+                author.setBio(request.getNewAuthorBio() != null ? request.getNewAuthorBio().trim() : null);
+                author.setCreatedAt(new Date());
+                entityManager.persist(author);
+            }
+            book.setAuthorId(author);
         } else {
             book.setAuthorId(null);
         }

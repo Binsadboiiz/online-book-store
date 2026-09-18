@@ -29,6 +29,14 @@ public class AuthService {
     
     public ApiResponse<UserResponse> register(RegisterRequest request) {
         
+        if (request.getFullName() != null && request.getFullName().matches(".*[0-9].*")) {
+            throw new BadRequestException("Full name cannot contain numbers");
+        }
+
+        if (request.getPassword() == null || !request.getPassword().matches("^(?=.*[A-Z]).{8,}$")) {
+            throw new BadRequestException("Password must be at least 8 characters long and contain at least 1 uppercase letter");
+        }
+
         // Check username
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new ConflictException("Username already exists");

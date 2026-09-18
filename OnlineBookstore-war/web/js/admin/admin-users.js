@@ -182,8 +182,16 @@ async function handleUserFormSubmit(e) {
         active: form.active.value === 'true'
     };
 
-    if (form.password.value) {
-        payload.password = form.password.value;
+    if (/\d/.test(payload.fullName)) {
+        if (window.Toast) Toast.warning('Full name cannot contain numbers.');
+        return;
+    }
+
+    if (payload.password) {
+        if (payload.password.length < 8 || !/[A-Z]/.test(payload.password)) {
+            if (window.Toast) Toast.warning('Password must be at least 8 characters long and contain at least 1 uppercase letter.');
+            return;
+        }
     }
 
     try {

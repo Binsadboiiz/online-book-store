@@ -22,11 +22,13 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 255, message = "Password must be between 6 and 255 characters")
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
+    @jakarta.validation.constraints.Pattern(regexp = "^(?=.*[A-Z]).{8,}$", message = "Password must be at least 8 characters long and contain at least 1 uppercase letter")
     private String password;
 
     @NotBlank(message = "Full name is required")
     @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
+    @jakarta.validation.constraints.Pattern(regexp = "^[^0-9]+$", message = "Full name cannot contain numbers")
     private String fullName;
 
     

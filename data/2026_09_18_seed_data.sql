@@ -217,6 +217,485 @@ IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780062073488')
 IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780525559474')
     INSERT INTO books (title, isbn, author_id, category_id, publisher_id, price, discount_price, stock_quantity, description, cover_image, published_year, pages, language, is_active)
     VALUES (N'The Midnight Library', '9780525559474', @AuthHaig, @CatFiction, @PubPenguin, 26.00, 19.99, 45, N'Between life and death there is a library where every book offers a chance to try another life you could have lived. Nora Seed finds herself faced with this choice.', 'https://images-na.ssl-images-amazon.com/images/I/81J6APjwxlL.jpg', 2020, 304, N'English', 1);
+
+-- =========================================================
+-- 1. HARRY POTTER AND THE PHILOSOPHER'S STONE
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780747532699')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Harry Potter and the Philosopher''s Stone',
+        '9780747532699',
+        @AuthRowling,
+        @CatFantasy,
+        @PubBloomsbury,
+        25.00, 19.99, 45,
+        N'Harry Potter discovers the magical world and begins his first year at Hogwarts School of Witchcraft and Wizardry.',
+        'https://images-na.ssl-images-amazon.com/images/I/81iqZ2HHD-L.jpg',
+        1997, 223, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 2. HARRY POTTER AND THE CHAMBER OF SECRETS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780747538493')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Harry Potter and the Chamber of Secrets',
+        '9780747538493',
+        @AuthRowling,
+        @CatFantasy,
+        @PubBloomsbury,
+        25.00, 20.49, 38,
+        N'Harry returns to Hogwarts for another year and discovers a mysterious chamber hidden within the school.',
+        'https://images-na.ssl-images-amazon.com/images/I/81S0LnPGqJL.jpg',
+        1998, 251, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 3. A GAME OF THRONES
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780553593716')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'A Game of Thrones',
+        '9780553593716',
+        @AuthMartin,
+        @CatFantasy,
+        @PubPenguin,
+        30.00, 24.99, 35,
+        N'Noble families struggle for power while an ancient threat begins to rise in the frozen north.',
+        'https://images-na.ssl-images-amazon.com/images/I/81WcnNQ-TBL.jpg',
+        1996, 694, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 4. A CLASH OF KINGS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780553579901')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'A Clash of Kings',
+        '9780553579901',
+        @AuthMartin,
+        @CatFantasy,
+        @PubPenguin,
+        32.00, 26.99, 28,
+        N'The Seven Kingdoms descend into war as rival kings fight for the Iron Throne.',
+        'https://images-na.ssl-images-amazon.com/images/I/91Z8D0Y2X-L.jpg',
+        1998, 768, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 5. CLEAN CODE
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780132350884')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Clean Code',
+        '9780132350884',
+        @AuthUncleBob,
+        @CatSciTech,
+        @PubPrentice,
+        45.00, 37.99, 25,
+        N'A practical guide to writing readable, maintainable, and professional software code.',
+        'https://images-na.ssl-images-amazon.com/images/I/41jEbK-jG-L.jpg',
+        2008, 464, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 6. THE CLEAN CODER
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780137081073')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Clean Coder',
+        '9780137081073',
+        @AuthUncleBob,
+        @CatSciTech,
+        @PubPrentice,
+        42.00, 34.99, 30,
+        N'A guide to professional behavior, discipline, communication, and craftsmanship for software developers.',
+        'https://images-na.ssl-images-amazon.com/images/I/41Wj8lR8L-L.jpg',
+        2011, 256, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 7. STEVE JOBS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9781451648539')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Steve Jobs',
+        '9781451648539',
+        @AuthIsaacson,
+        @CatBusiness,
+        @PubSimon,
+        35.00, 28.99, 32,
+        N'A detailed biography exploring the life, career, personality, and innovations of Steve Jobs.',
+        'https://images-na.ssl-images-amazon.com/images/I/81VStl0ZJ-L.jpg',
+        2011, 656, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 8. LEONARDO DA VINCI
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9781501139154')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Leonardo da Vinci',
+        '9781501139154',
+        @AuthIsaacson,
+        @CatNonFiction,
+        @PubSimon,
+        32.00, 26.49, 20,
+        N'A biography of Leonardo da Vinci exploring his art, science, inventions, and extraordinary curiosity.',
+        'https://images-na.ssl-images-amazon.com/images/I/81R5F8LZ9-L.jpg',
+        2017, 624, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 9. MURDER ON THE ORIENT EXPRESS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780062693662')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Murder on the Orient Express',
+        '9780062693662',
+        @AuthChristie,
+        @CatMystery,
+        @PubHarper,
+        18.00, 14.99, 50,
+        N'Hercule Poirot investigates a murder aboard the luxurious Orient Express where every passenger is a suspect.',
+        'https://images-na.ssl-images-amazon.com/images/I/81Lx4W7LZ-L.jpg',
+        1934, 274, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 10. AND THEN THERE WERE NONE
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780062073488')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'And Then There Were None',
+        '9780062073488',
+        @AuthChristie,
+        @CatMystery,
+        @PubHarper,
+        17.00, 13.99, 42,
+        N'Ten strangers are invited to an isolated island where they begin dying one by one under mysterious circumstances.',
+        'https://images-na.ssl-images-amazon.com/images/I/81pJ5K0J7-L.jpg',
+        1939, 272, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 11. SAPIENS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780062316097')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Sapiens',
+        '9780062316097',
+        @AuthHarari,
+        @CatNonFiction,
+        @PubHarper,
+        30.00, 24.99, 40,
+        N'A broad history of humankind examining how Homo sapiens developed societies, cultures, and civilizations.',
+        'https://images-na.ssl-images-amazon.com/images/I/713jIoMO3UL.jpg',
+        2015, 464, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 12. HOMO DEUS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780062464316')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Homo Deus',
+        '9780062464316',
+        @AuthHarari,
+        @CatSciTech,
+        @PubHarper,
+        29.00, 23.99, 35,
+        N'An exploration of humanity''s future and the technological forces that may transform society.',
+        'https://images-na.ssl-images-amazon.com/images/I/713jIoMO3UL.jpg',
+        2017, 464, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 13. THE MIDNIGHT LIBRARY
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780525559474')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Midnight Library',
+        '9780525559474',
+        @AuthHaig,
+        @CatFiction,
+        @PubPenguin,
+        22.00, 17.99, 45,
+        N'A woman discovers a mysterious library where every book offers a chance to experience a different version of her life.',
+        'https://images-na.ssl-images-amazon.com/images/I/81J6APjwxlL.jpg',
+        2020, 304, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 14. THE HUMANS
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780525559498')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Humans',
+        '9780525559498',
+        @AuthHaig,
+        @CatFiction,
+        @PubPenguin,
+        20.00, 15.99, 30,
+        N'An alien sent to Earth begins to discover the strange, complicated, and beautiful nature of human life.',
+        'https://images-na.ssl-images-amazon.com/images/I/81X6K8L2-L.jpg',
+        2013, 320, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 15. THE PSYCHOLOGY OF MONEY
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780857197689')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Psychology of Money',
+        '9780857197689',
+        @AuthHarari,
+        @CatBusiness,
+        @PubSimon,
+        24.00, 19.99, 55,
+        N'An exploration of how emotions, behavior, and personal experiences influence financial decisions.',
+        'https://images-na.ssl-images-amazon.com/images/I/81Dkyb5X-L.jpg',
+        2020, 256, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 16. RICH DAD POOR DAD
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9781612681139')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Rich Dad Poor Dad',
+        '9781612681139',
+        @AuthClear,
+        @CatBusiness,
+        @PubSimon,
+        21.00, 16.99, 60,
+        N'A personal finance classic focused on financial education, investing, assets, and building long-term wealth.',
+        'https://images-na.ssl-images-amazon.com/images/I/81bsw6fnUiL.jpg',
+        1997, 336, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 17. THE HOBBIT
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780547928227')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Hobbit',
+        '9780547928227',
+        @AuthMartin,
+        @CatFantasy,
+        @PubPenguin,
+        24.00, 19.49, 40,
+        N'A reluctant hobbit joins a dangerous adventure involving dwarves, dragons, treasure, and an unexpected journey.',
+        'https://images-na.ssl-images-amazon.com/images/I/91b0C2YNSrL.jpg',
+        1937, 310, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 18. THE 7 HABITS OF HIGHLY EFFECTIVE PEOPLE
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9781982137274')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The 7 Habits of Highly Effective People',
+        '9781982137274',
+        @AuthClear,
+        @CatSelfHelp,
+        @PubSimon,
+        28.00, 22.99, 48,
+        N'A practical framework for developing personal effectiveness, leadership, and strong relationships.',
+        'https://images-na.ssl-images-amazon.com/images/I/71ZB18P3-L.jpg',
+        1989, 464, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 19. THE LEAN STARTUP
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780307887894')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'The Lean Startup',
+        '9780307887894',
+        @AuthIsaacson,
+        @CatBusiness,
+        @PubPenguin,
+        26.00, 20.99, 33,
+        N'A methodology for building businesses through rapid experimentation, validated learning, and continuous improvement.',
+        'https://images-na.ssl-images-amazon.com/images/I/81-QB7nDh4L.jpg',
+        2011, 336, N'English', 1
+    );
+END;
+
+
+-- =========================================================
+-- 20. THINKING, FAST AND SLOW
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM books WHERE isbn = '9780374533557')
+BEGIN
+    INSERT INTO books (
+        title, isbn, author_id, category_id, publisher_id,
+        price, discount_price, stock_quantity, description,
+        cover_image, published_year, pages, language, is_active
+    )
+    VALUES (
+        N'Thinking, Fast and Slow',
+        '9780374533557',
+        @AuthHarari,
+        @CatSelfHelp,
+        @PubPenguin,
+        27.00, 21.49, 37,
+        N'An exploration of the two systems that shape human thinking, judgment, decision-making, and behavior.',
+        'https://images-na.ssl-images-amazon.com/images/I/71fX7K9L-L.jpg',
+        2011, 499, N'English', 1
+    );
+END;
 GO
 
 -- ----------------------------------------------------------------------------

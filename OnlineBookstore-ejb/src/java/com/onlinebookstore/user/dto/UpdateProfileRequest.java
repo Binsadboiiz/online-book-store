@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 public class UpdateProfileRequest {
     
     @NotBlank(message = "Full name is required")
+    @jakarta.validation.constraints.Pattern(regexp = "^[^0-9]+$", message = "Full name cannot contain numbers")
     private String fullName;
     
     @NotBlank(message = "Email is required")

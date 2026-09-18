@@ -34,6 +34,26 @@ var BookApi = window.BookApi || {
         return response?.data || response;
     },
 
+    async getTopSelling(limit = 10) {
+        try {
+            const response = await ApiClient.get('/books/top-selling', { limit });
+            return response?.data || response || [];
+        } catch (e) {
+            console.warn('BookApi.getTopSelling error:', e.message);
+            return [];
+        }
+    },
+
+    async getCategories() {
+        try {
+            const response = await ApiClient.get('/books/categories');
+            return response?.data || response || [];
+        } catch (e) {
+            console.warn('BookApi.getCategories error:', e.message);
+            return [];
+        }
+    },
+
     async delete(id) {
         const response = await ApiClient.delete(`/books/${id}`);
         return response;
