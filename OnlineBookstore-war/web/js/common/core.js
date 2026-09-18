@@ -37,7 +37,7 @@ function highlightActiveNavLink() {
 
 /* Session & Role Security Management */
 function getSessionId() {
-    return localStorage.getItem('sessionId') || '';
+    return localStorage.getItem('sessionId') || localStorage.getItem('auth_token') || '';
 }
 
 function getUserInfo() {
@@ -64,6 +64,7 @@ function isLoggedIn() {
 function saveSession(sessionId, user) {
     if (sessionId) {
         localStorage.setItem('sessionId', sessionId);
+        localStorage.setItem('auth_token', sessionId);
     }
     if (user) {
         localStorage.setItem('user_info', JSON.stringify(user));
@@ -76,6 +77,7 @@ function saveSession(sessionId, user) {
 
 function clearSession() {
     localStorage.removeItem('sessionId');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('user_info');
     localStorage.removeItem('user_role');
     updateAuthHeaderUI();
@@ -253,9 +255,6 @@ function formatCurrency(amount) {
     const num = Number(amount);
     if (isNaN(num)) return '$0.00';
 
-    if (num > 1000) {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
-    }
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
 }
 

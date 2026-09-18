@@ -28,4 +28,6 @@ public interface IOrderRepository {
     OrderItems updateItem(OrderItems item);
 
     boolean deleteItem(Integer orderItemId);
+
+    boolean hasUserPurchasedBook(Integer userId, Integer bookId);
 }

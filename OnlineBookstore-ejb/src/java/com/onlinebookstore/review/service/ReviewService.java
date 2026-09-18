@@ -5,6 +5,7 @@ import com.onlinebookstore.book.repository.IBookRepository;
 import com.onlinebookstore.common.dto.ApiResponse;
 import com.onlinebookstore.common.exception.BadRequestException;
 import com.onlinebookstore.common.exception.ResourceNotFoundException;
+import com.onlinebookstore.order.repository.IOrderRepository;
 import com.onlinebookstore.review.dto.CreateReviewRequest;
 import com.onlinebookstore.review.dto.ReviewResponse;
 import com.onlinebookstore.review.dto.ReviewSummaryResponse;
@@ -30,6 +31,16 @@ public class ReviewService {
 
     @Inject
     private IUserRepository userRepository;
+
+    @Inject
+    private IOrderRepository orderRepository;
+
+    public boolean canUserReview(Integer userId, Integer bookId) {
+        if (userId == null || bookId == null) {
+            return false;
+        }
+        return orderRepository.hasUserPurchasedBook(userId, bookId);
+    }
 
     public ApiResponse<List<ReviewResponse>> getApprovedReviews(Integer bookId) {
         if (bookId == null) {
@@ -63,6 +74,10 @@ public class ReviewService {
         }
         if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
             throw new BadRequestException("Rating must be between 1 and 5 stars");
+        }
+
+        if (!orderRepository.hasUserPurchasedBook(userId, request.getBookId())) {
+            throw new BadRequestException("Chỉ người dùng đã mua sản phẩm này mới được viết đánh giá.");
         }
 
         Books book = bookRepository.findById(request.getBookId());

@@ -26,9 +26,15 @@ public class CartRepositoryImpl implements ICartRepository {
     @Override
     public Cart findByUserId(Integer userId) {
         try {
-            return entityManager.createQuery("SELECT c FROM Cart c WHERE c.userId.id = :userId", Cart.class)
+            Cart cart = entityManager.createQuery(
+                    "SELECT DISTINCT c FROM Cart c LEFT JOIN FETCH c.cartItemsCollection WHERE c.userId.id = :userId", 
+                    Cart.class)
                     .setParameter("userId", userId)
                     .getSingleResult();
+            if (cart != null) {
+                entityManager.refresh(cart);
+            }
+            return cart;
         } catch (NoResultException e) {
             return null;
         }
@@ -36,18 +42,25 @@ public class CartRepositoryImpl implements ICartRepository {
 
     @Override
     public Cart findById(Integer id) {
-        return entityManager.find(Cart.class, id);
+        Cart cart = entityManager.find(Cart.class, id);
+        if (cart != null) {
+            entityManager.refresh(cart);
+        }
+        return cart;
     }
 
     @Override
     public Cart save(Cart cart) {
         entityManager.persist(cart);
+        entityManager.flush();
         return cart;
     }
 
     @Override
     public Cart update(Cart cart) {
-        return entityManager.merge(cart);
+        Cart merged = entityManager.merge(cart);
+        entityManager.flush();
+        return merged;
     }
 
     @Override
@@ -72,19 +85,33 @@ public class CartRepositoryImpl implements ICartRepository {
     @Override
     public CartItems saveItem(CartItems item) {
         entityManager.persist(item);
+        entityManager.flush();
+        if (item.getCartId() != null) {
+            entityManager.refresh(item.getCartId());
+        }
         return item;
     }
 
     @Override
     public CartItems updateItem(CartItems item) {
-        return entityManager.merge(item);
+        CartItems merged = entityManager.merge(item);
+        entityManager.flush();
+        if (merged.getCartId() != null) {
+            entityManager.refresh(merged.getCartId());
+        }
+        return merged;
     }
 
     @Override
     public boolean deleteItem(Integer cartItemId) {
         CartItems item = findCartItemById(cartItemId);
         if (item != null) {
+            Cart cart = item.getCartId();
             entityManager.remove(item);
+            entityManager.flush();
+            if (cart != null) {
+                entityManager.refresh(cart);
+            }
             return true;
         }
         return false;
@@ -92,8 +119,13 @@ public class CartRepositoryImpl implements ICartRepository {
 
     @Override
     public void clearCart(Integer cartId) {
+        Cart cart = findById(cartId);
         entityManager.createQuery("DELETE FROM CartItems ci WHERE ci.cartId.id = :cartId")
                 .setParameter("cartId", cartId)
                 .executeUpdate();
+        entityManager.flush();
+        if (cart != null) {
+            entityManager.refresh(cart);
+        }
     }
 }

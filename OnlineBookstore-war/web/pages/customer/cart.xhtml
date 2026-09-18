@@ -6,7 +6,7 @@
       xmlns:p="http://primefaces.org/ui">
 
 <ui:include src="/WEB-INF/includes/head.xhtml">
-    <ui:param name="title" value="Shopping Cart - Online Bookstore" />
+    <ui:param name="title" value="Shopping Cart &amp; Checkout - Online Bookstore" />
 </ui:include>
 
 <h:body>
@@ -17,21 +17,65 @@
     <main class="container">
         <div class="page-header">
             <h1 class="page-title">Shopping Cart</h1>
-            <p class="page-subtitle">Review items in your cart before proceeding to checkout.</p>
+            <p class="page-subtitle">Review items in your cart and proceed to checkout.</p>
         </div>
 
-        <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--text-muted);"><i class="bi bi-cart-x"></i></div>
-            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Your Cart is Currently Empty</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Explore our catalog and add books to start building your order.</p>
-            <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary">
-                <i class="bi bi-shop" style="margin-right: 0.4rem;"></i> Browse Catalog
-            </a>
+        <div id="cartContainer">
+            <!-- Rendered dynamically by cart.js -->
         </div>
     </main>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 550px;">
+            <button class="modal-close" onclick="closeModals()">&#215;</button>
+            <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Complete Order Checkout</h2>
+            
+            <form id="checkoutForm">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Recipient Full Name *</label>
+                    <input type="text" name="recipientName" class="input-field" required="required" placeholder="e.g. John Doe" style="width: 100%;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Recipient Phone Number *</label>
+                    <input type="text" name="recipientPhone" class="input-field" required="required" placeholder="e.g. 0912345678" style="width: 100%;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Shipping Address *</label>
+                    <textarea name="shippingAddress" class="input-field" required="required" rows="2" placeholder="Street address, District, City..." style="width: 100%;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Payment Method *</label>
+                    <select name="paymentMethod" class="select-field" style="width: 100%;">
+                        <option value="COD">Cash On Delivery (COD)</option>
+                        <option value="BANK_TRANSFER">Bank Transfer (VNPAY / QR)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Order Note (Optional)</label>
+                    <input type="text" name="note" class="input-field" placeholder="Special delivery instructions..." style="width: 100%;" />
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 700;">
+                        <i class="bi bi-check2-circle" style="margin-right: 0.4rem;"></i> Confirm Order
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="#{request.contextPath}/js/common/core.js"></script>
+    <script src="#{request.contextPath}/js/api/api-client.js"></script>
+    <script src="#{request.contextPath}/js/api/cart-api.js"></script>
+    <script src="#{request.contextPath}/js/api/order-api.js"></script>
+    <script src="#{request.contextPath}/js/customer/cart.js"></script>
 </h:body>
 </html>

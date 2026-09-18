@@ -44,6 +44,15 @@ public class ReviewResource {
         return Response.ok(result).build();
     }
 
+    @GET
+    @Path("/book/{bookId}/can-review")
+    @Secured
+    public Response canUserReview(@Context SecurityContext securityContext, @PathParam("bookId") Integer bookId) {
+        UserPrincipal principal = (UserPrincipal) securityContext.getUserPrincipal();
+        boolean canReview = reviewService.canUserReview(principal.getUserId(), bookId);
+        return Response.ok(ApiResponse.success("Review eligibility checked", canReview)).build();
+    }
+
     @POST
     @Secured
     public Response createReview(@Context SecurityContext securityContext, @Valid CreateReviewRequest request) {

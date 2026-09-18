@@ -207,16 +207,33 @@ function renderCustomerBookGrid(books) {
     renderBookGridToElement(grid, books);
 }
 
-function addToCartDirect(bookId) {
+async function addToCartDirect(bookId, quantity = 1) {
     const role = typeof getUserRole === 'function' ? getUserRole() : (localStorage.getItem('user_role') || '');
     if (role === 'manager' || role === 'admin') {
         if (window.Toast) Toast.warning('Managers and Admins are restricted from shopping cart operations.');
+        else alert('Managers and Admins are restricted from shopping cart operations.');
         return;
     }
-    if (window.Toast) {
-        Toast.success('Item added to Shopping Cart!');
-    } else {
-        alert('Item added to Shopping Cart!');
+    const token = typeof getSessionId === 'function' ? getSessionId() : (localStorage.getItem('auth_token') || localStorage.getItem('sessionId'));
+    if (!token) {
+        if (window.Toast) Toast.warning('Please sign in to add items to your shopping cart.');
+        else alert('Please sign in to add items to your shopping cart.');
+        return;
+    }
+    try {
+        if (window.CartApi && CartApi.addItem) {
+            await CartApi.addItem(bookId, quantity);
+            if (window.Toast) Toast.success('Item added to Shopping Cart!');
+            else alert('Item added to Shopping Cart!');
+            if (typeof updateCartBadgeCount === 'function') updateCartBadgeCount();
+        } else {
+            console.error('CartApi is not loaded on this page');
+            if (window.Toast) Toast.error('Cart system error: CartApi not loaded.');
+            else alert('Cart system error: CartApi not loaded.');
+        }
+    } catch (err) {
+        if (window.Toast) Toast.error(err.message || 'Failed to add item to cart.');
+        else alert(err.message || 'Failed to add item to cart.');
     }
 }
 
@@ -235,13 +252,26 @@ async function loadStandaloneBookDetail(bookId) {
 
         let summary = { averageRating: 0, totalReviews: 0 };
         let reviews = [];
+        let canUserReview = false;
 
         if (window.ReviewApi) {
             summary = await ReviewApi.getSummaryByBookId(bookId);
             reviews = await ReviewApi.getByBookId(bookId);
+            if (localStorage.getItem('auth_token') || localStorage.getItem('sessionId')) {
+                canUserReview = await ReviewApi.canReview(bookId);
+            }
         }
 
-        container.innerHTML = generateBookDetailHTML(book, summary, reviews);
+        if ((!summary || !summary.totalReviews || summary.totalReviews === 0) && Array.isArray(reviews) && reviews.length > 0) {
+            const count = reviews.length;
+            const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+            summary = {
+                averageRating: Math.round((sum / count) * 10) / 10,
+                totalReviews: count
+            };
+        }
+
+        container.innerHTML = generateBookDetailHTML(book, summary, reviews, canUserReview);
 
     } catch (e) {
         console.warn('Failed to fetch book detail or reviews:', e);
@@ -275,6 +305,15 @@ async function openBookPreviewModal(bookId) {
         let summary = { averageRating: 0, totalReviews: 0 };
         if (window.ReviewApi) {
             summary = await ReviewApi.getSummaryByBookId(bookId);
+            const reviews = await ReviewApi.getByBookId(bookId);
+            if ((!summary || !summary.totalReviews || summary.totalReviews === 0) && Array.isArray(reviews) && reviews.length > 0) {
+                const count = reviews.length;
+                const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
+                summary = {
+                    averageRating: Math.round((sum / count) * 10) / 10,
+                    totalReviews: count
+                };
+            }
         }
 
         modalBody.innerHTML = generateBookModalPreviewHTML(book, summary);
@@ -407,7 +446,7 @@ async function submitBookReview(bookId) {
     }
 }
 
-function generateBookDetailHTML(book, summary, reviews) {
+function generateBookDetailHTML(book, summary, reviews, canUserReview = false) {
     const formattedPrice = formatCurrency(book.finalPrice || book.price);
     const coverHTML = book.coverImage
         ? `<img src="${escapeHtml(book.coverImage)}" alt="${escapeHtml(book.title)}" class="modal-cover" onerror="this.outerHTML='<div class=\\'book-cover-placeholder\\'><i class=\\'bi bi-journal-text\\' style=\\'font-size: 2.5rem;\\'></i><span>No Cover</span></div>'">`
@@ -441,11 +480,33 @@ function generateBookDetailHTML(book, summary, reviews) {
         `).join('');
     }
 
-    const isLoggedIn = !!localStorage.getItem('auth_token');
-    const reviewFormHTML = `
-        <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
-            ${isLoggedIn ? `
+    const token = localStorage.getItem('auth_token') || localStorage.getItem('sessionId');
+    const isLoggedIn = !!token;
+    let reviewFormHTML = '';
+
+    if (!isLoggedIn) {
+        reviewFormHTML = `
+            <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">You must be logged in to leave a review.</p>
+                <a href="${getContextPath()}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In to Review
+                </a>
+            </div>
+        `;
+    } else if (!canUserReview) {
+        reviewFormHTML = `
+            <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                <div style="padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-weight: 600;">
+                    <i class="bi bi-info-circle" style="margin-right: 0.4rem;"></i> Only users who have purchased this product may write a review.
+                </div>
+            </div>
+        `;
+    } else {
+        reviewFormHTML = `
+            <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Your Rating *</label>
                     <div style="font-size: 1.5rem; cursor: pointer; display: flex; gap: 0.25rem;">
@@ -463,14 +524,9 @@ function generateBookDetailHTML(book, summary, reviews) {
                 <button class="btn btn-primary" onclick="submitBookReview(${book.id})">
                     <i class="bi bi-send" style="margin-right: 0.4rem;"></i> Submit Review
                 </button>
-            ` : `
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">You must be logged in to leave a review.</p>
-                <a href="${getContextPath()}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-box-arrow-in-right"></i> Sign In to Review
-                </a>
-            `}
-        </div>
-    `;
+            </div>
+        `;
+    }
 
     return `
         <div class="modal-grid" style="grid-template-columns: 280px 1fr; gap: 2rem;">

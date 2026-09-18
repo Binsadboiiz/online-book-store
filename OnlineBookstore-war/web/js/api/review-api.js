@@ -22,6 +22,17 @@ var ReviewApi = window.ReviewApi || {
         }
     },
 
+    async canReview(bookId) {
+        try {
+            const token = localStorage.getItem('auth_token') || localStorage.getItem('sessionId');
+            if (!token) return false;
+            const response = await ApiClient.get(`/reviews/book/${bookId}/can-review`);
+            return response?.data === true;
+        } catch (e) {
+            return false;
+        }
+    },
+
     async createReview(reviewData) {
         const response = await ApiClient.post('/reviews', reviewData);
         return response?.data || response;

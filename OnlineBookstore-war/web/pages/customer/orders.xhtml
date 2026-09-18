@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="My Orders &amp; Tracking - Online Bookstore" />
+</ui:include>
+
+<h:body style="background-color: var(--bg-body, #fafafa); display: flex; flex-direction: column; min-height: 100vh;">
+    <ui:include src="/WEB-INF/includes/customer-header.xhtml">
+        <ui:param name="activePage" value="orders" />
+    </ui:include>
+
+    <main class="container" style="flex: 1; padding: 2.5rem 1rem;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Header section -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; color: var(--text-main, #09090b);">My Orders &amp; Tracking</h1>
+                    <p style="color: var(--text-muted, #71717a); font-size: 0.9rem;">Track your book shipments, view order details, and print official invoices.</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadCustomerOrders()">
+                    <i class="bi bi-arrow-repeat"></i> Refresh Orders
+                </button>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="ordersContainer">
+                <div class="empty-state">
+                    <div class="empty-title">Loading order history...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal-overlay">
+        <div class="modal-content card-detail-wrap" style="max-width: 750px; width: 92%; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #e2e8f0); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin: 0;">Sales Invoice</h3>
+                <button type="button" onclick="closeModals()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&#215;</button>
+            </div>
+            
+            <div id="invoiceModalBody">
+                <div class="empty-state"><div class="empty-title">Loading invoice...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+
+    <script src="#{request.contextPath}/js/common/core.js"></script>
+    <script src="#{request.contextPath}/js/common/toast.js"></script>
+    <script src="#{request.contextPath}/js/api/api-client.js"></script>
+    <script src="#{request.contextPath}/js/api/order-api.js"></script>
+    <script src="#{request.contextPath}/js/customer/orders.js"></script>
+    <script>
+        //<![CDATA[
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof loadCustomerOrders === 'function') {
+                loadCustomerOrders();
+            }
+        });
+        //]]>
+    </script>
+</h:body>
+</html>

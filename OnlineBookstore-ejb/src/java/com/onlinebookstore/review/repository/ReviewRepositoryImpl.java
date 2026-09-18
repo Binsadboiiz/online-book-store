@@ -116,9 +116,16 @@ public class ReviewRepositoryImpl implements IReviewRepository {
 
     @Override
     public Double getAverageRatingByBookId(Integer bookId) {
-        Double avg = entityManager.createQuery("SELECT AVG(CAST(r.rating AS double)) FROM Reviews r WHERE r.bookId.id = :bookId AND r.isApproved = true", Double.class)
-                .setParameter("bookId", bookId)
-                .getSingleResult();
-        return avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
+        if (bookId == null) {
+            return 0.0;
+        }
+        try {
+            Double avg = entityManager.createQuery("SELECT AVG(r.rating) FROM Reviews r WHERE r.bookId.id = :bookId AND r.isApproved = true", Double.class)
+                    .setParameter("bookId", bookId)
+                    .getSingleResult();
+            return avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }

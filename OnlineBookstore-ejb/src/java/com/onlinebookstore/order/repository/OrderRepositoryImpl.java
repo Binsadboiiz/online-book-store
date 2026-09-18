@@ -97,5 +97,18 @@ public class OrderRepositoryImpl implements IOrderRepository {
         }
         return false;
     }
+
+    @Override
+    public boolean hasUserPurchasedBook(Integer userId, Integer bookId) {
+        if (userId == null || bookId == null) {
+            return false;
+        }
+        Long count = entityManager.createQuery(
+                "SELECT COUNT(oi) FROM OrderItems oi WHERE oi.orderId.userId.id = :userId AND oi.bookId.id = :bookId AND oi.orderId.status != 'CANCELLED'", Long.class)
+                .setParameter("userId", userId)
+                .setParameter("bookId", bookId)
+                .getSingleResult();
+        return count != null && count > 0;
+    }
 }
 

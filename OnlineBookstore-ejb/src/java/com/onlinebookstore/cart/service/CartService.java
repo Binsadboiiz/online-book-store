@@ -97,6 +97,10 @@ public class CartService implements ICartService {
             newItem.setCreatedAt(now);
             newItem.setUpdatedAt(now);
             cartRepository.saveItem(newItem);
+
+            if (cart.getCartItemsCollection() != null) {
+                cart.getCartItemsCollection().add(newItem);
+            }
         }
 
         Cart updatedCart = cartRepository.findByUserId(userId);
