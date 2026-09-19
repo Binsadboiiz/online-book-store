@@ -55,8 +55,21 @@
         <ui:param name="activePage" value="swagger" />
     </ui:include>
 
-    <main class="container">
-        <div id="adminAccessGuard">
+    <ui:fragment rendered="#{!authBean.loggedIn or !authBean.manager}">
+        <main class="container">
+            <div style="margin-top: 2rem; background: #fff; padding: 2.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e4e4e7); text-align: center;">
+                <i class="bi bi-shield-lock" style="font-size: 3rem; color: #dc2626;"></i>
+                <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0.75rem 0 0.35rem 0;">Access Denied</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">You must be logged in with Manager or Admin privileges to access API Documentation.</p>
+                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-primary btn-sm">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In as Manager / Admin
+                </a>
+            </div>
+        </main>
+    </ui:fragment>
+
+    <ui:fragment rendered="#{authBean.loggedIn and authBean.manager}">
+        <main class="container">
             <div class="page-header" style="margin-top: 2rem;">
                 <h1 class="page-title"><i class="bi bi-code-slash"></i> Backend REST API Documentation</h1>
                 <p class="page-subtitle">Interactive Swagger UI testing suite powered by OpenAPI 3.0 specification. Restricted to Manager &amp; Admin roles.</p>
@@ -65,12 +78,12 @@
             <div class="swagger-wrap">
                 <div id="swagger-ui"></div>
             </div>
-        </div>
-    </main>
+        </main>
+    </ui:fragment>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
+    <!-- <script src="#{request.contextPath}/js/common/core.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

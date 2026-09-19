@@ -98,6 +98,10 @@ public class CartItemResponse implements Serializable {
         return bookCoverImage;
     }
 
+    public String getCoverImage() {
+        return bookCoverImage;
+    }
+
     public void setBookCoverImage(String bookCoverImage) {
         this.bookCoverImage = bookCoverImage;
     }

@@ -1,6 +1,6 @@
 /**
  * Monochrome Design System - Toast Notification Module
- * OnlineBookstore (Jakarta EE)
+ * OnlineBookstore (Jakarta EE JSF Integration)
  */
 
 var Toast = window.Toast || {
@@ -152,7 +152,39 @@ var Toast = window.Toast || {
     }
 };
 
+function triggerFacesToasts() {
+    const alerts = document.querySelectorAll('.alert-container .alert, .alert-container li, .alert');
+    alerts.forEach(alertEl => {
+        const text = alertEl.textContent.trim();
+        if (text && !alertEl.dataset.toastShown) {
+            alertEl.dataset.toastShown = 'true';
+            if (alertEl.classList.contains('alert-danger') || alertEl.classList.contains('error')) {
+                Toast.error(text);
+            } else if (alertEl.classList.contains('alert-success') || alertEl.classList.contains('info')) {
+                Toast.success(text);
+            } else if (alertEl.classList.contains('alert-warning') || alertEl.classList.contains('warn')) {
+                Toast.warning(text);
+            } else {
+                Toast.info(text);
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    triggerFacesToasts();
+});
+
+if (window.jsf && window.jsf.ajax) {
+    jsf.ajax.addOnEvent(function(data) {
+        if (data.status === 'success') {
+            setTimeout(triggerFacesToasts, 100);
+        }
+    });
+}
+
 window.Toast = Toast;
 window.showToast = function(msg, type, title) {
     Toast.show(msg, type, title);
 };
+window.triggerFacesToasts = triggerFacesToasts;

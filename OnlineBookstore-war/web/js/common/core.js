@@ -1,18 +1,16 @@
 /**
  * OnlineBookstore Core & Security JS Module
- * Role Management, Access Guards, Formatters & Utilities
+ * Utilities, Modal Helpers, Formatters
  */
 
 function getApiBaseUrl() {
     return getContextPath() + '/api/books';
 }
 
-const API_BASE_URL = getApiBaseUrl();
+var API_BASE_URL = window.API_BASE_URL || getApiBaseUrl();
+window.API_BASE_URL = API_BASE_URL;
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateAuthHeaderUI();
-    checkAuthPageGuard();
-    checkCustomerStoreAccessGuard();
     setupModalBaseEvents();
     highlightActiveNavLink();
 });
@@ -35,7 +33,13 @@ function highlightActiveNavLink() {
     }
 }
 
-/* Session & Role Security Management */
+function handleBookPreviewModal(data) {
+    if (data && data.status === 'success') {
+        const modal = document.getElementById('detailModal');
+        if (modal) modal.classList.add('active');
+    }
+}
+
 function getSessionId() {
     return localStorage.getItem('sessionId') || localStorage.getItem('auth_token') || '';
 }
@@ -72,7 +76,6 @@ function saveSession(sessionId, user) {
             localStorage.setItem('user_role', user.role.toLowerCase());
         }
     }
-    updateAuthHeaderUI();
 }
 
 function clearSession() {
@@ -80,126 +83,11 @@ function clearSession() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_info');
     localStorage.removeItem('user_role');
-    updateAuthHeaderUI();
 }
 
 function logout() {
     clearSession();
     window.location.href = getContextPath() + '/pages/auth/login.xhtml';
-}
-
-function updateRoleBadgeUI() {
-    updateAuthHeaderUI();
-}
-
-function updateAuthHeaderUI() {
-    const user = getUserInfo();
-    const role = getUserRole();
-    const loggedIn = isLoggedIn();
-
-    const authContainers = document.querySelectorAll('#headerAuthContainer, .nav-actions-auth');
-    if (authContainers.length > 0) {
-        authContainers.forEach(container => {
-            const context = getContextPath();
-            if (loggedIn && user) {
-                container.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span class="user-badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.65rem; background: var(--border-color, #e4e4e7); border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
-                            <i class="bi bi-person-circle"></i>
-                            <span>${escapeHtml(user.fullName || user.username)}</span>
-                            <span class="role-chip" style="background: #09090b; color: #fff; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">${escapeHtml(role)}</span>
-                        </span>
-                        <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sign Out">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </button>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <a href="${context}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-box-arrow-in-right"></i> Sign In
-                        </a>
-                        <a href="${context}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
-                            <i class="bi bi-person-plus"></i> Register
-                        </a>
-                    </div>
-                `;
-            }
-        });
-    }
-}
-
-function checkAdminAccessGuard() {
-    const loggedIn = isLoggedIn();
-    const role = getUserRole();
-
-    if (!loggedIn) {
-        const redirectUrl = getContextPath() + '/pages/auth/login.xhtml?redirect=' + encodeURIComponent(window.location.pathname);
-        const guardContainer = document.getElementById('adminAccessGuard');
-        if (guardContainer) {
-            guardContainer.innerHTML = `
-                <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--text-muted);"><i class="bi bi-lock"></i></div>
-                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Authentication Required</h2>
-                    <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
-                        You must be signed in with a Manager or Admin account to access the Admin Portal.
-                    </p>
-                    <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <a href="${redirectUrl}" class="btn btn-primary">
-                            <i class="bi bi-box-arrow-in-right"></i> Sign In to Account
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
-        return false;
-    }
-
-    if (role !== 'manager' && role !== 'admin') {
-        const guardContainer = document.getElementById('adminAccessGuard');
-        if (guardContainer) {
-            guardContainer.innerHTML = `
-                <div class="card-detail-wrap" style="text-align: center; padding: 4rem 2rem; margin-top: 2rem;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem; color: #ef4444;"><i class="bi bi-shield-slash"></i></div>
-                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">403 - Access Denied</h2>
-                    <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
-                        Your account role is <strong>${escapeHtml(role.toUpperCase() || 'CUSTOMER')}</strong>. This area is restricted strictly to <strong>MANAGER / ADMIN</strong> users.
-                    </p>
-                    <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button class="btn btn-secondary" onclick="logout()">
-                            <i class="bi bi-box-arrow-right"></i> Sign Out
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-        return false;
-    }
-
-    return true;
-}
-
-function checkCustomerStoreAccessGuard() {
-    if (!isLoggedIn()) return;
-    const role = getUserRole();
-    if (role === 'manager' || role === 'admin') {
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/pages/customer/')) {
-            window.location.href = getContextPath() + '/pages/admin/dashboard.xhtml';
-        }
-    }
-}
-
-function checkAuthPageGuard() {
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/pages/auth/login.xhtml') || currentPath.includes('/pages/auth/register.xhtml')) {
-        if (isLoggedIn()) {
-            const role = getUserRole();
-            const target = (role === 'manager' || role === 'admin') ? '/pages/admin/dashboard.xhtml' : '/pages/customer/home.xhtml';
-            window.location.href = getContextPath() + target;
-        }
-    }
 }
 
 function getContextPath() {
@@ -267,3 +155,6 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+window.handleBookPreviewModal = handleBookPreviewModal;
+window.closeModals = closeModals;

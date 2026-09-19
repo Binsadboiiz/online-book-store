@@ -15,93 +15,123 @@
     </ui:include>
 
     <main class="container">
-        <!-- RBAC Guard container -->
-        <div id="adminAccessGuard">
-            <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h1 class="page-title">Author Management</h1>
-                    <p class="page-subtitle">Manage authors directory, biographies, and linked book records.</p>
-                </div>
-                <div>
-                    <button class="btn btn-primary" onclick="openAuthorModal()">
-                        <i class="bi bi-plus-lg" style="margin-right: 0.4rem;"></i> Add New Author
-                    </button>
-                </div>
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 class="page-title">Author Management</h1>
+                <p class="page-subtitle">Manage authors directory, biographies, and linked book records.</p>
             </div>
+            <h:form style="display: inline;">
+                <h:commandLink action="#{adminAuthorBean.prepareAddAuthor}" styleClass="btn btn-primary" onclick="openAuthorModal();">
+                    <i class="bi bi-plus-lg" style="margin-right: 0.4rem;"></i> Add New Author
+                    <f:ajax render=":authorModalForm" />
+                </h:commandLink>
+            </h:form>
+        </div>
 
-            <!-- Stats Bar -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <div class="book-card" style="padding: 1.25rem; border-left: 4px solid #09090b;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Authors</span>
-                        <i class="bi bi-person-badge" style="font-size: 1.25rem; color: var(--text-muted);"></i>
-                    </div>
-                    <h2 style="font-size: 1.75rem; font-weight: 800; margin-top: 0.2rem;" id="statTotalAuthors">0</h2>
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+        <!-- Stats Bar -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="book-card" style="padding: 1.25rem; border-left: 4px solid #09090b;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Authors</span>
+                    <i class="bi bi-person-badge" style="font-size: 1.25rem; color: var(--text-muted);"></i>
                 </div>
-            </div>
-
-            <!-- Filter & Search Toolbar -->
-            <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-                <div style="position: relative; flex: 1; max-width: 450px;">
-                    <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
-                    <input type="text" id="authorSearchInput" class="form-control" placeholder="Search authors by name..." style="padding-left: 2.5rem;" />
-                </div>
-            </div>
-
-            <!-- Authors Data Table -->
-            <div class="card-detail-wrap" style="padding: 0; overflow-x: auto;">
-                <table class="table" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-color, #e4e4e7); background: var(--bg-surface, #fafafa); text-align: left;">
-                            <th style="padding: 0.75rem 1rem;">ID</th>
-                            <th style="padding: 0.75rem 1rem;">Author Name</th>
-                            <th style="padding: 0.75rem 1rem;">Biography</th>
-                            <th style="padding: 0.75rem 1rem;">Books Count</th>
-                            <th style="padding: 0.75rem 1rem;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminAuthorTableBody">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem;">Loading authors directory...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h2 style="font-size: 1.75rem; font-weight: 800; margin-top: 0.2rem;">#{adminAuthorBean.authors.size()}</h2>
             </div>
         </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div style="margin-bottom: 1.5rem;">
+            <h:form id="authorSearchForm">
+                <div style="position: relative; flex: 1; max-width: 450px;">
+                    <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                    <h:inputText value="#{adminAuthorBean.searchQuery}" styleClass="input-field" placeholder="Search authors by name..." style="width: 100%; padding-left: 2.5rem;">
+                        <f:ajax event="keyup" delay="300" listener="#{adminAuthorBean.filterAuthors}" render=":authorTablePanel" />
+                    </h:inputText>
+                </div>
+            </h:form>
+        </div>
+
+        <!-- Authors Data Table -->
+        <h:panelGroup id="authorTablePanel" layout="block" styleClass="card-table-wrap">
+            <h:form id="authorTableForm">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Author Name</th>
+                            <th>Biography</th>
+                            <th>Books Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ui:fragment rendered="#{empty adminAuthorBean.authors}">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No authors found.</td>
+                            </tr>
+                        </ui:fragment>
+                        <ui:repeat value="#{adminAuthorBean.authors}" var="a">
+                            <tr>
+                                <td><strong>##{a.id}</strong></td>
+                                <td><strong>#{a.name}</strong></td>
+                                <td>#{a.bio != null ? a.bio : 'No biography provided'}</td>
+                                <td><span class="badge bg-secondary">#{a.bookCount} books</span></td>
+                                <td>
+                                    <div style="display: flex; gap: 0.4rem;">
+                                        <h:commandLink action="#{adminAuthorBean.prepareEditAuthor(a)}" styleClass="btn btn-secondary btn-sm" onclick="openAuthorModal();">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                            <f:ajax render=":authorModalForm" />
+                                        </h:commandLink>
+                                        <h:commandLink action="#{adminAuthorBean.deleteAuthor(a.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this author?');">
+                                            <i class="bi bi-trash"></i> Delete
+                                            <f:ajax render=":globalMessages :authorTablePanel" />
+                                        </h:commandLink>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ui:repeat>
+                    </tbody>
+                </table>
+            </h:form>
+        </h:panelGroup>
     </main>
 
     <!-- Add / Edit Author Modal -->
-    <div id="authorModal" class="modal-overlay">
-        <div class="modal-card" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="authorModalTitle">Add New Author</h3>
-                <button class="modal-close" onclick="closeAuthorModal()">&#215;</button>
-            </div>
-            <form id="authorForm">
-                <input type="hidden" id="authorIdInput" />
-                <div class="modal-body" style="padding: 1.25rem;">
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label class="form-label" for="authorNameInput">Author Name <span style="color: red;">*</span></label>
-                        <input type="text" id="authorNameInput" name="name" class="form-control" required="required" placeholder="Enter author name..." />
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label class="form-label" for="authorBioInput">Biography</label>
-                        <textarea id="authorBioInput" name="bio" class="form-control" rows="4" placeholder="Enter author biography/profile description..."></textarea>
-                    </div>
+    <div id="authorModal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close" onclick="closeAuthorModal()">&#215;</button>
+            <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Add / Edit Author</h2>
+            
+            <h:form id="authorModalForm">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label">Author Name *</label>
+                    <h:inputText value="#{adminAuthorBean.authorRequest.name}" required="true" styleClass="input-field" placeholder="Enter author name..." style="width: 100%;" />
                 </div>
-                <div class="modal-footer" style="padding: 1rem 1.25rem; background: var(--bg-surface, #fafafa); border-top: 1px solid var(--border-color, #e4e4e7); display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Biography</label>
+                    <h:inputTextarea value="#{adminAuthorBean.authorRequest.bio}" rows="4" styleClass="input-field" placeholder="Enter author biography..." style="width: 100%;" />
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeAuthorModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Author</button>
+                    <h:commandButton value="Save Author" action="#{adminAuthorBean.saveAuthor}" styleClass="btn btn-primary" onclick="closeAuthorModal();" />
                 </div>
-            </form>
+            </h:form>
         </div>
     </div>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
-    <script src="#{request.contextPath}/js/api/api-client.js"></script>
-    <script src="#{request.contextPath}/js/api/author-api.js"></script>
-    <script src="#{request.contextPath}/js/admin/admin-authors.js"></script>
+    <script>
+        function openAuthorModal() {
+            const m = document.getElementById('authorModal');
+            if (m) m.classList.add('active');
+        }
+        function closeAuthorModal() {
+            const m = document.getElementById('authorModal');
+            if (m) m.classList.remove('active');
+        }
+    </script>
 </h:body>
 </html>

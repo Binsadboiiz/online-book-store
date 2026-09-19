@@ -2,6 +2,7 @@
                 xmlns:h="jakarta.faces.html"
                 xmlns:ui="jakarta.faces.facelets"
                 xmlns:p="http://primefaces.org/ui">
+    <p:growl id="globalGrowl" showDetail="true" life="3500" />
     <header class="navbar">
         <div class="nav-container">
             <a href="#{request.contextPath}/pages/customer/home.xhtml" class="brand">
@@ -18,19 +19,37 @@
                 </a>
                 <a href="#{request.contextPath}/pages/customer/cart.xhtml" class="nav-link #{activePage == 'cart' ? 'active' : ''}">
                     <i class="bi bi-cart3"></i> Cart
+                    <h:panelGroup rendered="#{cartBean.itemCount > 0}" styleClass="badge bg-primary" style="margin-left: 0.3rem; border-radius: 10px; font-size: 0.75rem; padding: 0.15rem 0.45rem;">
+                        #{cartBean.itemCount}
+                    </h:panelGroup>
                 </a>
                 <a href="#{request.contextPath}/pages/customer/orders.xhtml" class="nav-link #{activePage == 'orders' ? 'active' : ''}">
                     <i class="bi bi-clock-history"></i> My Orders
                 </a>
             </nav>
 
-            <div class="nav-actions" id="headerAuthContainer">
-                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-box-arrow-in-right"></i> Sign In
-                </a>
-                <a href="#{request.contextPath}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
-                    <i class="bi bi-person-plus"></i> Register
-                </a>
+            <div class="nav-actions">
+                <ui:fragment rendered="#{authBean.loggedIn}">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 0.9rem; font-weight: 600;">
+                            <i class="bi bi-person-circle" style="margin-right: 0.3rem;"></i>
+                            #{authBean.fullName != null ? authBean.fullName : authBean.username}
+                        </span>
+                        <h:form style="display: inline;">
+                            <h:commandLink action="#{authBean.logout}" onclick="if (typeof clearSession === 'function') clearSession();" styleClass="btn btn-primary btn-sm" style="text-decoration: none;">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </h:commandLink>
+                        </h:form>
+                    </div>
+                </ui:fragment>
+                <ui:fragment rendered="#{!authBean.loggedIn}">
+                    <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </a>
+                    <a href="#{request.contextPath}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-plus"></i> Register
+                    </a>
+                </ui:fragment>
             </div>
         </div>
     </header>

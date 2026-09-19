@@ -5,8 +5,13 @@
       xmlns:ui="jakarta.faces.facelets"
       xmlns:p="http://primefaces.org/ui">
 
+<f:metadata>
+    <f:viewParam name="id" value="#{bookDetailBean.bookId}" />
+    <f:viewAction action="#{bookDetailBean.init}" />
+</f:metadata>
+
 <ui:include src="/WEB-INF/includes/head.xhtml">
-    <ui:param name="title" value="Book Details - Online Bookstore" />
+    <ui:param name="title" value="#{bookDetailBean.book != null ? bookDetailBean.book.title : 'Book Details'} - Online Bookstore" />
 </ui:include>
 
 <h:body>
@@ -21,32 +26,253 @@
             </a>
         </div>
 
-        <div id="standaloneBookDetail" class="card-detail-wrap">
-            <!-- Rendered dynamically by books.js -->
-        </div>
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+        <ui:fragment rendered="#{bookDetailBean.book == null}">
+            <div class="empty-state">
+                <div class="empty-title">Book Not Found</div>
+                <p class="empty-desc">The requested book could not be found in our catalog.</p>
+            </div>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{bookDetailBean.book != null}">
+            <div class="card-detail-wrap" style="background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color, #e4e4e7);">
+                <div class="modal-grid" style="grid-template-columns: 280px 1fr; gap: 2rem;">
+                    <div class="modal-cover-wrap">
+                        <ui:fragment rendered="#{not empty bookDetailBean.book.coverImage}">
+                            <img src="#{bookDetailBean.book.coverImage}" alt="#{bookDetailBean.book.title}" class="modal-cover" />
+                        </ui:fragment>
+                        <ui:fragment rendered="#{empty bookDetailBean.book.coverImage}">
+                            <div class="book-cover-placeholder">
+                                <i class="bi bi-journal-text" style="font-size: 2.5rem;"></i>
+                                <span>No Cover</span>
+                            </div>
+                        </ui:fragment>
+                    </div>
+
+                    <div>
+                        <span class="book-category-badge">#{bookDetailBean.book.categoryName != null ? bookDetailBean.book.categoryName : 'General'}</span>
+                        <h1 class="modal-detail-title" style="font-size: 1.8rem; margin-top: 0.5rem; margin-bottom: 0.4rem;">#{bookDetailBean.book.title}</h1>
+                        <p class="modal-detail-meta" style="font-size: 1rem; margin-bottom: 0.75rem;">Author: <strong>#{bookDetailBean.book.authorName != null ? bookDetailBean.book.authorName : 'Unknown Author'}</strong></p>
+
+                        <!-- Rating Summary -->
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span style="color: #f59e0b; font-size: 1.1rem;">★</span>
+                            <span style="font-weight: 700; font-size: 1.05rem;">
+                                #{bookDetailBean.summary != null and bookDetailBean.summary.averageRating != null ? bookDetailBean.summary.averageRating : 0} / 5
+                            </span>
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">
+                                (#{bookDetailBean.summary != null ? bookDetailBean.summary.totalReviews : 0} reviews)
+                            </span>
+                        </div>
+
+                        <div class="modal-detail-price" style="font-size: 1.6rem; font-weight: 800; margin-bottom: 1.25rem;">
+                            <ui:fragment rendered="#{bookDetailBean.book.discountPrice != null and bookDetailBean.book.discountPrice &lt; bookDetailBean.book.price}">
+                                <span class="book-price-old">$#{bookDetailBean.book.price}</span>
+                                <strong>$#{bookDetailBean.book.discountPrice}</strong>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{bookDetailBean.book.discountPrice == null or bookDetailBean.book.discountPrice &gt;= bookDetailBean.book.price}">
+                                <strong>$#{bookDetailBean.book.price}</strong>
+                            </ui:fragment>
+                        </div>
+
+                        <p class="modal-detail-desc" style="line-height: 1.6; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                            #{bookDetailBean.book.description != null ? bookDetailBean.book.description : 'No detailed description available for this book.'}
+                        </p>
+
+                        <table class="specs-table" style="margin-bottom: 1.5rem; width: 100%;">
+                            <tr>
+                                <td style="padding: 0.4rem 0; width: 140px; color: var(--text-muted); font-weight: 600;">ISBN Code:</td>
+                                <td style="padding: 0.4rem 0;"><code>#{bookDetailBean.book.isbn != null ? bookDetailBean.book.isbn : 'N/A'}</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4rem 0; color: var(--text-muted); font-weight: 600;">Published Year:</td>
+                                <td style="padding: 0.4rem 0;">#{bookDetailBean.book.publishedYear != null ? bookDetailBean.book.publishedYear : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4rem 0; color: var(--text-muted); font-weight: 600;">Page Count:</td>
+                                <td style="padding: 0.4rem 0;">#{bookDetailBean.book.pages != null ? bookDetailBean.book.pages : 'N/A'} pages</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4rem 0; color: var(--text-muted); font-weight: 600;">Language:</td>
+                                <td style="padding: 0.4rem 0;">#{bookDetailBean.book.language != null ? bookDetailBean.book.language : 'Tiếng Việt'}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4rem 0; color: var(--text-muted); font-weight: 600;">Stock Status:</td>
+                                <td style="padding: 0.4rem 0;">
+                                    <ui:fragment rendered="#{bookDetailBean.book.stockQuantity != null and bookDetailBean.book.stockQuantity &gt; 0}">
+                                        <span style="color: #166534; font-weight: 700;">In Stock (#{bookDetailBean.book.stockQuantity})</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{bookDetailBean.book.stockQuantity == null or bookDetailBean.book.stockQuantity &lt;= 0}">
+                                        <span style="color: #991b1b; font-weight: 700;">Out of Stock</span>
+                                    </ui:fragment>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h:form style="display: inline;">
+                            <h:commandLink action="#{cartBean.addToCart(bookDetailBean.book.id, 1)}" styleClass="btn btn-primary btn-lg" style="padding: 0.85rem 2rem; font-weight: 700;">
+                                <i class="bi bi-cart-plus" style="margin-right: 0.4rem;"></i> Add to Cart
+                                <f:ajax render=":globalMessages :headerAuthContainer" />
+                            </h:commandLink>
+                        </h:form>
+                    </div>
+                </div>
+
+                <!-- Reviews Section -->
+                <div style="margin-top: 3rem; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.4rem; font-weight: 800; margin: 0;">Customer Reviews &amp; Ratings</h2>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: #f59e0b; font-size: 1.1rem;">★</span>
+                            <span style="font-weight: 700;">#{bookDetailBean.summary != null and bookDetailBean.summary.averageRating != null ? bookDetailBean.summary.averageRating : 0} / 5</span>
+                        </div>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <ui:fragment rendered="#{empty bookDetailBean.reviews}">
+                        <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); background: var(--bg-surface, #fafafa); border-radius: 8px;">
+                            No reviews yet for this book. Be the first to share your thoughts!
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{not empty bookDetailBean.reviews}">
+                        <ui:repeat value="#{bookDetailBean.reviews}" var="r">
+                            <div style="padding: 1.25rem 0; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #09090b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                                            #{r.userFullName != null ? r.userFullName.substring(0, 1).toUpperCase() : 'U'}
+                                        </div>
+                                        <div>
+                                            <strong style="font-size: 0.95rem;">#{r.userFullName != null ? r.userFullName : 'Anonymous User'}</strong>
+                                        </div>
+                                    </div>
+                                    <div style="color: #f59e0b; font-weight: 700;">
+                                        #{r.rating} / 5 ★
+                                    </div>
+                                </div>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--text-main, #1e293b); line-height: 1.5;">#{r.comment}</p>
+                            </div>
+                        </ui:repeat>
+                    </ui:fragment>
+
+                    <!-- Submit Review Form -->
+                    <ui:fragment rendered="#{!authBean.loggedIn}">
+                        <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">You must be logged in to leave a review.</p>
+                            <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-box-arrow-in-right"></i> Sign In to Review
+                            </a>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.loggedIn and bookDetailBean.hasUserReviewed}">
+                        <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                            <div style="padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-weight: 600;">
+                                <i class="bi bi-check-circle-fill" style="margin-right: 0.4rem;"></i> You have already submitted a review for this book. Thank you for your feedback!
+                            </div>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.loggedIn and !bookDetailBean.hasUserReviewed and !bookDetailBean.hasUserPurchased}">
+                        <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                            <div style="padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-weight: 600;">
+                                <i class="bi bi-info-circle" style="margin-right: 0.4rem;"></i> Only users who have purchased this product may write a review.
+                            </div>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.loggedIn and bookDetailBean.canUserReview}">
+                        <div style="margin-top: 2rem; background: var(--bg-surface, #f8fafc); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
+                            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Write a Rating &amp; Review</h3>
+                            <h:form id="reviewForm">
+                                <h:inputHidden id="reviewBookId" value="#{reviewBean.bookId}" />
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Your Rating *</label>
+                                    <h:inputHidden id="ratingInputValue" value="#{reviewBean.rating}" />
+                                    <div class="star-rating-selector" style="display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; background: #fff; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color, #e4e4e7); border-radius: 6px;">
+                                        <i class="bi bi-star-fill star-item" data-star="1" style="font-size: 1.4rem; color: #f59e0b; transition: all 0.15s ease;"></i>
+                                        <i class="bi bi-star-fill star-item" data-star="2" style="font-size: 1.4rem; color: #f59e0b; transition: all 0.15s ease;"></i>
+                                        <i class="bi bi-star-fill star-item" data-star="3" style="font-size: 1.4rem; color: #f59e0b; transition: all 0.15s ease;"></i>
+                                        <i class="bi bi-star-fill star-item" data-star="4" style="font-size: 1.4rem; color: #f59e0b; transition: all 0.15s ease;"></i>
+                                        <i class="bi bi-star-fill star-item" data-star="5" style="font-size: 1.4rem; color: #f59e0b; transition: all 0.15s ease;"></i>
+                                        <span id="ratingTextLabel" style="margin-left: 0.5rem; font-size: 0.875rem; font-weight: 700; color: #d97706; min-width: 140px;">5 / 5 Stars - Excellent</span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">Your Comment *</label>
+                                    <h:inputTextarea value="#{reviewBean.comment}" styleClass="input-field" rows="3" style="width: 100%;" placeholder="What did you think of this book?" />
+                                </div>
+
+                                <h:commandButton value="Submit Review" action="#{reviewBean.submitReview}" styleClass="btn btn-primary">
+                                    <f:param name="id" value="#{bookDetailBean.bookId}" />
+                                </h:commandButton>
+                            </h:form>
+                        </div>
+                    </ui:fragment>
+                </div>
+            </div>
+        </ui:fragment>
     </main>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
-    <script src="#{request.contextPath}/js/common/toast.js"></script>
-    <script src="#{request.contextPath}/js/api/api-client.js"></script>
-    <script src="#{request.contextPath}/js/api/book-api.js"></script>
-    <script src="#{request.contextPath}/js/api/cart-api.js"></script>
-    <script src="#{request.contextPath}/js/api/review-api.js"></script>
-    <script src="#{request.contextPath}/js/customer/books.js"></script>
     <script>
-        //<![CDATA[
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const bookId = urlParams.get('id');
-            if (bookId) {
-                loadStandaloneBookDetail(bookId);
-            } else {
-                document.getElementById('standaloneBookDetail').innerHTML = '<div class="empty-state"><div class="empty-title">Book ID Missing</div></div>';
+        function initStarRatingPicker() {
+            const container = document.querySelector('.star-rating-selector');
+            if (!container) return;
+
+            const stars = container.querySelectorAll('.star-item');
+            const hiddenInput = document.getElementById('reviewForm:ratingInputValue') || document.querySelector('input[id*="ratingInputValue"]');
+            const label = document.getElementById('ratingTextLabel');
+
+            const labels = {
+                1: '1 / 5 Stars - Terrible',
+                2: '2 / 5 Stars - Poor',
+                3: '3 / 5 Stars - Average',
+                4: '4 / 5 Stars - Very Good',
+                5: '5 / 5 Stars - Excellent'
+            };
+
+            let currentRating = parseInt(hiddenInput ? hiddenInput.value : 5) || 5;
+
+            function renderStars(val) {
+                stars.forEach(star => {
+                    const starVal = parseInt(star.getAttribute('data-star'));
+                    if (starVal &lt;= val) {
+                        star.className = 'bi bi-star-fill star-item';
+                        star.style.color = '#f59e0b';
+                    } else {
+                        star.className = 'bi bi-star star-item';
+                        star.style.color = '#d4d4d8';
+                    }
+                });
+                if (label) label.textContent = labels[val] || (val + ' Stars');
             }
-        });
-        //]]>
+
+            renderStars(currentRating);
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const hoverVal = parseInt(this.getAttribute('data-star'));
+                    renderStars(hoverVal);
+                });
+
+                star.addEventListener('mouseout', function() {
+                    renderStars(currentRating);
+                });
+
+                star.addEventListener('click', function() {
+                    currentRating = parseInt(this.getAttribute('data-star'));
+                    if (hiddenInput) hiddenInput.value = currentRating;
+                    renderStars(currentRating);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initStarRatingPicker);
     </script>
 </h:body>
 </html>

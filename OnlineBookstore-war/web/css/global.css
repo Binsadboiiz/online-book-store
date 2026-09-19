@@ -413,13 +413,19 @@ a {
 }
 
 /* ==========================================================================
-   Toast Notification Component
+   Toast Notification & PrimeFaces Growl (Monochrome Design System)
    ========================================================================== */
+.alert-container,
+ul.alert-container,
+.alert-container ul {
+  display: none !important;
+}
+
 .toast-container {
   position: fixed;
   top: 1.25rem;
   right: 1.25rem;
-  z-index: 9999;
+  z-index: 99999;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -510,6 +516,83 @@ a {
   animation: toastProgress linear forwards;
 }
 
+/* PrimeFaces Growl Restyling */
+.ui-growl {
+  top: 1.25rem !important;
+  right: 1.25rem !important;
+  width: 380px !important;
+  max-width: calc(100vw - 2.5rem) !important;
+  z-index: 99999 !important;
+}
+
+.ui-growl-item-container {
+  background: #ffffff !important;
+  color: #09090b !important;
+  border: 1px solid #e4e4e7 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+  opacity: 1 !important;
+  margin-bottom: 0.75rem !important;
+  padding: 0.9rem 1rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.ui-growl-info, .ui-growl-item-container.ui-growl-info { border-left: 4px solid #2563eb !important; }
+.ui-growl-warn, .ui-growl-item-container.ui-growl-warn { border-left: 4px solid #d97706 !important; }
+.ui-growl-error, .ui-growl-item-container.ui-growl-error { border-left: 4px solid #991b1b !important; }
+
+.ui-growl-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.75rem !important;
+  padding: 0 !important;
+}
+
+.ui-growl-icon-close {
+  position: absolute !important;
+  top: 0.65rem !important;
+  right: 0.65rem !important;
+  background: transparent !important;
+  border: none !important;
+  color: #a1a1aa !important;
+  cursor: pointer !important;
+}
+
+.ui-growl-image {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  float: none !important;
+}
+
+.ui-growl-image-info { color: #2563eb !important; }
+.ui-growl-image-warn { color: #d97706 !important; }
+.ui-growl-image-error { color: #991b1b !important; }
+
+.ui-growl-message {
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.ui-growl-title {
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  color: #09090b !important;
+  display: block !important;
+  margin-bottom: 0.15rem !important;
+}
+
+.ui-growl-message p {
+  font-size: 0.825rem !important;
+  color: #71717a !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+}
+
 @keyframes toastSlideIn {
   from {
     transform: translateX(100%);
@@ -536,4 +619,3 @@ a {
   from { width: 100%; }
   to { width: 0%; }
 }
-

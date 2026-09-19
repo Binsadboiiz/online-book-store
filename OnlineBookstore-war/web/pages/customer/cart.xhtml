@@ -20,9 +20,106 @@
             <p class="page-subtitle">Review items in your cart and proceed to checkout.</p>
         </div>
 
-        <div id="cartContainer">
-            <!-- Rendered dynamically by cart.js -->
-        </div>
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+        <ui:fragment rendered="#{!authBean.loggedIn}">
+            <div class="empty-state">
+                <div class="empty-title">Please Sign In</div>
+                <p class="empty-desc">You need to sign in to access your shopping cart.</p>
+                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In Now
+                </a>
+            </div>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{authBean.loggedIn and (cartBean.cart == null or empty cartBean.cart.items)}">
+            <div class="empty-state">
+                <div class="empty-title">Your Cart is Empty</div>
+                <p class="empty-desc">Looks like you haven't added any books to your shopping cart yet.</p>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="bi bi-compass"></i> Explore Catalog
+                </a>
+            </div>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{authBean.loggedIn and cartBean.cart != null and not empty cartBean.cart.items}">
+            <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem; margin-top: 1.5rem;">
+                <!-- Cart Items Table -->
+                <section class="card-table-wrap">
+                    <h:form id="cartTableForm">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{cartBean.cart.items}" var="item">
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <ui:fragment rendered="#{not empty item.bookCoverImage}">
+                                                    <img src="#{item.bookCoverImage}" alt="#{item.bookTitle}" style="width: 40px; height: 55px; object-fit: cover; border-radius: 4px;" />
+                                                </ui:fragment>
+                                                <div>
+                                                    <strong style="font-size: 0.95rem; display: block;">#{item.bookTitle}</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>$#{item.price}</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <h:commandButton value="-" action="#{cartBean.updateQuantity(item.id, item.quantity - 1)}" styleClass="btn btn-secondary btn-sm" disabled="#{item.quantity &lt;= 1}">
+                                                    <f:ajax render="@form :checkoutSummaryPanel :headerAuthContainer" />
+                                                </h:commandButton>
+                                                <span style="font-weight: 700; width: 24px; text-align: center;">#{item.quantity}</span>
+                                                <h:commandButton value="+" action="#{cartBean.updateQuantity(item.id, item.quantity + 1)}" styleClass="btn btn-secondary btn-sm">
+                                                    <f:ajax render="@form :checkoutSummaryPanel :headerAuthContainer" />
+                                                </h:commandButton>
+                                            </div>
+                                        </td>
+                                        <td><strong>$#{item.subtotal}</strong></td>
+                                        <td>
+                                            <h:commandLink action="#{cartBean.removeItem(item.id)}" styleClass="btn btn-danger btn-sm" style="color: #ffffff;">
+                                                <i class="bi bi-trash"></i>
+                                                <f:ajax render="@form :checkoutSummaryPanel :headerAuthContainer" />
+                                            </h:commandLink>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </h:form>
+                </section>
+
+                <!-- Order Checkout Form Summary -->
+                <section id="checkoutSummaryPanel" style="background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color, #e4e4e7); height: fit-content;">
+                    <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem;">Checkout Summary</h2>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                        <span>Items Total:</span>
+                        <strong>$#{cartBean.cart.totalAmount}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.95rem;">
+                        <span>Shipping Fee:</span>
+                        <strong style="color: #166534;">Free Shipping</strong>
+                    </div>
+
+                    <div style="border-top: 2px solid var(--border-color, #e2e8f0); padding-top: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800;">
+                        <span>Order Total:</span>
+                        <span>$#{cartBean.cart.totalAmount}</span>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-weight: 700;" onclick="openCheckoutModal()">
+                        <i class="bi bi-shield-check" style="margin-right: 0.4rem;"></i> Proceed to Checkout
+                    </button>
+                </section>
+            </div>
+        </ui:fragment>
     </main>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
@@ -32,50 +129,53 @@
         <div class="modal-content" style="max-width: 550px;">
             <button class="modal-close" onclick="closeModals()">&#215;</button>
             <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Complete Order Checkout</h2>
-            
-            <form id="checkoutForm">
+
+            <h:form id="checkoutForm">
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Recipient Full Name *</label>
-                    <input type="text" name="recipientName" class="input-field" required="required" placeholder="e.g. John Doe" style="width: 100%;" />
+                    <h:inputText value="#{cartBean.recipientName}" required="true" styleClass="input-field" placeholder="e.g. John Doe" style="width: 100%;" />
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Recipient Phone Number *</label>
-                    <input type="text" name="recipientPhone" class="input-field" required="required" placeholder="e.g. 0912345678" style="width: 100%;" />
+                    <h:inputText value="#{cartBean.recipientPhone}" required="true" styleClass="input-field" placeholder="e.g. 0912345678" style="width: 100%;" />
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Shipping Address *</label>
-                    <textarea name="shippingAddress" class="input-field" required="required" rows="2" placeholder="Street address, District, City..." style="width: 100%;"></textarea>
+                    <h:inputTextarea value="#{cartBean.shippingAddress}" required="true" rows="2" styleClass="input-field" placeholder="Street address, District, City..." style="width: 100%;" />
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Payment Method *</label>
-                    <select name="paymentMethod" class="select-field" style="width: 100%;">
-                        <option value="COD">Cash On Delivery (COD)</option>
-                        <option value="BANK_TRANSFER">Bank Transfer (VNPAY / QR)</option>
-                    </select>
+                    <h:selectOneMenu value="#{cartBean.paymentMethod}" styleClass="select-field" style="width: 100%;">
+                        <f:selectItem itemValue="COD" itemLabel="Cash On Delivery (COD)" />
+                        <f:selectItem itemValue="BANK_TRANSFER" itemLabel="Bank Transfer (VNPAY / QR)" />
+                    </h:selectOneMenu>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">
                     <label class="form-label" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Order Note (Optional)</label>
-                    <input type="text" name="note" class="input-field" placeholder="Special delivery instructions..." style="width: 100%;" />
+                    <h:inputText value="#{cartBean.note}" styleClass="input-field" placeholder="Special delivery instructions..." style="width: 100%;" />
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 700;">
-                        <i class="bi bi-check2-circle" style="margin-right: 0.4rem;"></i> Confirm Order
-                    </button>
+                    <h:commandButton value="Confirm Order" action="#{cartBean.checkout}" styleClass="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 700;" />
                 </div>
-            </form>
+            </h:form>
         </div>
     </div>
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
-    <script src="#{request.contextPath}/js/api/api-client.js"></script>
-    <script src="#{request.contextPath}/js/api/cart-api.js"></script>
-    <script src="#{request.contextPath}/js/api/order-api.js"></script>
-    <script src="#{request.contextPath}/js/customer/cart.js"></script>
+    <script>
+        function openCheckoutModal() {
+            const m = document.getElementById('checkoutModal');
+            if (m) m.classList.add('active');
+        }
+        function closeModals() {
+            const m = document.getElementById('checkoutModal');
+            if (m) m.classList.remove('active');
+        }
+    </script>
 </h:body>
 </html>

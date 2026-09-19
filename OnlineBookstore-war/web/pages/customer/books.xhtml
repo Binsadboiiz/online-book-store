@@ -20,50 +20,135 @@
             <p class="page-subtitle">Search, filter, and discover books across all categories.</p>
         </div>
 
+        <!-- Messages Growl / Toast -->
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
         <!-- Search & Filter Bar -->
         <section class="filter-bar">
-            <div class="search-box">
-                <input type="text" id="searchInput" class="input-field" placeholder="Search by title, author, or ISBN..." />
-            </div>
-            <div style="display: flex; gap: 0.75rem;">
-                <select id="categoryFilter" class="select-field" onchange="fetchBooks()">
-                    <option value="">All Categories</option>
-                </select>
-                <button class="btn btn-secondary" onclick="fetchBooks()">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh
-                </button>
-            </div>
+            <h:form id="catalogFilterForm">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; width: 100%; align-items: center;">
+                    <div class="search-box" style="flex: 1; min-width: 260px; position: relative;">
+                        <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                        <h:inputText value="#{catalogBean.searchQuery}" styleClass="input-field" placeholder="Search by title, author, or ISBN..." style="width: 100%; padding-left: 2.5rem;">
+                            <f:ajax event="keyup" delay="300" listener="#{catalogBean.search}" render=":bookGridPanel" />
+                        </h:inputText>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <h:selectOneMenu value="#{catalogBean.selectedCategoryId}" styleClass="select-field" style="width: 190px;">
+                            <f:selectItem itemValue="#{null}" itemLabel="All Categories" />
+                            <f:selectItems value="#{catalogBean.categories}" var="c" itemValue="#{c.id}" itemLabel="#{c.name}" />
+                            <f:ajax event="change" listener="#{catalogBean.filterByCategory}" render=":bookGridPanel" />
+                        </h:selectOneMenu>
+                        <h:commandButton value="Reset" action="#{catalogBean.resetFilters}" styleClass="btn btn-secondary">
+                            <f:ajax render="@form :bookGridPanel" />
+                        </h:commandButton>
+                    </div>
+                </div>
+            </h:form>
         </section>
 
         <!-- Book Grid -->
-        <section id="bookGrid" class="book-grid">
-            <!-- Rendered dynamically by books.js -->
-        </section>
+        <h:panelGroup id="bookGridPanel" layout="block">
+            <ui:fragment rendered="#{empty catalogBean.catalogBooks}">
+                <div class="empty-state">
+                    <div class="empty-title">No Books Found</div>
+                    <p class="empty-desc">Try searching with a different keyword or selecting another category.</p>
+                </div>
+            </ui:fragment>
+            <ui:fragment rendered="#{not empty catalogBean.catalogBooks}">
+                <div class="book-grid">
+                    <ui:repeat value="#{catalogBean.catalogBooks}" var="b">
+                        <div class="book-card" style="position: relative; cursor: pointer;">
+                            <h:form style="display: block;">
+                                <h:commandLink action="#{catalogBean.selectBookForPreview(b.id)}" style="text-decoration: none; color: inherit; display: block;">
+                                    <f:ajax render=":detailModalPanel" onevent="handleBookPreviewModal" />
+                                    <div class="book-cover-wrap">
+                                        <ui:fragment rendered="#{not empty b.coverImage}">
+                                            <img src="#{b.coverImage}" alt="#{b.title}" class="book-cover" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty b.coverImage}">
+                                            <div class="book-cover-placeholder">
+                                                <i class="bi bi-journal-text" style="font-size: 2.5rem;"></i>
+                                                <span>No Cover</span>
+                                            </div>
+                                        </ui:fragment>
+                                    </div>
+                                    <div class="book-card-body">
+                                        <span class="book-category-badge">#{b.categoryName != null ? b.categoryName : 'General'}</span>
+                                        <h3 class="book-title">#{b.title}</h3>
+                                        <p class="book-author">By #{b.authorName != null ? b.authorName : 'Unknown Author'}</p>
+                                    </div>
+                                </h:commandLink>
+                                <div class="book-card-body" style="padding-top: 0;">
+                                    <div class="book-footer">
+                                        <div class="book-price">
+                                            <ui:fragment rendered="#{b.discountPrice != null and b.discountPrice &lt; b.price}">
+                                                <span class="book-price-old">$#{b.price}</span>
+                                                <strong>$#{b.discountPrice}</strong>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{b.discountPrice == null or b.discountPrice &gt;= b.price}">
+                                                <strong>$#{b.price}</strong>
+                                            </ui:fragment>
+                                        </div>
+                                        <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="btn btn-secondary btn-sm">
+                                            <i class="bi bi-cart-plus"></i> Add
+                                            <f:ajax render=":globalMessages :headerAuthContainer" />
+                                        </h:commandLink>
+                                    </div>
+                                </div>
+                            </h:form>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </ui:fragment>
+        </h:panelGroup>
     </main>
 
-    <ui:include src="/WEB-INF/includes/footer.xhtml" />
-
-    <!-- Book Detail Modal -->
+    <!-- Book Detail Modal Pop-up -->
     <div id="detailModal" class="modal-backdrop">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 680px;">
             <button class="modal-close" onclick="closeModals()">&#215;</button>
-            <div id="detailModalBody"></div>
+            <h:panelGroup id="detailModalPanel" layout="block">
+                <ui:fragment rendered="#{catalogBean.selectedPreviewBook != null}">
+                    <div class="modal-grid" style="grid-template-columns: 200px 1fr; gap: 1.5rem;">
+                        <div class="modal-cover-wrap">
+                            <ui:fragment rendered="#{not empty catalogBean.selectedPreviewBook.coverImage}">
+                                <img src="#{catalogBean.selectedPreviewBook.coverImage}" alt="#{catalogBean.selectedPreviewBook.title}" class="modal-cover" />
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty catalogBean.selectedPreviewBook.coverImage}">
+                                <div class="book-cover-placeholder"><i class="bi bi-journal-text" style="font-size: 2.5rem;"></i><span>No Cover</span></div>
+                            </ui:fragment>
+                        </div>
+                        <div>
+                            <span class="book-category-badge">#{catalogBean.selectedPreviewBook.categoryName != null ? catalogBean.selectedPreviewBook.categoryName : 'General'}</span>
+                            <h2 class="modal-detail-title" style="font-size: 1.4rem; margin-top: 0.4rem; margin-bottom: 0.3rem;">#{catalogBean.selectedPreviewBook.title}</h2>
+                            <p class="modal-detail-meta" style="margin-bottom: 0.5rem;">Author: <strong>#{catalogBean.selectedPreviewBook.authorName != null ? catalogBean.selectedPreviewBook.authorName : 'Unknown Author'}</strong></p>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <span style="color: #f59e0b; font-weight: 700;">★ #{catalogBean.selectedPreviewSummary != null and catalogBean.selectedPreviewSummary.averageRating != null ? catalogBean.selectedPreviewSummary.averageRating : 0} / 5</span>
+                            </div>
+
+                            <div class="modal-detail-price" style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.75rem;">$#{catalogBean.selectedPreviewBook.price}</div>
+                            <p class="modal-detail-desc" style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">#{catalogBean.selectedPreviewBook.description != null ? catalogBean.selectedPreviewBook.description : 'No detailed description available.'}</p>
+                            
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <a href="#{request.contextPath}/pages/customer/book-detail.xhtml?id=#{catalogBean.selectedPreviewBook.id}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-box-arrow-up-right"></i> Full Details &amp; Reviews
+                                </a>
+                                <h:form style="display: inline;">
+                                    <h:commandLink action="#{cartBean.addToCart(catalogBean.selectedPreviewBook.id, 1)}" styleClass="btn btn-secondary btn-sm" onclick="closeModals();">
+                                        <i class="bi bi-cart-plus"></i> Add to Cart
+                                        <f:ajax render=":globalMessages :headerAuthContainer" />
+                                    </h:commandLink>
+                                </h:form>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
         </div>
     </div>
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
-    <script src="#{request.contextPath}/js/common/toast.js"></script>
-    <script src="#{request.contextPath}/js/api/api-client.js"></script>
-    <script src="#{request.contextPath}/js/api/book-api.js"></script>
-    <script src="#{request.contextPath}/js/api/cart-api.js"></script>
-    <script src="#{request.contextPath}/js/api/review-api.js"></script>
-    <script src="#{request.contextPath}/js/customer/books.js"></script>
-    <script>
-        //<![CDATA[
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchBooks();
-        });
-        //]]>
-    </script>
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
 </h:body>
 </html>

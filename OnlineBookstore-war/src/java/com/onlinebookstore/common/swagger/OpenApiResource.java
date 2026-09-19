@@ -12,7 +12,6 @@ import jakarta.ws.rs.core.Response;
 public class OpenApiResource {
 
     @GET
-    @Secured({"manager", "admin"})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOpenApiSpec() {
         String jsonSpec = """

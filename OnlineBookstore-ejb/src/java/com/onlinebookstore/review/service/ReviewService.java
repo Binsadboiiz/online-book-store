@@ -35,11 +35,25 @@ public class ReviewService {
     @Inject
     private IOrderRepository orderRepository;
 
-    public boolean canUserReview(Integer userId, Integer bookId) {
+    public boolean hasUserPurchased(Integer userId, Integer bookId) {
         if (userId == null || bookId == null) {
             return false;
         }
         return orderRepository.hasUserPurchasedBook(userId, bookId);
+    }
+
+    public boolean hasUserReviewed(Integer userId, Integer bookId) {
+        if (userId == null || bookId == null) {
+            return false;
+        }
+        return reviewRepository.existsByUserIdAndBookId(userId, bookId);
+    }
+
+    public boolean canUserReview(Integer userId, Integer bookId) {
+        if (userId == null || bookId == null) {
+            return false;
+        }
+        return hasUserPurchased(userId, bookId) && !hasUserReviewed(userId, bookId);
     }
 
     public ApiResponse<List<ReviewResponse>> getApprovedReviews(Integer bookId) {
@@ -76,8 +90,12 @@ public class ReviewService {
             throw new BadRequestException("Rating must be between 1 and 5 stars");
         }
 
-        if (!orderRepository.hasUserPurchasedBook(userId, request.getBookId())) {
+        if (!hasUserPurchased(userId, request.getBookId())) {
             throw new BadRequestException("Chỉ người dùng đã mua sản phẩm này mới được viết đánh giá.");
+        }
+
+        if (hasUserReviewed(userId, request.getBookId())) {
+            throw new BadRequestException("Bạn đã gửi đánh giá cho sản phẩm này rồi.");
         }
 
         Books book = bookRepository.findById(request.getBookId());

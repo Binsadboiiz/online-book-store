@@ -22,49 +22,169 @@
                     <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; color: var(--text-main, #09090b);">My Orders &amp; Tracking</h1>
                     <p style="color: var(--text-muted, #71717a); font-size: 0.9rem;">Track your book shipments, view order details, and print official invoices.</p>
                 </div>
-                <button class="btn btn-secondary btn-sm" onclick="loadCustomerOrders()">
-                    <i class="bi bi-arrow-repeat"></i> Refresh Orders
-                </button>
+                <h:form>
+                    <h:commandButton value="Refresh Orders" action="#{orderBean.loadUserOrders}" styleClass="btn btn-secondary btn-sm">
+                        <f:ajax render=":ordersPanel" />
+                    </h:commandButton>
+                </h:form>
             </div>
 
-            <!-- Orders Container -->
-            <div id="ordersContainer">
-                <div class="empty-state">
-                    <div class="empty-title">Loading order history...</div>
-                </div>
-            </div>
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+            <h:panelGroup id="ordersPanel" layout="block">
+                <ui:fragment rendered="#{!authBean.loggedIn}">
+                    <div class="empty-state">
+                        <div class="empty-title">Please Sign In</div>
+                        <p class="empty-desc">You need to sign in to view your order history.</p>
+                        <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-primary" style="margin-top: 1rem;">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In Now
+                        </a>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{authBean.loggedIn and empty orderBean.userOrders}">
+                    <div class="empty-state">
+                        <div class="empty-title">No Orders Found</div>
+                        <p class="empty-desc">You haven't placed any book orders yet.</p>
+                        <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary" style="margin-top: 1rem;">
+                            <i class="bi bi-compass"></i> Start Shopping
+                        </a>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{authBean.loggedIn and not empty orderBean.userOrders}">
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <ui:repeat value="#{orderBean.userOrders}" var="o">
+                            <div style="background: #fff; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); padding: 1.25rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #f1f5f9); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                                    <div>
+                                        <span style="font-weight: 800; font-size: 1.05rem;">Order Code: ##{o.orderCode}</span>
+                                        <span style="margin-left: 0.75rem; color: var(--text-muted); font-size: 0.85rem;">#{o.createdAt != null ? o.createdAt : ''}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <span class="badge" style="padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.8rem; background: #e0f2fe; color: #0369a1;">
+                                            #{o.status}
+                                        </span>
+                                        <h:form style="display: inline;">
+                                            <h:commandLink action="#{orderBean.selectOrderForInvoice(o.id)}" styleClass="btn btn-secondary btn-sm">
+                                                <i class="bi bi-receipt" style="margin-right: 0.3rem;"></i> View &amp; Print Invoice
+                                                <f:ajax render=":invoiceModalPanel" onevent="handleInvoiceModal" />
+                                            </h:commandLink>
+                                        </h:form>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 1rem;">
+                                    <ui:repeat value="#{o.items}" var="item">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <ui:fragment rendered="#{not empty item.coverImage}">
+                                                    <img src="#{item.coverImage}" alt="#{item.bookTitle}" style="width: 32px; height: 44px; object-fit: cover; border-radius: 4px;" />
+                                                </ui:fragment>
+                                                <div>
+                                                    <strong>#{item.bookTitle}</strong> &#215; #{item.quantity}
+                                                </div>
+                                            </div>
+                                            <div style="font-weight: 600;">$#{item.subtotal}</div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color, #f1f5f9); padding-top: 0.75rem;">
+                                    <div>
+                                        <span style="font-size: 0.85rem; color: var(--text-muted);">Recipient: </span>
+                                        <span style="font-size: 0.85rem; font-weight: 600;">#{o.recipientName} (#{o.recipientPhone})</span>
+                                    </div>
+                                    <div style="font-size: 1.1rem; font-weight: 800;">
+                                        Total: $#{o.totalAmount}
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
         </div>
     </main>
 
-    <!-- Invoice Modal -->
-    <div id="invoiceModal" class="modal-overlay">
-        <div class="modal-content card-detail-wrap" style="max-width: 750px; width: 92%; padding: 1.5rem; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #e2e8f0); padding-bottom: 0.75rem; margin-bottom: 1rem;">
-                <h3 style="font-size: 1.2rem; font-weight: 700; margin: 0;">Sales Invoice</h3>
-                <button type="button" onclick="closeModals()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&#215;</button>
-            </div>
-            
-            <div id="invoiceModalBody">
-                <div class="empty-state"><div class="empty-title">Loading invoice...</div></div>
-            </div>
+    <!-- Invoice Modal Pop-up -->
+    <div id="invoiceModal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 720px; width: 92%;">
+            <button type="button" class="modal-close" onclick="closeModals()">&#215;</button>
+            <h:panelGroup id="invoiceModalPanel" layout="block">
+                <ui:fragment rendered="#{orderBean.selectedOrder != null}">
+                    <div id="printableInvoiceArea" style="padding: 1.5rem; background: #fff; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 2px solid #09090b; padding-bottom: 1rem;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;">ONLINE BOOKSTORE</h2>
+                                <p style="margin: 0.2rem 0 0 0; color: #71717a; font-size: 0.85rem;">Official Sales Receipt &amp; Invoice</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <strong style="font-size: 1.15rem; display: block;">INVOICE ##{orderBean.selectedOrder.orderCode}</strong>
+                                <span style="font-size: 0.85rem; color: #71717a;">Date: #{orderBean.selectedOrder.createdAt}</span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; background: #fafafa; padding: 1rem; border-radius: 6px; border: 1px solid #e4e4e7;">
+                            <div>
+                                <strong style="display: block; margin-bottom: 0.3rem; font-size: 0.85rem; text-transform: uppercase; color: #71717a;">Billed To</strong>
+                                <div style="font-size: 0.95rem; font-weight: 700;">#{orderBean.selectedOrder.recipientName}</div>
+                                <div style="font-size: 0.85rem; color: #3f3f46;">Phone: #{orderBean.selectedOrder.recipientPhone}</div>
+                                <div style="font-size: 0.85rem; color: #3f3f46;">Address: #{orderBean.selectedOrder.shippingAddress}</div>
+                            </div>
+                            <div>
+                                <strong style="display: block; margin-bottom: 0.3rem; font-size: 0.85rem; text-transform: uppercase; color: #71717a;">Payment Summary</strong>
+                                <div style="font-size: 0.85rem; color: #3f3f46;">Method: <strong>#{orderBean.selectedOrder.paymentMethod}</strong></div>
+                                <div style="font-size: 0.85rem; color: #3f3f46;">Status: <strong>#{orderBean.selectedOrder.paymentStatus != null ? orderBean.selectedOrder.paymentStatus : 'COMPLETED'}</strong></div>
+                                <div style="font-size: 0.85rem; color: #3f3f46;">Order Status: <strong>#{orderBean.selectedOrder.status}</strong></div>
+                            </div>
+                        </div>
+
+                        <table class="data-table" style="width: 100%; margin-bottom: 1.5rem;">
+                            <thead>
+                                <tr>
+                                    <th>Item Description</th>
+                                    <th>Unit Price</th>
+                                    <th>Qty</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{orderBean.selectedOrder.items}" var="it">
+                                    <tr>
+                                        <td><strong>#{it.bookTitle}</strong></td>
+                                        <td>$#{it.price}</td>
+                                        <td>#{it.quantity}</td>
+                                        <td><strong>$#{it.subtotal}</strong></td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #e2e8f0; padding-top: 1.25rem;">
+                            <button type="button" class="btn btn-secondary" onclick="window.print();">
+                                <i class="bi bi-printer" style="margin-right: 0.4rem;"></i> Print Invoice
+                            </button>
+                            <div style="font-size: 1.3rem; font-weight: 900;">
+                                Grand Total: $#{orderBean.selectedOrder.totalAmount}
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
         </div>
     </div>
 
     <ui:include src="/WEB-INF/includes/footer.xhtml" />
 
-    <script src="#{request.contextPath}/js/common/core.js"></script>
-    <script src="#{request.contextPath}/js/common/toast.js"></script>
-    <script src="#{request.contextPath}/js/api/api-client.js"></script>
-    <script src="#{request.contextPath}/js/api/order-api.js"></script>
-    <script src="#{request.contextPath}/js/customer/orders.js"></script>
     <script>
-        //<![CDATA[
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof loadCustomerOrders === 'function') {
-                loadCustomerOrders();
+        function handleInvoiceModal(data) {
+            if (data &amp;&amp; data.status === 'success') {
+                const modal = document.getElementById('invoiceModal');
+                if (modal) modal.classList.add('active');
             }
-        });
-        //]]>
+        }
+        window.handleInvoiceModal = handleInvoiceModal;
     </script>
 </h:body>
 </html>
