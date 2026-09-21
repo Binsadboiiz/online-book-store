@@ -306,6 +306,22 @@ public class OrderService implements IOrderService {
             order.setPaymentStatus(request.getPaymentStatus().trim());
         }
 
+        if (request.getRecipientName() != null && !request.getRecipientName().trim().isEmpty()) {
+            order.setRecipientName(request.getRecipientName().trim());
+        }
+
+        if (request.getRecipientPhone() != null && !request.getRecipientPhone().trim().isEmpty()) {
+            order.setRecipientPhone(request.getRecipientPhone().trim());
+        }
+
+        if (request.getShippingAddress() != null && !request.getShippingAddress().trim().isEmpty()) {
+            order.setShippingAddress(request.getShippingAddress().trim());
+        }
+
+        if (request.getNote() != null) {
+            order.setNote(request.getNote().trim());
+        }
+
         order.setUpdatedAt(now);
         Orders updatedOrder = orderRepository.update(order);
 

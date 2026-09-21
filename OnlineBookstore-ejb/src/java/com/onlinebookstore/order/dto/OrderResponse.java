@@ -194,6 +194,10 @@ public class OrderResponse implements Serializable {
         return items;
     }
 
+    public List<OrderItemResponse> getOrderItems() {
+        return items;
+    }
+
     public void setItems(List<OrderItemResponse> items) {
         this.items = items;
     }

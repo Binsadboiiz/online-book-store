@@ -36,7 +36,7 @@
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
                     <div style="position: relative; flex: 1; min-width: 250px; max-width: 400px;">
                         <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
-                        <h:inputText value="#{adminBookBean.searchQuery}" styleClass="input-field" placeholder="Search title, ISBN, author..." style="width: 100%; padding-left: 2.5rem;">
+                        <h:inputText value="#{adminBookBean.searchQuery}" styleClass="input-field" style="width: 100%; padding-left: 2.5rem;">
                             <f:ajax event="keyup" delay="300" listener="#{adminBookBean.filterBooks}" render=":adminBookTablePanel" />
                         </h:inputText>
                     </div>
@@ -142,7 +142,7 @@
             <h:form id="bookModalForm">
                 <div class="form-group" style="margin-bottom: 1.1rem;">
                     <label class="form-label">Book Title *</label>
-                    <h:inputText value="#{adminBookBean.bookRequest.title}" required="true" styleClass="input-field" placeholder="Enter book title" style="width: 100%;" />
+                    <h:inputText value="#{adminBookBean.bookRequest.title}" required="true" styleClass="input-field" style="width: 100%;" />
                 </div>
 
                 <!-- Author Selection Section -->
@@ -166,11 +166,11 @@
                         <ui:fragment rendered="#{adminBookBean.authorMode == 'NEW'}">
                             <div class="form-group" style="margin-bottom: 0.75rem;">
                                 <label class="form-label" style="font-size: 0.85rem;">Author Full Name *</label>
-                                <h:inputText value="#{adminBookBean.bookRequest.newAuthorName}" styleClass="input-field" placeholder="e.g. Robert C. Martin" style="width: 100%;" />
+                                <h:inputText value="#{adminBookBean.bookRequest.newAuthorName}" styleClass="input-field" style="width: 100%;" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label" style="font-size: 0.85rem;">Author Biography (Optional)</label>
-                                <h:inputText value="#{adminBookBean.bookRequest.newAuthorBio}" styleClass="input-field" placeholder="Short author biography..." style="width: 100%;" />
+                                <h:inputText value="#{adminBookBean.bookRequest.newAuthorBio}" styleClass="input-field" style="width: 100%;" />
                             </div>
                         </ui:fragment>
                     </h:panelGroup>
@@ -186,18 +186,18 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">ISBN Code</label>
-                        <h:inputText value="#{adminBookBean.bookRequest.isbn}" styleClass="input-field" placeholder="e.g. 978-0132350884" style="width: 100%;" />
+                        <h:inputText value="#{adminBookBean.bookRequest.isbn}" styleClass="input-field" style="width: 100%;" />
                     </div>
                 </div>
 
                 <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
                     <div class="form-group">
                         <label class="form-label">List Price ($) *</label>
-                        <h:inputText value="#{adminBookBean.bookRequest.price}" required="true" styleClass="input-field" placeholder="25.00" style="width: 100%;" />
+                        <h:inputText value="#{adminBookBean.bookRequest.price}" required="true" styleClass="input-field" style="width: 100%;" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Discount Price ($)</label>
-                        <h:inputText value="#{adminBookBean.bookRequest.discountPrice}" styleClass="input-field" placeholder="19.99" style="width: 100%;" />
+                        <h:inputText value="#{adminBookBean.bookRequest.discountPrice}" styleClass="input-field" style="width: 100%;" />
                     </div>
                 </div>
 
@@ -214,17 +214,17 @@
 
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label class="form-label">Description</label>
-                    <h:inputTextarea value="#{adminBookBean.bookRequest.description}" rows="3" styleClass="input-field" placeholder="Enter book summary..." style="width: 100%;" />
+                    <h:inputTextarea value="#{adminBookBean.bookRequest.description}" rows="3" styleClass="input-field" style="width: 100%;" />
                 </div>
 
                 <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
                     <div class="form-group">
                         <label class="form-label">Cover Image URL</label>
-                        <h:inputText value="#{adminBookBean.bookRequest.coverImage}" styleClass="input-field" placeholder="https://example.com/cover.jpg" style="width: 100%;" />
+                        <h:inputText value="#{adminBookBean.bookRequest.coverImage}" styleClass="input-field" style="width: 100%;" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Pages</label>
-                        <h:inputText value="#{adminBookBean.bookRequest.pages}" styleClass="input-field" placeholder="350" style="width: 100%;" />
+                        <h:inputText value="#{adminBookBean.bookRequest.pages}" styleClass="input-field" style="width: 100%;" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Language</label>

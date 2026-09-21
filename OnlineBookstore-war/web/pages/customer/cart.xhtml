@@ -106,12 +106,12 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.95rem;">
                         <span>Shipping Fee:</span>
-                        <strong style="color: #166534;">Free Shipping</strong>
+                        <strong style="color: #166534;">$#{cartBean.shippingFee}</strong>
                     </div>
 
                     <div style="border-top: 2px solid var(--border-color, #e2e8f0); padding-top: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800;">
                         <span>Order Total:</span>
-                        <span>$#{cartBean.cart.totalAmount}</span>
+                        <span>$#{cartBean.finalAmount}</span>
                     </div>
 
                     <button class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-weight: 700;" onclick="openCheckoutModal()">

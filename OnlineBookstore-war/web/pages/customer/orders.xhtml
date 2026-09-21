@@ -90,13 +90,16 @@
                                     </ui:repeat>
                                 </div>
 
-                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color, #f1f5f9); padding-top: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color, #f1f5f9); padding-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                                     <div>
                                         <span style="font-size: 0.85rem; color: var(--text-muted);">Recipient: </span>
                                         <span style="font-size: 0.85rem; font-weight: 600;">#{o.recipientName} (#{o.recipientPhone})</span>
                                     </div>
-                                    <div style="font-size: 1.1rem; font-weight: 800;">
-                                        Total: $#{o.totalAmount}
+                                    <div style="text-align: right;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Items: $#{o.totalAmount} | Shipping: $#{o.shippingFee}</span>
+                                        <div style="font-size: 1.15rem; font-weight: 800; color: #09090b;">
+                                            Total: $#{o.finalAmount}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -161,12 +164,16 @@
                             </tbody>
                         </table>
 
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #e2e8f0; padding-top: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #e2e8f0; padding-top: 1.25rem;">
                             <button type="button" class="btn btn-secondary" onclick="window.print();">
                                 <i class="bi bi-printer" style="margin-right: 0.4rem;"></i> Print Invoice
                             </button>
-                            <div style="font-size: 1.3rem; font-weight: 900;">
-                                Grand Total: $#{orderBean.selectedOrder.totalAmount}
+                            <div style="text-align: right; display: flex; flex-direction: column; gap: 0.2rem;">
+                                <div style="font-size: 0.9rem; color: #475569;">Items Subtotal: <strong>$#{orderBean.selectedOrder.totalAmount}</strong></div>
+                                <div style="font-size: 0.9rem; color: #475569;">Shipping Fee: <strong>$#{orderBean.selectedOrder.shippingFee}</strong></div>
+                                <div style="font-size: 1.3rem; font-weight: 900; color: #09090b; margin-top: 0.25rem;">
+                                    Grand Total: $#{orderBean.selectedOrder.finalAmount}
+                                </div>
                             </div>
                         </div>
                     </div>

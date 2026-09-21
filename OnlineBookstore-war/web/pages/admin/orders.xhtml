@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Order Management - Admin Portal" />
+</ui:include>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/admin-header.xhtml">
+        <ui:param name="activePage" value="orders" />
+    </ui:include>
+
+    <main class="container">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 class="page-title">Order Management</h1>
+                <p class="page-subtitle">Track, filter, update basic order information and delivery status.</p>
+            </div>
+        </div>
+
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+        <!-- Filter & Search Toolbar -->
+        <div style="margin-bottom: 1.5rem;">
+            <h:form id="adminOrderFilterForm">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                    <div style="position: relative; flex: 1; min-width: 250px; max-width: 400px;">
+                        <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                        <h:inputText value="#{adminOrderBean.searchQuery}" styleClass="input-field" style="width: 100%; padding-left: 2.5rem;">
+                            <f:ajax event="keyup" delay="300" listener="#{adminOrderBean.applyFilter}" render=":adminOrderTablePanel" />
+                        </h:inputText>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <h:selectOneMenu value="#{adminOrderBean.selectedStatus}" styleClass="select-field" style="width: 180px;">
+                            <f:selectItem itemValue="" itemLabel="All Statuses" />
+                            <f:selectItem itemValue="PENDING" itemLabel="Pending" />
+                            <f:selectItem itemValue="PROCESSING" itemLabel="Processing" />
+                            <f:selectItem itemValue="SHIPPED" itemLabel="Shipped" />
+                            <f:selectItem itemValue="DELIVERED" itemLabel="Delivered / Completed" />
+                            <f:selectItem itemValue="CANCELLED" itemLabel="Cancelled" />
+                            <f:ajax event="change" listener="#{adminOrderBean.filterOrders}" render=":adminOrderTablePanel" />
+                        </h:selectOneMenu>
+                    </div>
+                </div>
+            </h:form>
+        </div>
+
+        <!-- Orders Data Table -->
+        <h:panelGroup id="adminOrderTablePanel" layout="block" styleClass="card-table-wrap">
+            <h:form id="adminOrderTableForm">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order Code</th>
+                            <th>Customer / Recipient</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ui:fragment rendered="#{empty adminOrderBean.orders}">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No orders match your search criteria.</td>
+                            </tr>
+                        </ui:fragment>
+                        <ui:repeat value="#{adminOrderBean.orders}" var="o">
+                            <tr>
+                                <td>
+                                    <strong style="font-family: monospace; font-size: 0.95rem;">#{o.orderCode}</strong>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong style="font-size: 0.9rem; display: block;">#{o.recipientName}</strong>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="bi bi-telephone"></i> #{o.recipientPhone}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">#{o.createdAt}</span>
+                                </td>
+                                <td>
+                                    <strong style="font-size: 1rem; color: #09090b;">$#{o.finalAmount}</strong>
+                                </td>
+                                <td>
+                                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                        <span style="font-size: 0.8rem; font-weight: 600;">#{o.paymentMethod}</span>
+                                        <ui:fragment rendered="#{o.paymentStatus == 'PAID'}">
+                                            <span class="badge-paid"><i class="bi bi-check-circle-fill"></i> PAID</span>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{o.paymentStatus != 'PAID'}">
+                                            <span class="badge-unpaid"><i class="bi bi-clock-history"></i> UNPAID</span>
+                                        </ui:fragment>
+                                    </div>
+                                </td>
+                                <td>
+                                    <ui:fragment rendered="#{o.status == 'PENDING'}">
+                                        <span class="badge-pending"><i class="bi bi-hourglass-split"></i> Pending</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{o.status == 'PROCESSING'}">
+                                        <span class="badge-processing"><i class="bi bi-gear-wide-connected"></i> Processing</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{o.status == 'SHIPPED'}">
+                                        <span class="badge-shipped"><i class="bi bi-truck"></i> Shipped</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{o.status == 'DELIVERED' or o.status == 'COMPLETED'}">
+                                        <span class="badge-delivered"><i class="bi bi-check-all"></i> Delivered</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{o.status == 'CANCELLED'}">
+                                        <span class="badge-cancelled"><i class="bi bi-x-circle"></i> Cancelled</span>
+                                    </ui:fragment>
+                                </td>
+                                <td style="text-align: right;">
+                                    <div class="action-btns" style="justify-content: flex-end;">
+                                        <h:commandLink action="#{adminOrderBean.selectOrderDetails(o)}" styleClass="btn btn-secondary btn-sm" onclick="openModal('orderDetailsModal');">
+                                            <i class="bi bi-eye"></i> Details
+                                            <f:ajax execute="@this" render=":orderDetailsContent" />
+                                        </h:commandLink>
+
+                                        <h:commandLink action="#{adminOrderBean.prepareEditOrder(o)}" styleClass="btn btn-primary btn-sm" onclick="openModal('editOrderModal');">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                            <f:ajax execute="@this" render=":editOrderForm" />
+                                        </h:commandLink>
+
+                                        <h:commandLink action="#{adminOrderBean.deleteOrder(o.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete order #{o.orderCode}?');">
+                                            <i class="bi bi-trash"></i>
+                                            <f:ajax execute="@this" render=":globalMessages :adminOrderTablePanel" />
+                                        </h:commandLink>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ui:repeat>
+                    </tbody>
+                </table>
+            </h:form>
+        </h:panelGroup>
+    </main>
+
+    <!-- View Order Details Modal -->
+    <div id="orderDetailsModal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="bi bi-receipt"></i> Order Details</h3>
+                <button type="button" class="btn btn-sm" onclick="closeModal('orderDetailsModal')" style="border: none; background: transparent; font-size: 1.25rem;">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <h:panelGroup id="orderDetailsContent" layout="block">
+                    <ui:fragment rendered="#{adminOrderBean.selectedOrder != null}">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Order Code</span>
+                                <div style="font-size: 1.1rem; font-weight: 800; font-family: monospace;">#{adminOrderBean.selectedOrder.orderCode}</div>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Placed Date</span>
+                                <div style="font-size: 0.95rem; font-weight: 600;">#{adminOrderBean.selectedOrder.createdAt}</div>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Recipient Name</span>
+                                <div style="font-size: 0.95rem; font-weight: 600;">#{adminOrderBean.selectedOrder.recipientName}</div>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Recipient Phone</span>
+                                <div style="font-size: 0.95rem; font-weight: 600;">#{adminOrderBean.selectedOrder.recipientPhone}</div>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Shipping Address</span>
+                                <div style="font-size: 0.95rem; font-weight: 600;">#{adminOrderBean.selectedOrder.shippingAddress}</div>
+                            </div>
+                            <ui:fragment rendered="#{not empty adminOrderBean.selectedOrder.note}">
+                                <div style="grid-column: span 2;">
+                                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Order Note</span>
+                                    <div style="font-size: 0.9rem; color: #475569; font-style: italic;">"#{adminOrderBean.selectedOrder.note}"</div>
+                                </div>
+                            </ui:fragment>
+                        </div>
+
+                        <!-- Purchased Items Table -->
+                        <h4 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Order Items</h4>
+                        <table class="table" style="margin-bottom: 1.25rem;">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th style="text-align: right;">Unit Price</th>
+                                    <th style="text-align: center;">Qty</th>
+                                    <th style="text-align: right;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminOrderBean.selectedOrder.items}" var="item">
+                                    <tr>
+                                        <td>
+                                            <strong style="font-size: 0.9rem;">#{item.bookTitle}</strong>
+                                        </td>
+                                        <td style="text-align: right;">$#{item.price}</td>
+                                        <td style="text-align: center;">x#{item.quantity}</td>
+                                        <td style="text-align: right;"><strong>$#{item.subtotal}</strong></td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; padding-top: 0.75rem; border-top: 1px solid #e2e8f0;">
+                            <div>Subtotal: <strong>$#{adminOrderBean.selectedOrder.totalAmount}</strong></div>
+                            <div>Shipping Fee: <strong>$#{adminOrderBean.selectedOrder.shippingFee}</strong></div>
+                            <div style="font-size: 1.2rem; font-weight: 800; margin-top: 0.25rem;">Grand Total: <span style="color: #09090b;">$#{adminOrderBean.selectedOrder.finalAmount}</span></div>
+                        </div>
+                    </ui:fragment>
+                </h:panelGroup>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('orderDetailsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Order & Update Status Modal -->
+    <div id="editOrderModal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="bi bi-pencil-square"></i> Edit Order Information &amp; Status</h3>
+                <button type="button" class="btn btn-sm" onclick="closeModal('editOrderModal')" style="border: none; background: transparent; font-size: 1.25rem;">&#215;</button>
+            </div>
+            <h:form id="editOrderForm">
+                <div class="modal-body">
+                    <h:panelGroup id="editOrderContent" layout="block">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" style="font-weight: 700;">Recipient Full Name *</label>
+                            <h:inputText value="#{adminOrderBean.editRecipientName}" required="true" styleClass="form-control" placeholder="Enter recipient full name" />
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" style="font-weight: 700;">Recipient Phone Number *</label>
+                            <h:inputText value="#{adminOrderBean.editRecipientPhone}" required="true" styleClass="form-control" placeholder="Enter recipient phone number" />
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" style="font-weight: 700;">Shipping Address *</label>
+                            <h:inputTextarea value="#{adminOrderBean.editShippingAddress}" rows="2" required="true" styleClass="form-control" placeholder="Enter full shipping address" />
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label class="form-label" style="font-weight: 700;">Order Note</label>
+                            <h:inputTextarea value="#{adminOrderBean.editNote}" rows="2" styleClass="form-control" placeholder="Customer or delivery notes..." />
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 700;">Order Status *</label>
+                                <h:selectOneMenu value="#{adminOrderBean.editStatus}" styleClass="form-control">
+                                    <f:selectItem itemValue="PENDING" itemLabel="PENDING" />
+                                    <f:selectItem itemValue="PROCESSING" itemLabel="PROCESSING" />
+                                    <f:selectItem itemValue="SHIPPED" itemLabel="SHIPPED" />
+                                    <f:selectItem itemValue="DELIVERED" itemLabel="DELIVERED" />
+                                    <f:selectItem itemValue="CANCELLED" itemLabel="CANCELLED" />
+                                </h:selectOneMenu>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 700;">Payment Status *</label>
+                                <h:selectOneMenu value="#{adminOrderBean.editPaymentStatus}" styleClass="form-control">
+                                    <f:selectItem itemValue="UNPAID" itemLabel="UNPAID" />
+                                    <f:selectItem itemValue="PAID" itemLabel="PAID" />
+                                </h:selectOneMenu>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editOrderModal')">Cancel</button>
+                    <h:commandButton value="Save Changes" action="#{adminOrderBean.saveOrderDetails}" styleClass="btn btn-primary" onclick="closeModal('editOrderModal');">
+                        <f:ajax execute="@form" render=":globalMessages :adminOrderTablePanel" />
+                    </h:commandButton>
+                </div>
+            </h:form>
+        </div>
+    </div>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('active');
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
+        }
+    </script>
+</h:body>
+</html>

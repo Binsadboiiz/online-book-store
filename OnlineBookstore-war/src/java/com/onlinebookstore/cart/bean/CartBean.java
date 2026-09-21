@@ -32,6 +32,7 @@ public class CartBean implements Serializable {
     private String shippingAddress;
     private String paymentMethod = "COD";
     private String note;
+    private java.math.BigDecimal shippingFee = java.math.BigDecimal.ZERO;
 
     @Inject
     private ICartService cartService;
@@ -153,6 +154,7 @@ public class CartBean implements Serializable {
             req.setShippingAddress(shippingAddress);
             req.setPaymentMethod(paymentMethod);
             req.setNote(note);
+            req.setShippingFee(getShippingFee());
 
             ApiResponse<OrderResponse> res = orderService.createOrder(authBean.getCurrentUserId(), req);
             if (res != null && res.isSuccess()) {
@@ -221,5 +223,21 @@ public class CartBean implements Serializable {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public java.math.BigDecimal getShippingFee() {
+        if (shippingFee == null) {
+            shippingFee = java.math.BigDecimal.ZERO;
+        }
+        return shippingFee;
+    }
+
+    public void setShippingFee(java.math.BigDecimal shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public java.math.BigDecimal getFinalAmount() {
+        java.math.BigDecimal total = (cart != null && cart.getTotalAmount() != null) ? cart.getTotalAmount() : java.math.BigDecimal.ZERO;
+        return total.add(getShippingFee());
     }
 }
