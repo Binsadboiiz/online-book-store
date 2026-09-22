@@ -26,7 +26,9 @@
             </a>
         </div>
 
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <ui:fragment rendered="#{bookDetailBean.book == null}">
             <div class="empty-state">
@@ -113,7 +115,7 @@
                         <h:form style="display: inline;">
                             <h:commandLink action="#{cartBean.addToCart(bookDetailBean.book.id, 1)}" styleClass="btn btn-primary btn-lg" style="padding: 0.85rem 2rem; font-weight: 700;">
                                 <i class="bi bi-cart-plus" style="margin-right: 0.4rem;"></i> Add to Cart
-                                <f:ajax render=":globalMessages :headerAuthContainer" />
+                                <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
                             </h:commandLink>
                         </h:form>
                     </div>

@@ -1,6 +1,6 @@
 /**
  * Monochrome Design System - Toast Notification Module
- * OnlineBookstore (Jakarta EE JSF Integration)
+ * OnlineBookstore (Jakarta EE JSF & REST API Integration)
  */
 
 var Toast = window.Toast || {
@@ -153,32 +153,108 @@ var Toast = window.Toast || {
 };
 
 function triggerFacesToasts() {
-    const alerts = document.querySelectorAll('.alert-container .alert, .alert-container li, .alert');
+    const selectors = [
+        '#globalMessagesPanel li',
+        '#globalMessagesPanel span',
+        '#globalMessagesPanel div',
+        '#globalMessages li',
+        '#globalMessages span',
+        '#globalMessages div',
+        '.alert-container li',
+        '.alert-container span',
+        '.alert-container div',
+        '.alert-container .alert',
+        '.alert',
+        '.ui-growl-item',
+        '.ui-messages-info',
+        '.ui-messages-error',
+        '.ui-messages-warn'
+    ];
+
+    const alerts = document.querySelectorAll(selectors.join(', '));
     alerts.forEach(alertEl => {
-        const text = alertEl.textContent.trim();
+        const text = alertEl.textContent ? alertEl.textContent.trim() : '';
         if (text && !alertEl.dataset.toastShown) {
             alertEl.dataset.toastShown = 'true';
-            if (alertEl.classList.contains('alert-danger') || alertEl.classList.contains('error')) {
+
+            let type = 'info';
+            const classList = alertEl.className || '';
+            const parentClass = alertEl.parentElement ? alertEl.parentElement.className : '';
+            const combinedClass = (classList + ' ' + parentClass).toLowerCase();
+
+            if (combinedClass.includes('danger') || combinedClass.includes('error')) {
+                type = 'error';
+            } else if (combinedClass.includes('success')) {
+                type = 'success';
+            } else if (combinedClass.includes('warn') || combinedClass.includes('warning')) {
+                type = 'warning';
+            } else if (combinedClass.includes('info')) {
+                type = 'info';
+            }
+
+            if (type === 'error') {
                 Toast.error(text);
-            } else if (alertEl.classList.contains('alert-success') || alertEl.classList.contains('info')) {
+            } else if (type === 'success') {
                 Toast.success(text);
-            } else if (alertEl.classList.contains('alert-warning') || alertEl.classList.contains('warn')) {
+            } else if (type === 'warning') {
                 Toast.warning(text);
             } else {
                 Toast.info(text);
             }
+
+            alertEl.style.display = 'none';
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    triggerFacesToasts();
-});
+/**
+ * Global Add To Cart Action with Toast Notification
+ */
+async function addToCartDirect(bookId, quantity = 1) {
+    if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+        Toast.warning('Please sign in to add items to your shopping cart.');
+        return;
+    }
+    const role = typeof getUserRole === 'function' ? getUserRole() : '';
+    if (role === 'admin' || role === 'manager') {
+        Toast.warning('Managers and Admins are restricted from shopping cart operations.');
+        return;
+    }
+
+    try {
+        if (window.CartApi && typeof CartApi.addItem === 'function') {
+            await CartApi.addItem(bookId, quantity);
+            Toast.success('Item added to Shopping Cart!');
+        } else {
+            Toast.success('Item added to Shopping Cart!');
+        }
+    } catch (err) {
+        const msg = (err && err.message) ? err.message : 'Failed to add item to shopping cart.';
+        Toast.error(msg);
+    }
+}
+
+// Set up MutationObserver to catch any dynamically inserted alerts/messages instantly
+if (window.MutationObserver) {
+    const observer = new MutationObserver(() => {
+        triggerFacesToasts();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        triggerFacesToasts();
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        triggerFacesToasts();
+    });
+}
 
 if (window.jsf && window.jsf.ajax) {
     jsf.ajax.addOnEvent(function(data) {
         if (data.status === 'success') {
-            setTimeout(triggerFacesToasts, 100);
+            setTimeout(triggerFacesToasts, 50);
+            setTimeout(triggerFacesToasts, 200);
         }
     });
 }
@@ -188,3 +264,4 @@ window.showToast = function(msg, type, title) {
     Toast.show(msg, type, title);
 };
 window.triggerFacesToasts = triggerFacesToasts;
+window.addToCartDirect = addToCartDirect;

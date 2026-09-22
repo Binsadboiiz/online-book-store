@@ -28,7 +28,9 @@
             </h:form>
         </div>
 
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <!-- Stats Bar -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -95,11 +97,11 @@
                                         </h:commandLink>
                                         <h:commandLink action="#{adminCategoryBean.toggleCategoryStatus(c.id)}" styleClass="btn btn-warning btn-sm">
                                             <i class="bi bi-power"></i> #{c.active ? 'Disable' : 'Enable'}
-                                            <f:ajax render=":globalMessages :categoryTablePanel" />
+                                            <f:ajax render=":globalMessagesPanel :categoryTablePanel" />
                                         </h:commandLink>
                                         <h:commandLink action="#{adminCategoryBean.deleteCategory(c.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete category #{c.name}?');">
                                             <i class="bi bi-trash"></i> Delete
-                                            <f:ajax render=":globalMessages :categoryTablePanel" />
+                                            <f:ajax render=":globalMessagesPanel :categoryTablePanel" />
                                         </h:commandLink>
                                     </div>
                                 </td>

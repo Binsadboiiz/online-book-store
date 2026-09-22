@@ -28,7 +28,9 @@
             </h:form>
         </div>
 
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <!-- Filter & Search Toolbar -->
         <div style="margin-bottom: 1.5rem;">
@@ -119,7 +121,7 @@
                                         </h:commandLink>
                                         <h:commandLink action="#{adminBookBean.deleteBook(b.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this book?');">
                                             <i class="bi bi-trash"></i> Delete
-                                            <f:ajax render=":globalMessages :adminBookTablePanel" />
+                                            <f:ajax render=":globalMessagesPanel :adminBookTablePanel" />
                                         </h:commandLink>
                                     </div>
                                 </td>

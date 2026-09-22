@@ -20,8 +20,9 @@
             <p class="page-subtitle">Search, filter, and discover books across all categories.</p>
         </div>
 
-        <!-- Messages Growl / Toast -->
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <!-- Search & Filter Bar -->
         <section class="filter-bar">
@@ -92,7 +93,7 @@
                                         </div>
                                         <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="btn btn-secondary btn-sm">
                                             <i class="bi bi-cart-plus"></i> Add
-                                            <f:ajax render=":globalMessages :headerAuthContainer" />
+                                            <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
                                         </h:commandLink>
                                     </div>
                                 </div>

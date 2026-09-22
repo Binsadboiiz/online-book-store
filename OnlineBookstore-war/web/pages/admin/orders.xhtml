@@ -22,7 +22,9 @@
             </div>
         </div>
 
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <!-- Filter & Search Toolbar -->
         <div style="margin-bottom: 1.5rem;">
@@ -129,7 +131,7 @@
 
                                         <h:commandLink action="#{adminOrderBean.deleteOrder(o.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete order #{o.orderCode}?');">
                                             <i class="bi bi-trash"></i>
-                                            <f:ajax execute="@this" render=":globalMessages :adminOrderTablePanel" />
+                                            <f:ajax execute="@this" render=":globalMessagesPanel :adminOrderTablePanel" />
                                         </h:commandLink>
                                     </div>
                                 </td>
@@ -274,7 +276,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('editOrderModal')">Cancel</button>
                     <h:commandButton value="Save Changes" action="#{adminOrderBean.saveOrderDetails}" styleClass="btn btn-primary" onclick="closeModal('editOrderModal');">
-                        <f:ajax execute="@form" render=":globalMessages :adminOrderTablePanel" />
+                        <f:ajax execute="@form" render=":globalMessagesPanel :adminOrderTablePanel" />
                     </h:commandButton>
                 </div>
             </h:form>

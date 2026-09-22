@@ -28,7 +28,9 @@
             </h:form>
         </div>
 
-        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        <h:panelGroup id="globalMessagesPanel" layout="block">
+            <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+        </h:panelGroup>
 
         <!-- Stats Bar -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -86,7 +88,7 @@
                                         </h:commandLink>
                                         <h:commandLink action="#{adminAuthorBean.deleteAuthor(a.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this author?');">
                                             <i class="bi bi-trash"></i> Delete
-                                            <f:ajax render=":globalMessages :authorTablePanel" />
+                                            <f:ajax render=":globalMessagesPanel :authorTablePanel" />
                                         </h:commandLink>
                                     </div>
                                 </td>
