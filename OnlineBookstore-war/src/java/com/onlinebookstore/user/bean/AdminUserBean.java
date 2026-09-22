@@ -1,5 +1,6 @@
 package com.onlinebookstore.user.bean;
 
+import com.onlinebookstore.auth.bean.AuthBean;
 import com.onlinebookstore.common.dto.ApiResponse;
 import com.onlinebookstore.user.dto.AdminUserRequest;
 import com.onlinebookstore.user.dto.UserResponse;
@@ -30,6 +31,9 @@ public class AdminUserBean implements Serializable {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private AuthBean authBean;
 
     @PostConstruct
     public void init() {
@@ -72,6 +76,14 @@ public class AdminUserBean implements Serializable {
     }
 
     public void saveUser() {
+        if (selectedUserId != null && authBean != null && authBean.getCurrentUserId() != null
+                && authBean.getCurrentUserId().equals(selectedUserId)
+                && Boolean.FALSE.equals(userRequest.getActive())) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "You cannot deactivate your own account.", null));
+            return;
+        }
+
         try {
             ApiResponse<UserResponse> res;
             if (selectedUserId == null) {
@@ -98,6 +110,13 @@ public class AdminUserBean implements Serializable {
 
     public void toggleUserStatus(Integer userId) {
         if (userId == null) return;
+
+        if (authBean != null && authBean.getCurrentUserId() != null && authBean.getCurrentUserId().equals(userId)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "You cannot deactivate your own account.", null));
+            return;
+        }
+
         try {
             ApiResponse<UserResponse> res = userService.updateUserStatus(userId, null);
             if (res != null && res.isSuccess()) {

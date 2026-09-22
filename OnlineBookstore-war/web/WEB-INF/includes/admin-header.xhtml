@@ -3,49 +3,127 @@
                 xmlns:ui="jakarta.faces.facelets"
                 xmlns:p="http://primefaces.org/ui">
     <p:growl id="globalGrowl" showDetail="true" life="3500" />
-    <header class="navbar navbar-admin">
-        <div class="nav-container">
+
+    <!-- Mobile Top Header Bar -->
+    <div class="admin-mobile-header">
+        <button type="button" class="sidebar-toggle-btn" onclick="toggleAdminSidebar()" aria-label="Toggle Sidebar Navigation">
+            <i class="bi bi-list"></i>
+        </button>
+        <a href="#{request.contextPath}/pages/admin/dashboard.xhtml" class="brand">
+            <span class="brand-icon brand-icon-admin"><i class="bi bi-shield-lock-fill"></i></span>
+            <span>ADMIN PORTAL</span>
+        </a>
+        <div class="mobile-user-badge">
+            <i class="bi bi-person-circle"></i>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleAdminSidebar()"></div>
+
+    <!-- Admin Sidebar Navigation -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
             <a href="#{request.contextPath}/pages/admin/dashboard.xhtml" class="brand">
                 <span class="brand-icon brand-icon-admin"><i class="bi bi-shield-lock-fill"></i></span>
-                <span>ADMIN PORTAL</span>
+                <span class="brand-text">ADMIN PORTAL</span>
             </a>
-            
-            <nav class="nav-menu">
-                <a href="#{request.contextPath}/pages/admin/dashboard.xhtml" class="nav-link #{activePage == 'dashboard' ? 'active' : ''}">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-                <a href="#{request.contextPath}/pages/admin/books.xhtml" class="nav-link #{activePage == 'books' ? 'active' : ''}">
-                    <i class="bi bi-journals"></i> Books
-                </a>
-                <a href="#{request.contextPath}/pages/admin/authors.xhtml" class="nav-link #{activePage == 'authors' ? 'active' : ''}">
-                    <i class="bi bi-person-badge"></i> Authors
-                </a>
-                <a href="#{request.contextPath}/pages/admin/users.xhtml" class="nav-link #{activePage == 'users' ? 'active' : ''}">
-                    <i class="bi bi-people"></i> Users
-                </a>
-                <a href="#{request.contextPath}/pages/admin/orders.xhtml" class="nav-link #{activePage == 'orders' ? 'active' : ''}">
-                    <i class="bi bi-cart-check"></i> Orders
-                </a>
-                <a href="#{request.contextPath}/swagger.xhtml" class="nav-link #{activePage == 'swagger' ? 'active' : ''}">
-                    <i class="bi bi-code-slash"></i> API Docs
-                </a>
-            </nav>
+            <button type="button" class="sidebar-close-btn" onclick="toggleAdminSidebar()" aria-label="Close Sidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
 
-            <div class="nav-actions">
-                <ui:fragment rendered="#{authBean.loggedIn}">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span style="font-size: 0.9rem; font-weight: 600; color: #000000;">
-                            <i class="bi bi-shield-check" style="margin-right: 0.3rem;"></i>
-                            #{authBean.fullName != null ? authBean.fullName : authBean.username} (#{authBean.role})
-                        </span>
-                        <h:form style="display: inline;">
-                            <h:commandLink action="#{authBean.logout}" onclick="if (typeof clearSession === 'function') clearSession();" styleClass="btn btn-primary btn-sm" style="text-decoration: none;">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </h:commandLink>
-                        </h:form>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Core Management</div>
+            <a href="#{request.contextPath}/pages/admin/dashboard.xhtml" class="sidebar-link #{activePage == 'dashboard' ? 'active' : ''}">
+                <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+            </a>
+            <a href="#{request.contextPath}/pages/admin/books.xhtml" class="sidebar-link #{activePage == 'books' ? 'active' : ''}">
+                <i class="bi bi-journals"></i> <span>Books</span>
+            </a>
+            <a href="#{request.contextPath}/pages/admin/categories.xhtml" class="sidebar-link #{activePage == 'categories' ? 'active' : ''}">
+                <i class="bi bi-tags"></i> <span>Categories</span>
+            </a>
+            <a href="#{request.contextPath}/pages/admin/authors.xhtml" class="sidebar-link #{activePage == 'authors' ? 'active' : ''}">
+                <i class="bi bi-person-badge"></i> <span>Authors</span>
+            </a>
+            <a href="#{request.contextPath}/pages/admin/users.xhtml" class="sidebar-link #{activePage == 'users' ? 'active' : ''}">
+                <i class="bi bi-people"></i> <span>Users</span>
+            </a>
+            <a href="#{request.contextPath}/pages/admin/orders.xhtml" class="sidebar-link #{activePage == 'orders' ? 'active' : ''}">
+                <i class="bi bi-cart-check"></i> <span>Orders</span>
+            </a>
+
+            <div class="nav-section-title">Developer &amp; Tools</div>
+            <a href="#{request.contextPath}/swagger.xhtml" class="sidebar-link #{activePage == 'swagger' ? 'active' : ''}">
+                <i class="bi bi-code-slash"></i> <span>API Docs</span>
+            </a>
+            <!-- <a href="#{request.contextPath}/index.xhtml" class="sidebar-link">
+                <i class="bi bi-shop"></i> <span>Storefront</span>
+            </a> -->
+        </nav>
+
+        <div class="sidebar-footer">
+            <ui:fragment rendered="#{authBean.loggedIn}">
+                <div class="user-profile-box">
+                    <div class="user-avatar">
+                        <i class="bi bi-shield-check"></i>
                     </div>
-                </ui:fragment>
+                    <div class="user-details">
+                        <div class="user-name">#{authBean.fullName != null ? authBean.fullName : authBean.username}</div>
+                        <div class="user-role">#{authBean.role}</div>
+                    </div>
+                </div>
+                <h:form style="display: block; margin-top: 0.75rem;">
+                    <h:commandLink action="#{authBean.logout}" onclick="if (typeof clearSession === 'function') clearSession();" styleClass="sidebar-logout-btn">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </h:commandLink>
+                </h:form>
+            </ui:fragment>
+        </div>
+    </aside>
+
+    <!-- Admin Top Utility Bar -->
+    <header class="admin-topbar">
+        <div class="topbar-left">
+            <button type="button" class="sidebar-toggle-btn desktop-toggle-btn" onclick="toggleAdminSidebar()" aria-label="Toggle Sidebar Navigation">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="admin-breadcrumb">
+                <i class="bi bi-shield-lock-fill" style="margin-right: 0.35rem; color: var(--text-primary);"></i>
+                <span>Admin Portal</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-active">
+                    <ui:fragment rendered="#{activePage == 'dashboard'}">Dashboard</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'books'}">Books Management</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'categories'}">Category Management</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'authors'}">Authors Directory</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'users'}">Users &amp; Roles</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'orders'}">Order Management</ui:fragment>
+                    <ui:fragment rendered="#{activePage == 'swagger'}">Swagger REST API</ui:fragment>
+                </span>
             </div>
         </div>
+
+        <div class="topbar-right">
+            <!-- <a href="#{request.contextPath}/index.xhtml" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                <i class="bi bi-shop"></i> Storefront
+            </a> -->
+            <ui:fragment rendered="#{authBean.loggedIn}">
+                <div class="topbar-user-badge">
+                    <i class="bi bi-person-circle"></i>
+                    <span>#{authBean.fullName != null ? authBean.fullName : authBean.username}</span>
+                </div>
+            </ui:fragment>
+        </div>
     </header>
+
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        }
+    </script>
 </ui:composition>

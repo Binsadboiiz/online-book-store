@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="Category Management - Admin Portal" />
+</ui:include>
+
+<h:body>
+    <ui:include src="/WEB-INF/includes/admin-header.xhtml">
+        <ui:param name="activePage" value="categories" />
+    </ui:include>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 class="page-title"><i class="bi bi-tags" style="margin-right: 0.4rem;"></i> Category Management</h1>
+                <p class="page-subtitle">Manage book categories, descriptions, and catalog classification structure.</p>
+            </div>
+            <h:form style="display: inline;">
+                <h:commandLink action="#{adminCategoryBean.prepareAddCategory}" styleClass="btn btn-primary" onclick="openCategoryModal();">
+                    <i class="bi bi-plus-lg" style="margin-right: 0.4rem;"></i> Add New Category
+                    <f:ajax render=":categoryModalForm" />
+                </h:commandLink>
+            </h:form>
+        </div>
+
+        <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
+
+        <!-- Stats Bar -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="book-card" style="padding: 1.25rem; border-left: 4px solid #09090b;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Categories</span>
+                    <i class="bi bi-tags" style="font-size: 1.25rem; color: var(--text-muted);"></i>
+                </div>
+                <h2 style="font-size: 1.75rem; font-weight: 800; margin-top: 0.2rem;">#{adminCategoryBean.categories.size()}</h2>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div style="margin-bottom: 1.5rem;">
+            <h:form id="categorySearchForm">
+                <div style="position: relative; flex: 1; max-width: 450px;">
+                    <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                    <h:inputText value="#{adminCategoryBean.searchQuery}" styleClass="input-field" placeholder="Search categories by name..." style="width: 100%; padding-left: 2.5rem;">
+                        <f:ajax event="keyup" delay="300" listener="#{adminCategoryBean.filterCategories}" render=":categoryTablePanel" />
+                    </h:inputText>
+                </div>
+            </h:form>
+        </div>
+
+        <!-- Categories Data Table -->
+        <h:panelGroup id="categoryTablePanel" layout="block" styleClass="card-table-wrap">
+            <h:form id="categoryTableForm">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Category Name</th>
+                            <th>Description</th>
+                            <th>Books Count</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ui:fragment rendered="#{empty adminCategoryBean.categories}">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No categories found.</td>
+                            </tr>
+                        </ui:fragment>
+                        <ui:repeat value="#{adminCategoryBean.categories}" var="c">
+                            <tr>
+                                <td><strong>##{c.id}</strong></td>
+                                <td><strong>#{c.name}</strong></td>
+                                <td>#{c.description != null ? c.description : 'No description provided'}</td>
+                                <td><span class="badge bg-secondary">#{c.bookCount} books</span></td>
+                                <td>
+                                    <ui:fragment rendered="#{c.active}">
+                                        <span class="badge badge-success">Active</span>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{!c.active}">
+                                        <span class="badge badge-danger">Disabled</span>
+                                    </ui:fragment>
+                                </td>
+                                <td style="text-align: right;">
+                                    <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
+                                        <h:commandLink action="#{adminCategoryBean.prepareEditCategory(c)}" styleClass="btn btn-secondary btn-sm" onclick="openCategoryModal();">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                            <f:ajax render=":categoryModalForm" />
+                                        </h:commandLink>
+                                        <h:commandLink action="#{adminCategoryBean.toggleCategoryStatus(c.id)}" styleClass="btn btn-warning btn-sm">
+                                            <i class="bi bi-power"></i> #{c.active ? 'Disable' : 'Enable'}
+                                            <f:ajax render=":globalMessages :categoryTablePanel" />
+                                        </h:commandLink>
+                                        <h:commandLink action="#{adminCategoryBean.deleteCategory(c.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete category #{c.name}?');">
+                                            <i class="bi bi-trash"></i> Delete
+                                            <f:ajax render=":globalMessages :categoryTablePanel" />
+                                        </h:commandLink>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ui:repeat>
+                    </tbody>
+                </table>
+            </h:form>
+        </h:panelGroup>
+    </main>
+
+    <!-- Add / Edit Category Modal -->
+    <div id="categoryModal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close" onclick="closeCategoryModal()">&#215;</button>
+            <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem;">Add / Edit Category</h2>
+            
+            <h:form id="categoryModalForm">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label">Category Name *</label>
+                    <h:inputText value="#{adminCategoryBean.categoryRequest.name}" required="true" styleClass="input-field" placeholder="e.g. Science Fiction" style="width: 100%;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label">Description</label>
+                    <h:inputTextarea value="#{adminCategoryBean.categoryRequest.description}" rows="3" styleClass="input-field" placeholder="Category summary or notes..." style="width: 100%;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Active Status</label>
+                    <h:selectOneMenu value="#{adminCategoryBean.categoryRequest.active}" styleClass="select-field" style="width: 100%;">
+                        <f:selectItem itemValue="true" itemLabel="Active" />
+                        <f:selectItem itemValue="false" itemLabel="Disabled" />
+                    </h:selectOneMenu>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                    <h:commandButton value="Save Category" action="#{adminCategoryBean.saveCategory}" styleClass="btn btn-primary" onclick="closeCategoryModal();" />
+                </div>
+            </h:form>
+        </div>
+    </div>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+
+    <script>
+        function openCategoryModal() {
+            const m = document.getElementById('categoryModal');
+            if (m) m.classList.add('active');
+        }
+        function closeCategoryModal() {
+            const m = document.getElementById('categoryModal');
+            if (m) m.classList.remove('active');
+        }
+    </script>
+</h:body>
+</html>

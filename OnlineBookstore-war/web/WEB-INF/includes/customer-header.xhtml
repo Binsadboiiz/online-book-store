@@ -37,17 +37,17 @@
                         </span>
                         <h:form style="display: inline;">
                             <h:commandLink action="#{authBean.logout}" onclick="if (typeof clearSession === 'function') clearSession();" styleClass="btn btn-primary btn-sm" style="text-decoration: none;">
-                                <i class="bi bi-box-arrow-right"></i> Logout
+                                <i class="bi bi-box-arrow-right"></i>  Logout
                             </h:commandLink>
                         </h:form>
                     </div>
                 </ui:fragment>
                 <ui:fragment rendered="#{!authBean.loggedIn}">
                     <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        <i class="bi bi-box-arrow-in-right"></i>  Sign In
                     </a>
                     <a href="#{request.contextPath}/pages/auth/register.xhtml" class="btn btn-primary btn-sm">
-                        <i class="bi bi-person-plus"></i> Register
+                        <i class="bi bi-person-plus"></i>  Register
                     </a>
                 </ui:fragment>
             </div>
