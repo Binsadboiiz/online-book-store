@@ -115,7 +115,7 @@
                         <h:form style="display: inline;">
                             <h:commandLink action="#{cartBean.addToCart(bookDetailBean.book.id, 1)}" styleClass="btn btn-primary btn-lg" style="padding: 0.85rem 2rem; font-weight: 700;">
                                 <i class="bi bi-cart-plus" style="margin-right: 0.4rem;"></i> Add to Cart
-                                <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
+                                <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
                             </h:commandLink>
                         </h:form>
                     </div>

@@ -180,7 +180,9 @@
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
-                    <h:commandButton value="Save Account" action="#{adminUserBean.saveUser}" styleClass="btn btn-primary" onclick="closeUserModal();" />
+                    <h:commandButton value="Save Account" action="#{adminUserBean.saveUser}" styleClass="btn btn-primary" onclick="closeUserModal();">
+                        <f:ajax execute="@form" render=":globalMessagesPanel :userTablePanel" />
+                    </h:commandButton>
                 </div>
             </h:form>
         </div>

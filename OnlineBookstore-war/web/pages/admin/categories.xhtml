@@ -137,7 +137,9 @@
                 </div>
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
-                    <h:commandButton value="Save Category" action="#{adminCategoryBean.saveCategory}" styleClass="btn btn-primary" onclick="closeCategoryModal();" />
+                    <h:commandButton value="Save Category" action="#{adminCategoryBean.saveCategory}" styleClass="btn btn-primary" onclick="closeCategoryModal();">
+                        <f:ajax execute="@form" render=":globalMessagesPanel :categoryTablePanel" />
+                    </h:commandButton>
                 </div>
             </h:form>
         </div>

@@ -117,7 +117,9 @@
                 </div>
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeAuthorModal()">Cancel</button>
-                    <h:commandButton value="Save Author" action="#{adminAuthorBean.saveAuthor}" styleClass="btn btn-primary" onclick="closeAuthorModal();" />
+                    <h:commandButton value="Save Author" action="#{adminAuthorBean.saveAuthor}" styleClass="btn btn-primary" onclick="closeAuthorModal();">
+                        <f:ajax execute="@form" render=":globalMessagesPanel :authorTablePanel" />
+                    </h:commandButton>
                 </div>
             </h:form>
         </div>

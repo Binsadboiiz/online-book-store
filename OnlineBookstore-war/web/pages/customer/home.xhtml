@@ -117,7 +117,7 @@
                                             </div>
                                             <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="btn btn-secondary btn-sm">
                                                 <i class="bi bi-cart-plus"></i> Add
-                                                <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
+                                                <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
                                             </h:commandLink>
                                         </div>
                                     </div>
@@ -186,7 +186,7 @@
                                             </div>
                                             <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="btn btn-secondary btn-sm">
                                                 <i class="bi bi-cart-plus"></i> Add
-                                                <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
+                                                <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
                                             </h:commandLink>
                                         </div>
                                     </div>
@@ -233,7 +233,7 @@
                                 <h:form style="display: inline;">
                                     <h:commandLink action="#{cartBean.addToCart(catalogBean.selectedPreviewBook.id, 1)}" styleClass="btn btn-secondary btn-sm" onclick="closeModals();">
                                         <i class="bi bi-cart-plus"></i> Add to Cart
-                                        <f:ajax render=":globalMessagesPanel :headerAuthContainer" />
+                                        <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
                                     </h:commandLink>
                                 </h:form>
                             </div>

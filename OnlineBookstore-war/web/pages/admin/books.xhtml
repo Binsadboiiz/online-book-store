@@ -236,7 +236,9 @@
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancel</button>
-                    <h:commandButton value="Save Book" action="#{adminBookBean.saveBook}" styleClass="btn btn-primary" onclick="closeModals();" />
+                    <h:commandButton value="Save Book" action="#{adminBookBean.saveBook}" styleClass="btn btn-primary" onclick="closeModals();">
+                        <f:ajax execute="@form" render=":globalMessagesPanel :adminBookTablePanel" />
+                    </h:commandButton>
                 </div>
             </h:form>
         </div>
