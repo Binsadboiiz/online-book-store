@@ -54,6 +54,19 @@ public class OrderService implements IOrderService {
             throw new BadRequestException("Order request data cannot be null");
         }
 
+        if (request.getRecipientName() == null || request.getRecipientName().trim().isEmpty()) {
+            throw new BadRequestException("Recipient name is required and cannot be empty");
+        }
+        if (request.getRecipientPhone() == null || request.getRecipientPhone().trim().isEmpty()) {
+            throw new BadRequestException("Recipient phone number is required and cannot be empty");
+        }
+        if (request.getShippingAddress() == null || request.getShippingAddress().trim().isEmpty()) {
+            throw new BadRequestException("Shipping address is required and cannot be empty");
+        }
+        if (request.getPaymentMethod() == null || request.getPaymentMethod().trim().isEmpty()) {
+            throw new BadRequestException("Payment method is required");
+        }
+
         Users user = userRepository.findById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
@@ -210,6 +223,10 @@ public class OrderService implements IOrderService {
             throw new BadRequestException("Access denied: You can only cancel your own orders");
         }
 
+        if (isPaidAndDelivered(order)) {
+            throw new BadRequestException("Orders that are paid and delivered successfully cannot be modified or cancelled");
+        }
+
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
             throw new BadRequestException("Completed, delivered, or cancelled orders cannot be modified or cancelled");
@@ -269,6 +286,10 @@ public class OrderService implements IOrderService {
             throw new ResourceNotFoundException("Order not found");
         }
 
+        if (isPaidAndDelivered(order)) {
+            throw new BadRequestException("Orders that are paid and delivered successfully cannot be modified");
+        }
+
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
             throw new BadRequestException("Order with status '" + order.getStatus() + "' is completed, delivered, or cancelled and cannot be modified");
@@ -306,15 +327,24 @@ public class OrderService implements IOrderService {
             order.setPaymentStatus(request.getPaymentStatus().trim());
         }
 
-        if (request.getRecipientName() != null && !request.getRecipientName().trim().isEmpty()) {
+        if (request.getRecipientName() != null) {
+            if (request.getRecipientName().trim().isEmpty()) {
+                throw new BadRequestException("Recipient name cannot be empty");
+            }
             order.setRecipientName(request.getRecipientName().trim());
         }
 
-        if (request.getRecipientPhone() != null && !request.getRecipientPhone().trim().isEmpty()) {
+        if (request.getRecipientPhone() != null) {
+            if (request.getRecipientPhone().trim().isEmpty()) {
+                throw new BadRequestException("Recipient phone number cannot be empty");
+            }
             order.setRecipientPhone(request.getRecipientPhone().trim());
         }
 
-        if (request.getShippingAddress() != null && !request.getShippingAddress().trim().isEmpty()) {
+        if (request.getShippingAddress() != null) {
+            if (request.getShippingAddress().trim().isEmpty()) {
+                throw new BadRequestException("Shipping address cannot be empty");
+            }
             order.setShippingAddress(request.getShippingAddress().trim());
         }
 
@@ -344,6 +374,10 @@ public class OrderService implements IOrderService {
             throw new ResourceNotFoundException("Order not found");
         }
 
+        if (isPaidAndDelivered(order)) {
+            throw new BadRequestException("Orders that are paid and delivered successfully cannot be deleted");
+        }
+
         OrderStatus currentStatus = OrderStatus.fromString(order.getStatus());
         if (currentStatus != null && currentStatus.isTerminalState()) {
             throw new BadRequestException("Completed, delivered, or cancelled orders cannot be deleted");
@@ -365,6 +399,14 @@ public class OrderService implements IOrderService {
         }
 
         return ApiResponse.success("Order deleted successfully", null);
+    }
+
+    private boolean isPaidAndDelivered(Orders order) {
+        if (order == null) return false;
+        boolean isPaid = "PAID".equalsIgnoreCase(order.getPaymentStatus());
+        boolean isDelivered = OrderStatus.DELIVERED.name().equalsIgnoreCase(order.getStatus())
+                || "COMPLETED".equalsIgnoreCase(order.getStatus());
+        return isPaid && isDelivered;
     }
 
     private String generateOrderCode() {

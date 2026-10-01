@@ -76,6 +76,29 @@ public class AdminUserBean implements Serializable {
     }
 
     public void saveUser() {
+        if (userRequest == null) return;
+
+        if (userRequest.getUsername() == null || userRequest.getUsername().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Username is required and cannot be empty.", null));
+            return;
+        }
+        if (userRequest.getEmail() == null || userRequest.getEmail().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email address is required and cannot be empty.", null));
+            return;
+        }
+        if (userRequest.getFullName() == null || userRequest.getFullName().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Full name is required and cannot be empty.", null));
+            return;
+        }
+        if (selectedUserId == null && (userRequest.getPassword() == null || userRequest.getPassword().trim().isEmpty())) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Password is required for new accounts.", null));
+            return;
+        }
+
         if (selectedUserId != null && authBean != null && authBean.getCurrentUserId() != null
                 && authBean.getCurrentUserId().equals(selectedUserId)
                 && Boolean.FALSE.equals(userRequest.getActive())) {

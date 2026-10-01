@@ -147,6 +147,27 @@ public class CartBean implements Serializable {
             return null;
         }
 
+        if (recipientName == null || recipientName.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Recipient full name is required and cannot be empty.", null));
+            return null;
+        }
+        if (recipientPhone == null || recipientPhone.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Recipient phone number is required and cannot be empty.", null));
+            return null;
+        }
+        if (shippingAddress == null || shippingAddress.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Shipping address is required and cannot be empty.", null));
+            return null;
+        }
+        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Payment method is required.", null));
+            return null;
+        }
+
         try {
             CreateOrderRequest req = new CreateOrderRequest();
             req.setRecipientName(recipientName);

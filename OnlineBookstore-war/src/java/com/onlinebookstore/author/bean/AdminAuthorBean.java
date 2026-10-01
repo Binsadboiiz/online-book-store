@@ -66,6 +66,12 @@ public class AdminAuthorBean implements Serializable {
     }
 
     public void saveAuthor() {
+        if (authorRequest == null || authorRequest.getName() == null || authorRequest.getName().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Author name is required and cannot be empty."));
+            return;
+        }
+
         try {
             ApiResponse<AuthorResponse> res;
             if (selectedAuthorId == null) {

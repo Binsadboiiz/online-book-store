@@ -125,6 +125,27 @@ public class AdminBookBean implements Serializable {
 
     public void saveBook() {
         try {
+            if (bookRequest.getTitle() == null || bookRequest.getTitle().trim().isEmpty()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Book title is required and cannot be empty."));
+                return;
+            }
+            if (bookRequest.getPrice() == null || bookRequest.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Book price must be greater than 0."));
+                return;
+            }
+            if (bookRequest.getStockQuantity() == null || bookRequest.getStockQuantity() < 0) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Stock quantity cannot be negative."));
+                return;
+            }
+            if ("NEW".equalsIgnoreCase(authorMode) && (bookRequest.getNewAuthorName() == null || bookRequest.getNewAuthorName().trim().isEmpty())) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "New author full name is required."));
+                return;
+            }
+
             if ("NEW".equalsIgnoreCase(authorMode)) {
                 bookRequest.setAuthorId(null);
             } else {

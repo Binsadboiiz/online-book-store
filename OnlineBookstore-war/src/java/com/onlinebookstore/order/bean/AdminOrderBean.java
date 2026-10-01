@@ -113,6 +113,22 @@ public class AdminOrderBean implements Serializable {
     public void saveOrderDetails() {
         if (editOrderId == null) return;
 
+        if (editRecipientName == null || editRecipientName.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Recipient name cannot be empty."));
+            return;
+        }
+        if (editRecipientPhone == null || editRecipientPhone.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Recipient phone number cannot be empty."));
+            return;
+        }
+        if (editShippingAddress == null || editShippingAddress.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Shipping address cannot be empty."));
+            return;
+        }
+
         try {
             UpdateOrderStatusRequest req = new UpdateOrderStatusRequest();
             req.setStatus(editStatus);

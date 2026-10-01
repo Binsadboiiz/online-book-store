@@ -124,15 +124,22 @@
                                             <f:ajax execute="@this" render=":orderDetailsContent" />
                                         </h:commandLink>
 
-                                        <h:commandLink action="#{adminOrderBean.prepareEditOrder(o)}" styleClass="btn btn-primary btn-sm" onclick="openModal('editOrderModal');">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                            <f:ajax execute="@this" render=":editOrderForm" />
-                                        </h:commandLink>
+                                        <ui:fragment rendered="#{o.paymentStatus == 'PAID' and (o.status == 'DELIVERED' or o.status == 'COMPLETED')}">
+                                            <span class="badge" style="background-color: #64748b; color: #ffffff; padding: 0.35rem 0.65rem; font-size: 0.8rem;" title="Orders that are paid and delivered cannot be edited or deleted">
+                                                <i class="bi bi-lock-fill"></i> Locked
+                                            </span>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{!(o.paymentStatus == 'PAID' and (o.status == 'DELIVERED' or o.status == 'COMPLETED'))}">
+                                            <h:commandLink action="#{adminOrderBean.prepareEditOrder(o)}" styleClass="btn btn-primary btn-sm" onclick="openModal('editOrderModal');">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                                <f:ajax execute="@this" render=":editOrderForm" />
+                                            </h:commandLink>
 
-                                        <h:commandLink action="#{adminOrderBean.deleteOrder(o.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete order #{o.orderCode}?');">
-                                            <i class="bi bi-trash"></i>
-                                            <f:ajax execute="@this" render=":globalMessagesPanel :adminOrderTablePanel" />
-                                        </h:commandLink>
+                                            <h:commandLink action="#{adminOrderBean.deleteOrder(o.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete order #{o.orderCode}?');">
+                                                <i class="bi bi-trash"></i>
+                                                <f:ajax execute="@this" render=":globalMessagesPanel :adminOrderTablePanel" />
+                                            </h:commandLink>
+                                        </ui:fragment>
                                     </div>
                                 </td>
                             </tr>

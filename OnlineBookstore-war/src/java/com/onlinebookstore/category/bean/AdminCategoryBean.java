@@ -68,6 +68,12 @@ public class AdminCategoryBean implements Serializable {
     }
 
     public void saveCategory() {
+        if (categoryRequest == null || categoryRequest.getName() == null || categoryRequest.getName().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Category name is required and cannot be empty."));
+            return;
+        }
+
         try {
             ApiResponse<CategoryResponse> res;
             if (selectedCategoryId == null) {

@@ -29,7 +29,31 @@ public class RegisterBean implements Serializable {
     private AuthService authService;
 
     public String register() {
-        if (password == null || !password.equals(confirmPassword)) {
+        if (username == null || username.trim().isEmpty()) {
+            errorMessage = "Username is required and cannot be empty!";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, null));
+            return null;
+        }
+        if (email == null || email.trim().isEmpty()) {
+            errorMessage = "Email address is required and cannot be empty!";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, null));
+            return null;
+        }
+        if (fullName == null || fullName.trim().isEmpty()) {
+            errorMessage = "Full name is required and cannot be empty!";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, null));
+            return null;
+        }
+        if (password == null || password.isEmpty()) {
+            errorMessage = "Password is required!";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, null));
+            return null;
+        }
+        if (!password.equals(confirmPassword)) {
             errorMessage = "Passwords do not match!";
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, null));

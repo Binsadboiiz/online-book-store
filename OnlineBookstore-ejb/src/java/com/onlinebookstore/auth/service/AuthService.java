@@ -28,8 +28,20 @@ public class AuthService {
     private IUserRepository userRepository;
     
     public ApiResponse<UserResponse> register(RegisterRequest request) {
-        
-        if (request.getFullName() != null && request.getFullName().matches(".*[0-9].*")) {
+        if (request == null) {
+            throw new BadRequestException("Registration data cannot be null");
+        }
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+            throw new BadRequestException("Username is required and cannot be empty");
+        }
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("Email is required and cannot be empty");
+        }
+        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
+            throw new BadRequestException("Full name is required and cannot be empty");
+        }
+
+        if (request.getFullName().matches(".*[0-9].*")) {
             throw new BadRequestException("Full name cannot contain numbers");
         }
 
