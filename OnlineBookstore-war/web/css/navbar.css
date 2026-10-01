@@ -142,6 +142,21 @@
   transform: translateY(-1px);
 }
 
+/* Badge Pulse Animation */
+.badge.bg-primary {
+  background-color: var(--text-primary) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  transition: transform 0.25s ease;
+  animation: badgePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.6); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
 /* Header Action Buttons Focus & Hover */
 .nav-actions {
   display: flex;

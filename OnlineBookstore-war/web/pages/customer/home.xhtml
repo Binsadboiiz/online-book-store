@@ -15,17 +15,126 @@
     </ui:include>
 
     <main class="container">
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1 class="hero-title">Minimalist Knowledge Space.</h1>
-            <p class="hero-subtitle">Discover hand-picked books across technology, architecture, science, and literature in our clean monochrome catalog.</p>
-            <div style="display: flex; gap: 1rem;">
-                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary">
-                    <i class="bi bi-compass" style="margin-right: 0.4rem;"></i> Browse Catalog
-                </a>
-                <a href="#{request.contextPath}/pages/customer/cart.xhtml" class="btn btn-secondary">
-                    <i class="bi bi-cart3" style="margin-right: 0.4rem;"></i> View Cart
-                </a>
+        <!-- Hero Banner Carousel Section -->
+        <section class="hero-carousel">
+            <!-- Slide 1: Welcome & Overview -->
+            <div class="hero-slide hero-slide-1 active">
+                <div class="hero-content">
+                    <span class="hero-pill-badge">
+                        <i class="bi bi-stars"></i> Curated Collection 2026
+                    </span>
+                    <h1 class="hero-title">Minimalist Knowledge Space.</h1>
+                    <p class="hero-subtitle">Discover hand-picked titles across technology, architecture, science, and modern literature in our clean catalog.</p>
+                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                        <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary">
+                            <i class="bi bi-compass" style="margin-right: 0.4rem;"></i> Browse Catalog
+                        </a>
+                        <a href="#{request.contextPath}/pages/customer/cart.xhtml" class="btn btn-secondary">
+                            <i class="bi bi-cart3" style="margin-right: 0.4rem;"></i> View Cart
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-graphic">
+                    <div class="hero-graphic-card">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Curated</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Special Deals & Top Sellers -->
+            <div class="hero-slide hero-slide-2">
+                <div class="hero-content">
+                    <span class="hero-pill-badge">
+                        <i class="bi bi-fire"></i> Monthly Spotlight
+                    </span>
+                    <h1 class="hero-title">Top 10 Best-Selling Specials.</h1>
+                    <p class="hero-subtitle">Explore the most influential reads loved by our global community. Exclusive discounts updated weekly.</p>
+                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                        <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary" style="background: #ffffff; color: #09090b; border: none;">
+                            <i class="bi bi-lightning-charge-fill" style="margin-right: 0.4rem; color: #eab308;"></i> Explore Top Deals
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-graphic">
+                    <div class="hero-graphic-card" style="background: #27272a; border-color: #3f3f46;">
+                        <i class="bi bi-award-fill" style="color: #f59e0b;"></i>
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa;">Best Sellers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Membership Perks & Service -->
+            <div class="hero-slide hero-slide-3">
+                <div class="hero-content">
+                    <span class="hero-pill-badge">
+                        <i class="bi bi-shield-check"></i> Premium Reader Experience
+                    </span>
+                    <h1 class="hero-title">Fast Delivery &amp; Real-time Tracking.</h1>
+                    <p class="hero-subtitle">Enjoy seamless order progress updates, 100% genuine book guarantees, and instant customer care.</p>
+                    <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+                        <a href="#{request.contextPath}/pages/customer/orders.xhtml" class="btn btn-primary">
+                            <i class="bi bi-clock-history" style="margin-right: 0.4rem;"></i> Track Orders
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-graphic">
+                    <div class="hero-graphic-card">
+                        <i class="bi bi-truck"></i>
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Express</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Controls -->
+            <button type="button" class="hero-arrow prev" aria-label="Previous Slide"><i class="bi bi-chevron-left"></i></button>
+            <button type="button" class="hero-arrow next" aria-label="Next Slide"><i class="bi bi-chevron-right"></i></button>
+
+            <!-- Carousel Dots -->
+            <div class="hero-dots">
+                <span class="hero-dot active"></span>
+                <span class="hero-dot"></span>
+                <span class="hero-dot"></span>
+            </div>
+        </section>
+
+        <!-- Features Highlight Bar -->
+        <section class="features-bar">
+            <div class="feature-card">
+                <div class="feature-icon-wrap">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <div>
+                    <div class="feature-title">Express Delivery</div>
+                    <div class="feature-subtitle">Fast shipping to your doorstep</div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrap">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <div class="feature-title">100% Genuine</div>
+                    <div class="feature-subtitle">Authentic &amp; original editions</div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrap">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </div>
+                <div>
+                    <div class="feature-title">30-Day Easy Returns</div>
+                    <div class="feature-subtitle">Hassle-free return policy</div>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrap">
+                    <i class="bi bi-lock"></i>
+                </div>
+                <div>
+                    <div class="feature-title">Secure Checkout</div>
+                    <div class="feature-subtitle">Encrypted safe transactions</div>
+                </div>
             </div>
         </section>
 
