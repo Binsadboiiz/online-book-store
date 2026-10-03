@@ -143,32 +143,8 @@
     <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
 </h:panelGroup>
 
-        <!-- Search & Category Filter Toolbar -->
-        <section class="filter-bar" style="margin-bottom: 2rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color, #e4e4e7); box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
-            <h:form id="homeFilterForm">
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap; width: 100%; align-items: center;">
-                    <div class="search-box" style="flex: 1; min-width: 260px; position: relative;">
-                        <i class="bi bi-search" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
-                        <h:inputText value="#{catalogBean.searchQuery}" styleClass="input-field" placeholder="Search books by title, author, or ISBN..." style="width: 100%; padding-left: 2.5rem;">
-                            <f:ajax event="keyup" delay="300" listener="#{catalogBean.search}" render=":homeBookGridPanel" />
-                        </h:inputText>
-                    </div>
-                    <div style="display: flex; gap: 0.75rem;">
-                        <h:selectOneMenu value="#{catalogBean.selectedCategoryId}" styleClass="select-field" style="width: 190px;">
-                            <f:selectItem itemValue="#{null}" itemLabel="All Categories" />
-                            <f:selectItems value="#{catalogBean.categories}" var="c" itemValue="#{c.id}" itemLabel="#{c.name}" />
-                            <f:ajax event="change" listener="#{catalogBean.filterByCategory}" render=":homeBookGridPanel" />
-                        </h:selectOneMenu>
-                        <h:commandButton value="Filter" styleClass="btn btn-secondary">
-                            <f:ajax execute="@form" listener="#{catalogBean.search}" render=":homeBookGridPanel" />
-                        </h:commandButton>
-                    </div>
-                </div>
-            </h:form>
-        </section>
-
         <!-- Top 10 Best-Selling Books Section -->
-        <section style="margin-bottom: 3rem;">
+        <section style="margin-bottom: 3.5rem;">
             <div class="section-header" style="margin-bottom: 1.25rem;">
                 <div>
                     <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem;">
@@ -177,6 +153,9 @@
                     </h2>
                     <p class="section-desc">Most popular and highly requested titles by readers this month.</p>
                 </div>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">
+                    View Full Catalog <i class="bi bi-arrow-right" style="margin-left: 0.3rem;"></i>
+                </a>
             </div>
 
             <!-- Top 10 Grid -->
@@ -238,73 +217,126 @@
             </h:panelGroup>
         </section>
 
-        <!-- Catalog / Filtered Books Section -->
-        <section>
-            <div class="section-header" style="margin-bottom: 1.25rem;">
-                <div>
-                    <h2 class="section-title">Explore Catalog</h2>
-                    <p class="section-desc">Hand-selected recommendations across all genres and authors.</p>
+        <!-- Featured Book Spotlight (Editor's Choice Showcase) -->
+        <section class="spotlight-banner animate-on-scroll">
+            <div>
+                <span class="spotlight-pill-badge">
+                    <i class="bi bi-award-fill"></i> Editor's Choice Spotlight
+                </span>
+                <h2 class="spotlight-title">Clean Architecture: A Craftsman's Guide</h2>
+                <p class="spotlight-author">By Robert C. Martin (Uncle Bob) • Software Engineering Classic</p>
+                <p class="spotlight-desc">
+                    Master the timeless rules of software structure and design patterns. Essential reading for system architects, senior engineers, and passionate developers striving for clean, maintainable codebases.
+                </p>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-primary" style="background: #ffffff; color: #09090b; border: none; padding: 0.75rem 1.5rem;">
+                        <i class="bi bi-bag-check-fill" style="margin-right: 0.4rem;"></i> Explore Featured Books
+                    </a>
+                    <span style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-left: 0.5rem;">$45.00</span>
                 </div>
-                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">
-                    View All Catalog <i class="bi bi-arrow-right" style="margin-left: 0.3rem;"></i>
+            </div>
+            <div class="spotlight-cover-wrap">
+                <div class="book-cover-placeholder" style="color: #a1a1aa; padding: 1.5rem; text-align: center;">
+                    <i class="bi bi-journal-bookmark-fill" style="font-size: 3.5rem; color: #f59e0b; margin-bottom: 0.5rem;"></i>
+                    <span style="font-weight: 700; color: #fff;">Clean Architecture</span>
+                    <span style="font-size: 0.75rem; color: #a1a1aa;">Featured Edition</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Curated Reading Collections (Genre Showcase) -->
+        <section style="margin-bottom: 3.5rem;">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="section-title">Curated Reading Collections</h2>
+                    <p class="section-desc">Hand-picked genres tailored for curious minds and ambitious readers.</p>
+                </div>
+            </div>
+            <div class="genre-grid">
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="genre-card">
+                    <div class="genre-icon-wrap">
+                        <i class="bi bi-code-slash"></i>
+                    </div>
+                    <div class="genre-card-title">Software Engineering</div>
+                    <div class="genre-card-desc">Design patterns, clean code, and craftsmanship.</div>
+                    <div class="genre-card-link">Explore Genre <i class="bi bi-chevron-right"></i></div>
+                </a>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="genre-card">
+                    <div class="genre-icon-wrap">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div class="genre-card-title">System Architecture</div>
+                    <div class="genre-card-desc">Distributed systems, microservices &amp; cloud.</div>
+                    <div class="genre-card-link">Explore Genre <i class="bi bi-chevron-right"></i></div>
+                </a>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="genre-card">
+                    <div class="genre-icon-wrap">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div class="genre-card-title">Computer Science</div>
+                    <div class="genre-card-desc">Algorithms, data structures &amp; theory.</div>
+                    <div class="genre-card-link">Explore Genre <i class="bi bi-chevron-right"></i></div>
+                </a>
+                <a href="#{request.contextPath}/pages/customer/books.xhtml" class="genre-card">
+                    <div class="genre-icon-wrap">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="genre-card-title">Literature &amp; Science</div>
+                    <div class="genre-card-desc">Inspiring essays, biographies &amp; discoveries.</div>
+                    <div class="genre-card-link">Explore Genre <i class="bi bi-chevron-right"></i></div>
                 </a>
             </div>
+        </section>
 
-            <!-- Main Book Grid -->
-            <h:panelGroup id="homeBookGridPanel" layout="block">
-                <ui:fragment rendered="#{empty catalogBean.catalogBooks}">
-                    <div class="empty-state">
-                        <div class="empty-title">No Books Found</div>
-                        <p class="empty-desc">Try searching with a different keyword or selecting another category.</p>
+        <!-- Reader Community Testimonials -->
+        <section style="margin-bottom: 3rem;">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="section-title">What Readers Say</h2>
+                    <p class="section-desc">Honest reviews and experiences from our reading community.</p>
+                </div>
+            </div>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div>
+                        <div style="color: #f59e0b; margin-bottom: 0.75rem; font-size: 1rem;">★★★★★</div>
+                        <p class="testimonial-quote">"The curated book selection is exceptional. The site experience is clean, fast, and ordering took less than a minute!"</p>
                     </div>
-                </ui:fragment>
-                <ui:fragment rendered="#{not empty catalogBean.catalogBooks}">
-                    <div class="book-grid">
-                        <ui:repeat value="#{catalogBean.catalogBooks}" var="b">
-                            <div class="book-card" style="position: relative; cursor: pointer;">
-                                <h:form style="display: block;">
-                                    <h:commandLink action="#{catalogBean.selectBookForPreview(b.id)}" style="text-decoration: none; color: inherit; display: block;">
-                                        <f:ajax render=":detailModalPanel" onevent="handleBookPreviewModal" />
-                                        <div class="book-cover-wrap">
-                                            <ui:fragment rendered="#{not empty b.coverImage}">
-                                                <img src="#{b.coverImage}" alt="#{b.title}" class="book-cover" />
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty b.coverImage}">
-                                                <div class="book-cover-placeholder">
-                                                    <i class="bi bi-journal-text" style="font-size: 2.5rem;"></i>
-                                                    <span>No Cover</span>
-                                                </div>
-                                            </ui:fragment>
-                                        </div>
-                                        <div class="book-card-body">
-                                            <span class="book-category-badge">#{b.categoryName != null ? b.categoryName : 'General'}</span>
-                                            <h3 class="book-title">#{b.title}</h3>
-                                            <p class="book-author">By #{b.authorName != null ? b.authorName : 'Unknown Author'}</p>
-                                        </div>
-                                    </h:commandLink>
-                                    <div class="book-card-body" style="padding-top: 0;">
-                                        <div class="book-footer">
-                                            <div class="book-price">
-                                                <ui:fragment rendered="#{b.discountPrice != null and b.discountPrice &lt; b.price}">
-                                                    <span class="book-price-old">$#{b.price}</span>
-                                                    <strong>$#{b.discountPrice}</strong>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{b.discountPrice == null or b.discountPrice &gt;= b.price}">
-                                                    <strong>$#{b.price}</strong>
-                                                </ui:fragment>
-                                            </div>
-                                            <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="btn btn-secondary btn-sm">
-                                                <i class="bi bi-cart-plus"></i> Add
-                                                <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
-                                            </h:commandLink>
-                                        </div>
-                                    </div>
-                                </h:form>
-                            </div>
-                        </ui:repeat>
+                    <div class="testimonial-user">
+                        <div class="testimonial-avatar">JD</div>
+                        <div>
+                            <div class="testimonial-name">John Doe</div>
+                            <div class="testimonial-role">Verified Buyer • Senior Engineer</div>
+                        </div>
                     </div>
-                </ui:fragment>
-            </h:panelGroup>
+                </div>
+                <div class="testimonial-card">
+                    <div>
+                        <div style="color: #f59e0b; margin-bottom: 0.75rem; font-size: 1rem;">★★★★★</div>
+                        <p class="testimonial-quote">"Express delivery was shockingly quick. Received my hardcover copy in pristine condition within 24 hours."</p>
+                    </div>
+                    <div class="testimonial-user">
+                        <div class="testimonial-avatar">AS</div>
+                        <div>
+                            <div class="testimonial-name">Alice Smith</div>
+                            <div class="testimonial-role">Verified Buyer • Tech Lead</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div>
+                        <div style="color: #f59e0b; margin-bottom: 0.75rem; font-size: 1rem;">★★★★★</div>
+                        <p class="testimonial-quote">"Finally a minimalist bookstore with genuine book guarantees and smooth real-time order tracking. Highly recommended!"</p>
+                    </div>
+                    <div class="testimonial-user">
+                        <div class="testimonial-avatar">MK</div>
+                        <div>
+                            <div class="testimonial-name">Michael Chen</div>
+                            <div class="testimonial-role">Verified Buyer • Software Architect</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 

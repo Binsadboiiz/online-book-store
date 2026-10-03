@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:include src="/WEB-INF/includes/head.xhtml">
+    <ui:param name="title" value="403 - Access Denied" />
+</ui:include>
+
+<h:body style="background-color: var(--bg-main, #fafafa); display: flex; flex-direction: column; min-height: 100vh;">
+    <ui:include src="/WEB-INF/includes/customer-header.xhtml" />
+
+    <main class="container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 4rem 1rem;">
+        <div style="text-align: center; max-width: 520px; background: #ffffff; padding: 3rem 2rem; border-radius: 14px; border: 1px solid var(--border-color, #e4e4e7); box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+            <div style="width: 64px; height: 64px; background: #fef2f2; color: #dc2626; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.25rem;">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary, #09090b);">403 - Access Denied</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted, #71717a); line-height: 1.6; margin-bottom: 1.75rem;">
+                You do not have administrative privileges to access this page. Please log in with an administrator account or return to the main storefront.
+            </p>
+            <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+                <a href="#{request.contextPath}/pages/customer/home.xhtml" class="btn btn-primary">
+                    <i class="bi bi-house-door" style="margin-right: 0.4rem;"></i> Return to Storefront
+                </a>
+                <a href="#{request.contextPath}/pages/auth/login.xhtml" class="btn btn-secondary">
+                    <i class="bi bi-box-arrow-in-right" style="margin-right: 0.4rem;"></i> Switch Account
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <ui:include src="/WEB-INF/includes/footer.xhtml" />
+</h:body>
+</html>

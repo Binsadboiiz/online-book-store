@@ -38,7 +38,7 @@
         </ui:fragment>
 
         <ui:fragment rendered="#{bookDetailBean.book != null}">
-            <div class="card-detail-wrap" style="background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color, #e4e4e7);">
+            <div class="card-detail-wrap" style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color, #e4e4e7); box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
                 <div class="modal-grid" style="grid-template-columns: 280px 1fr; gap: 2rem;">
                     <div class="modal-cover-wrap">
                         <ui:fragment rendered="#{not empty bookDetailBean.book.coverImage}">
