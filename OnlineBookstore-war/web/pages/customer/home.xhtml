@@ -138,17 +138,37 @@
             </div>
         </section>
 
+        <!-- Trust Metrics Bar -->
+        <section class="metrics-bar animate-on-scroll">
+            <div class="metric-item">
+                <div class="metric-value">50,000+</div>
+                <div class="metric-label">Happy Readers</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">10,000+</div>
+                <div class="metric-label">Curated Titles</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">4.9 / 5.0</div>
+                <div class="metric-label">Average Rating</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">24h</div>
+                <div class="metric-label">Express Delivery</div>
+            </div>
+        </section>
+
         <!-- Messages Growl / Toast -->
         <h:panelGroup id="globalMessagesPanel" layout="block">
     <h:messages id="globalMessages" globalOnly="true" styleClass="alert-container" errorClass="alert alert-danger" infoClass="alert alert-success" warnClass="alert alert-warning" />
 </h:panelGroup>
 
-        <!-- Top 10 Best-Selling Books Section -->
+        <!-- Top 12 Best-Selling Books Section -->
         <section style="margin-bottom: 3.5rem;">
             <div class="section-header" style="margin-bottom: 1.25rem;">
                 <div>
                     <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: #fef2f2; color: #dc2626; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 1rem;">🔥 Top 10</span>
+                        <span style="background: #fef2f2; color: #dc2626; padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 1rem;">🔥 Top 12</span>
                         Best-Selling Books
                     </h2>
                     <p class="section-desc">Most popular and highly requested titles by readers this month.</p>
@@ -158,7 +178,7 @@
                 </a>
             </div>
 
-            <!-- Top 10 Grid -->
+            <!-- Top 12 Grid -->
             <h:panelGroup id="topSellingGridPanel" layout="block">
                 <ui:fragment rendered="#{empty catalogBean.topSellingBooks}">
                     <div class="empty-state">
@@ -185,11 +205,27 @@
                                                     <span>No Cover</span>
                                                 </div>
                                             </ui:fragment>
+                                            <div class="cover-quick-actions">
+                                                <h:commandLink action="#{catalogBean.selectBookForPreview(b.id)}" styleClass="quick-action-btn">
+                                                    <f:ajax render=":detailModalPanel" onevent="handleBookPreviewModal" />
+                                                    <i class="bi bi-eye"></i> Quick View
+                                                </h:commandLink>
+                                                <h:commandLink action="#{cartBean.addToCart(b.id, 1)}" styleClass="quick-action-btn">
+                                                    <i class="bi bi-cart-plus"></i> Add
+                                                    <f:ajax render=":globalMessagesPanel :cartBadgePanel :headerAuthContainer" />
+                                                </h:commandLink>
+                                            </div>
                                         </div>
                                         <div class="book-card-body">
                                             <span class="book-category-badge">#{b.categoryName != null ? b.categoryName : 'General'}</span>
                                             <h3 class="book-title">#{b.title}</h3>
                                             <p class="book-author">By #{b.authorName != null ? b.authorName : 'Unknown Author'}</p>
+                                            <div class="stock-progress-wrap">
+                                                <div class="stock-progress-bar">
+                                                    <div class="stock-progress-fill" style="width: 85%;"></div>
+                                                </div>
+                                                <div class="stock-progress-text"><i class="bi bi-fire"></i> 85% Sold • Fast Selling</div>
+                                            </div>
                                         </div>
                                     </h:commandLink>
                                     <div class="book-card-body" style="padding-top: 0;">
@@ -288,6 +324,39 @@
             </div>
         </section>
 
+        <!-- Author Spotlight Showcase Section -->
+        <section style="margin-bottom: 3.5rem;">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="section-title">Authors of the Month</h2>
+                    <p class="section-desc">Masterminds behind our most influential technology &amp; architecture books.</p>
+                </div>
+            </div>
+            <div class="author-grid">
+                <div class="author-card">
+                    <div class="author-avatar-wrap"><i class="bi bi-person-fill"></i></div>
+                    <div class="author-name">Robert C. Martin</div>
+                    <div class="author-role">Uncle Bob • Software Craftsman</div>
+                    <p class="author-quote">"Truth can only be found in one place: the code."</p>
+                    <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">Explore Books</a>
+                </div>
+                <div class="author-card">
+                    <div class="author-avatar-wrap"><i class="bi bi-person-fill"></i></div>
+                    <div class="author-name">Alex Xu</div>
+                    <div class="author-role">System Design Expert</div>
+                    <p class="author-quote">"Building scalable systems requires understanding simple building blocks."</p>
+                    <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">Explore Books</a>
+                </div>
+                <div class="author-card">
+                    <div class="author-avatar-wrap"><i class="bi bi-person-fill"></i></div>
+                    <div class="author-name">Martin Fowler</div>
+                    <div class="author-role">Refactoring &amp; Patterns Pioneer</div>
+                    <p class="author-quote">"Any fool can write code that a computer can understand. Good programmers write code that humans can understand."</p>
+                    <a href="#{request.contextPath}/pages/customer/books.xhtml" class="btn btn-secondary btn-sm">Explore Books</a>
+                </div>
+            </div>
+        </section>
+
         <!-- Reader Community Testimonials -->
         <section style="margin-bottom: 3rem;">
             <div class="section-header" style="margin-bottom: 1.5rem;">
@@ -336,6 +405,19 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- VIP Reader's Club Newsletter Card -->
+        <section class="newsletter-card animate-on-scroll">
+            <div class="newsletter-content">
+                <span class="newsletter-badge"><i class="bi bi-envelope-paper-heart-fill"></i> VIP Reader's Club</span>
+                <h2 class="newsletter-title">Get 15% OFF Your First Order</h2>
+                <p class="newsletter-desc">Subscribe to our weekly curated book digests, author interviews, and exclusive discount drops.</p>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); if (typeof showToast === 'function') showToast('Subscribed!', 'Thank you for joining our VIP Reader\'s Club.', 'success'); this.reset();">
+                    <input type="email" class="newsletter-input" placeholder="Enter your email address..." required="required" />
+                    <button type="submit" class="btn btn-primary" style="background: #ffffff; color: #09090b; border: none; font-weight: 700;">Subscribe Now</button>
+                </form>
             </div>
         </section>
     </main>

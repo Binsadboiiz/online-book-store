@@ -57,14 +57,14 @@ public class CatalogBean implements Serializable {
 
     public void loadTopSelling() {
         try {
-            ApiResponse<List<BookResponse>> res = bookService.getTopSellingBooks(10);
+            ApiResponse<List<BookResponse>> res = bookService.getTopSellingBooks(12);
             if (res != null && res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
                 topSellingBooks = res.getData();
             } else {
                 ApiResponse<List<BookResponse>> allRes = bookService.getBooks(null, null, null, null);
                 if (allRes != null && allRes.getData() != null) {
                     List<BookResponse> all = allRes.getData();
-                    topSellingBooks = all.size() > 10 ? all.subList(0, 10) : all;
+                    topSellingBooks = all.size() > 12 ? all.subList(0, 12) : all;
                 }
             }
         } catch (Exception e) {
